@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VocalClinic — Entrenamiento Vocal Inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Fira+Code:wght@400;500;600&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<style>
+:root {
+  --bg-deep: #060a14;
+  --bg-surface: #0c1220;
+  --bg-card: #111a2e;
+  --bg-card-hover: #162038;
+  --border: #1a2744;
+  --border-accent: #1e3a5f;
+  --accent: #00e5c3;
+  --accent-dim: rgba(0,229,195,0.15);
+  --accent-glow: rgba(0,229,195,0.3);
+  --blue: #3b82f6;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --green: #22c55e;
+  --purple: #a855f7;
+  --text-primary: #e2e8f0;
+  --text-secondary: #8a9bc0;
+  --text-muted: #4a5a7a;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Fira Code', monospace;
+  --font-body: 'Lexend', sans-serif;
+}
+.dark {}
+html:not(.dark) {
+  --bg-deep: #f0f2f7;
+  --bg-surface: #e8ecf4;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8f9fc;
+  --border: #d1d9e6;
+  --border-accent: #b0bdd0;
+  --accent: #00a88e;
+  --accent-dim: rgba(0,168,142,0.1);
+  --accent-glow: rgba(0,168,142,0.2);
+  --text-primary: #1a2240;
+  --text-secondary: #4a5a7a;
+  --text-muted: #8a9bc0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 0%, rgba(0,229,195,0.04) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 100%, rgba(59,130,246,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.app-header {
+  position: relative; z-index: 10;
+  padding: 16px 20px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.app-logo { display: flex; align-items: center; gap: 10px; }
+.app-logo .icon-circle {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), #3b82f6);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; flex-shrink: 0;
+}
+.app-logo h1 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); }
+.app-logo h1 span { color: var(--accent); }
+.header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.header-badge {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;
+  background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,229,195,0.2);
+}
+.session-timer { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); }
+.app-main {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-accent); }
+.card-title {
+  font-family: var(--font-body); font-weight: 600; font-size: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.card-title i { color: var(--accent); font-size: 0.8rem; }
+.welcome-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 70vh; text-align: center; gap: 24px; animation: fadeIn 0.8s ease;
+}
+.welcome-screen .big-icon {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--accent), #3b82f6);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 32px; color: #fff; box-shadow: 0 0 40px var(--accent-glow);
+}
+.welcome-screen h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
+.welcome-screen p { color: var(--text-secondary); max-width: 520px; font-size: 0.95rem; }
+.btn {
+  font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
+  padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: var(--accent); color: #060a14; }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.exercise-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.exercise-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-chip {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 3px 10px; border-radius: 20px;
+  background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border);
+}
+.meta-chip.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(0,229,195,0.3); }
+.exercise-instruction { font-size: 1.05rem; color: var(--text-primary); margin: 10px 0; line-height: 1.7; }
+.exercise-instruction strong { color: var(--accent); }
+.target-notes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.target-note {
+  font-family: var(--font-mono); font-size: 1rem; font-weight: 600;
+  padding: 6px 16px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0,229,195,0.15), rgba(59,130,246,0.1));
+  color: var(--accent); border: 1px solid rgba(0,229,195,0.3); cursor: pointer; transition: all 0.2s;
+}
+.target-note:hover, .target-note.playing { background: var(--accent); color: #060a14; box-shadow: 0 0 16px var(--accent-glow); }
+.adapted-badge {
+  font-size: 0.65rem; padding: 3px 10px; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15));
+  color: var(--purple); border: 1px solid rgba(168,85,247,0.3);
+  display: inline-flex; align-items: center; gap: 4px;
+  animation: fadeIn 0.5s ease;
+}
+.piano-wrapper { overflow-x: auto; padding: 8px 0 12px; -webkit-overflow-scrolling: touch; }
+.piano { display: flex; position: relative; height: 130px; min-width: fit-content; margin: 0 auto; }
+.key { position: relative; cursor: pointer; transition: all 0.1s; user-select: none; }
+.key-white {
+  width: 40px; height: 130px;
+  background: linear-gradient(to bottom, #f8f9fa, #e8ecf0);
+  border: 1px solid #c8d0dc; border-radius: 0 0 5px 5px; z-index: 1;
+}
+html:not(.dark) .key-white { background: linear-gradient(to bottom, #fff, #f0f2f5); border-color: #ccc; }
+.key-white:hover { background: linear-gradient(to bottom, #e0f7f3, #d0eee8); }
+.key-white.active, .key-white:active { background: linear-gradient(to bottom, #a0f0e0, #80e0d0); border-color: var(--accent); }
+.key-white.target { box-shadow: 0 0 12px var(--accent-glow); border-color: var(--accent); }
+.key-white.target::after {
+  content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+}
+.key-black {
+  width: 26px; height: 82px;
+  background: linear-gradient(to bottom, #2a2e38, #1a1e28);
+  border: 1px solid #0a0e14; border-radius: 0 0 4px 4px;
+  position: absolute; z-index: 2; margin-left: -13px;
+}
+.key-black:hover { background: linear-gradient(to bottom, #3a3e48, #2a2e38); }
+.key-black.active, .key-black:active { background: linear-gradient(to bottom, #00a88e, #008070); }
+.key-black.target { box-shadow: 0 0 10px var(--accent-glow); }
+.key-label {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); pointer-events: none; white-space: nowrap;
+}
+.key-black .key-label { color: #667; bottom: 4px; font-size: 0.5rem; }
+.viz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .viz-row { grid-template-columns: 1fr; } }
+.waveform-container { position: relative; background: var(--bg-deep); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+.waveform-container canvas { width: 100%; height: 120px; display: block; }
+.waveform-label { position: absolute; top: 6px; left: 8px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.pitch-meter { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 120px; background: var(--bg-deep); border-radius: 8px; border: 1px solid var(--border); padding: 12px; }
+.pitch-value { font-family: var(--font-mono); font-size: 2rem; font-weight: 600; color: var(--accent); line-height: 1; }
+.pitch-note { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); }
+.pitch-deviation { font-family: var(--font-mono); font-size: 0.75rem; padding: 2px 10px; border-radius: 12px; }
+.pitch-deviation.on-pitch { background: rgba(34,197,94,0.15); color: var(--green); }
+.pitch-deviation.sharp { background: rgba(245,158,11,0.15); color: var(--amber); }
+.pitch-deviation.flat { background: rgba(239,68,68,0.15); color: var(--red); }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.metric-item { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.metric-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.metric-value { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+.metric-unit { font-size: 0.7rem; color: var(--text-secondary); font-weight: 400; }
+.feedback-box { border-radius: 8px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.6; display: none; }
+.feedback-box.show { display: block; animation: slideUp 0.3s ease; }
+.feedback-box.correct { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
+.feedback-box.high { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+.feedback-box.low { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+.feedback-box .feedback-title { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.progress-track { width: 100%; height: 6px; background: var(--bg-deep); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue)); border-radius: 3px; transition: width 0.4s ease; }
+.attempt-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+.attempt-row { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--bg-deep); border-radius: 6px; font-family: var(--font-mono); font-size: 0.75rem; }
+.attempt-num { color: var(--text-muted); width: 28px; }
+.attempt-pitch { color: var(--accent); flex: 1; }
+.attempt-dev { width: 70px; text-align: right; }
+.ai-card {
+  background: var(--bg-card); border: 1px solid transparent;
+  border-radius: 12px; padding: 16px; position: relative; overflow: hidden;
+}
+.ai-card::before {
+  content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1px;
+  background: linear-gradient(135deg, var(--accent), var(--purple), var(--blue));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.6; transition: opacity 0.3s;
+}
+.ai-card:hover::before { opacity: 1; }
+.ai-card.analyzing::before { animation: aiGlow 2s ease-in-out infinite; }
+@keyframes aiGlow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.ai-card-title {
+  font-family: var(--font-body); font-weight: 600; font-size: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ai-card-title i { -webkit-text-fill-color: var(--purple); }
+.ai-loading { display: flex; align-items: center; gap: 10px; padding: 16px; color: var(--text-secondary); font-size: 0.85rem; }
+.ai-loading-dots { display: flex; gap: 4px; }
+.ai-loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: dotPulse 1.4s ease-in-out infinite; }
+.ai-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ai-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+.ai-content { font-size: 0.88rem; line-height: 1.75; color: var(--text-secondary); }
+.ai-content h3 { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 6px; }
+.ai-content p { margin-bottom: 8px; }
+.ai-content ul { padding-left: 20px; margin-bottom: 8px; }
+.ai-content li { margin-bottom: 4px; }
+.ai-content strong { color: var(--text-primary); }
+.ai-content blockquote { border-left: 3px solid var(--accent); padding: 8px 12px; margin: 8px 0; background: var(--accent-dim); border-radius: 0 6px 6px 0; }
+.alerts-container { display: flex; flex-direction: column; gap: 8px; }
+.alert-banner { padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 10px; animation: slideUp 0.3s ease; line-height: 1.5; }
+.alert-banner i { margin-top: 2px; flex-shrink: 0; }
+.alert-banner.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+.alert-banner.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+.alert-banner.info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); color: var(--blue); }
+.patterns-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pattern-badge { font-family: var(--font-mono); font-size: 0.65rem; padding: 4px 10px; border-radius: 14px; display: inline-flex; align-items: center; gap: 5px; letter-spacing: 0.02em; }
+.pattern-badge.hyperfunction { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.pattern-badge.hypofunction { background: rgba(59,130,246,0.12); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+.pattern-badge.instability { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.pattern-badge.fatigue { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+.pattern-badge.respiratory { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.25); }
+.pattern-badge.mismatch { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+.pattern-badge.ok { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.show { display: flex; }
+.modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 24px; animation: slideUp 0.3s ease; }
+.modal-content h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.modal-content h2 i { color: var(--accent); }
+.report-section { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.report-section:last-child { border-bottom: none; }
+.report-section h3 { font-weight: 600; font-size: 0.85rem; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+.report-section p, .report-section li { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+.report-section ul { padding-left: 20px; }
+.report-metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.report-metric { background: var(--bg-deep); border-radius: 6px; padding: 10px; }
+.report-metric .rlabel { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+.report-metric .rvalue { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+.mic-status { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); }
+.mic-status.active { color: var(--green); border-color: rgba(34,197,94,0.3); }
+.mic-status.inactive { color: var(--text-muted); border-color: var(--border); }
+.mic-status.demo { color: var(--amber); border-color: rgba(245,158,11,0.3); }
+.mic-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.mic-status.active .mic-dot { animation: pulse 1.5s infinite; }
+.control-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@media (max-width: 480px) {
+  .app-header { padding: 12px 14px; }
+  .app-logo h1 { font-size: 1.1rem; }
+  .app-main { padding: 10px; gap: 10px; }
+  .card, .ai-card { padding: 12px; }
+  .key-white { width: 32px; height: 110px; }
+  .key-black { width: 22px; height: 68px; margin-left: -11px; }
+  .piano { height: 110px; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .welcome-screen h2 { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-logo">
+    <div class="icon-circle"><i class="fas fa-wave-square"></i></div>
+    <h1>Vocal<span>Clinic</span></h1>
+  </div>
+  <div class="header-controls">
+    <span class="session-timer" id="sessionTimer">00:00</span>
+    <span class="header-badge" id="levelBadge">NIVEL 1</span>
+    <div class="mic-status inactive" id="micStatus">
+      <span class="mic-dot"></span>
+      <span id="micLabel">MIC OFF</span>
+    </div>
+  </div>
+</header>
+
+<div class="app-main" id="welcomeView">
+  <div class="welcome-screen">
+    <div class="big-icon"><i class="fas fa-microphone-lines"></i></div>
+    <h2>Sistema de Entrenamiento Vocal Inteligente</h2>
+    <p>Herramienta clínica de entrenamiento vocal con piano digital, análisis en tiempo real y adaptación automática de ejercicios. Integra detección de patrones funcionales, feedback clínico y seguimiento de progreso.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center;">
+      <button class="btn btn-primary" onclick="startSession(true)">
+        <i class="fas fa-microphone"></i> Iniciar con Micrófono
+      </button>
+      <button class="btn btn-secondary" onclick="startSession(false)">
+        <i class="fas fa-play"></i> Modo Demostración
+      </button>
+      <span style="font-size:0.75rem;color:var(--text-muted);max-width:380px;text-align:center;">
+        El modo demostración simula el análisis vocal para explorar la interfaz sin micrófono.
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="app-main" id="sessionView" style="display:none;">
+  <div class="card" id="alertsCard" style="display:none;">
+    <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--amber);"></i> ALERTAS CLÍNICAS</div>
+    <div class="alerts-container" id="alertsContainer"></div>
+  </div>
+
+  <div class="card" id="exerciseCard">
+    <div class="exercise-header">
+      <div class="card-title"><i class="fas fa-music"></i> EJERCICIO ACTUAL <span class="adapted-badge" id="adaptedBadge" style="display:none;"><i class="fas fa-brain"></i> ADAPTADO POR IA</span></div>
+      <div class="exercise-meta">
+        <span class="meta-chip active" id="chipType">SOSTENIDO</span>
+        <span class="meta-chip" id="chipVowel">/a/</span>
+        <span class="meta-chip" id="chipIntensity">SUAVE</span>
+        <span class="meta-chip" id="chipReps">&times;3</span>
+      </div>
+    </div>
+    <div class="exercise-instruction" id="exerciseInstruction"></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:0.75rem;color:var(--text-muted);">NOTAS OBJETIVO:</span>
+      <div class="target-notes" id="targetNotes"></div>
+    </div>
+    <div style="margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-bottom:4px;">
+        <span id="progressLabel">Ejercicio 1 de 8</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fas fa-guitar"></i> PIANO DE REFERENCIA</div>
+    <div class="piano-wrapper"><div class="piano" id="pianoKeyboard"></div></div>
+    <div class="control-row" style="margin-top:10px;">
+      <button class="btn btn-primary btn-sm" onclick="playTargetNotes()"><i class="fas fa-play"></i> Reproducir Objetivo</button>
+      <button class="btn btn-secondary btn-sm" id="btnAttempt" onclick="startAttempt()"><i class="fas fa-circle" style="color:var(--red);font-size:0.6rem;"></i> Iniciar Intento</button>
+      <button class="btn btn-secondary btn-sm" id="btnStopAttempt" onclick="stopAttempt()" style="display:none;"><i class="fas fa-stop"></i> Detener</button>
+      <button class="btn btn-secondary btn-sm" onclick="skipExercise()"><i class="fas fa-forward"></i> Siguiente</button>
+    </div>
+  </div>
+
+  <div class="viz-row">
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="waveform-container">
+        <span class="waveform-label">FORMA DE ONDA</span>
+        <canvas id="waveformCanvas"></canvas>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="pitch-meter" id="pitchMeter">
+        <div class="pitch-value" id="pitchHz">&mdash;</div>
+        <div class="pitch-note" id="pitchNoteName">Esperando señal...</div>
+        <div class="pitch-deviation on-pitch" id="pitchDev" style="display:none;">±0 cents</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fas fa-chart-bar"></i> MÉTRICAS EN TIEMPO REAL</div>
+    <div class="metrics-grid" id="metricsGrid">
+      <div class="metric-item"><div class="metric-label">Intensidad</div><div class="metric-value" id="mIntensity">&mdash; <span class="metric-unit">dB</span></div></div>
+      <div class="metric-item"><div class="metric-label">Jitter</div><div class="metric-value" id="mJitter">&mdash; <span class="metric-unit">%</span></div></div>
+      <div class="metric-item"><div class="metric-label">Shimmer</div><div class="metric-value" id="mShimmer">&mdash; <span class="metric-unit">%</span></div></div>
+      <div class="metric-item"><div class="metric-label">HNR</div><div class="metric-value" id="mHNR">&mdash; <span class="metric-unit">dB</span></div></div>
+      <div class="metric-item"><div class="metric-label">Duración</div><div class="metric-value" id="mDuration">&mdash; <span class="metric-unit">s</span></div></div>
+      <div class="metric-item"><div class="metric-label">Estabilidad</div><div class="metric-value" id="mStability">&mdash; <span class="metric-unit">%</span></div></div>
+    </div>
+    <div class="patterns-row" id="patternsRow" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fas fa-comment-dots"></i> FEEDBACK CLÍNICO</div>
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-title"><i class="fas fa-info-circle"></i> <span id="feedbackTitle"></span></div>
+      <div id="feedbackText"></div>
+    </div>
+    <div id="noFeedbackYet" style="font-size:0.85rem;color:var(--text-muted);">Realice un intento para recibir feedback clínico.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="fas fa-list-ol"></i> HISTORIAL DE INTENTOS</div>
+    <div class="attempt-list" id="attemptList">
+      <div style="font-size:0.8rem;color:var(--text-muted);">Sin intentos registrados aún.</div>
+    </div>
+  </div>
+
+  <div class="control-row" style="justify-content:flex-end;">
+    <button class="btn btn-secondary" onclick="endSession()"><i class="fas fa-file-medical"></i> Generar Informe Final</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reportModal">
+  <div class="modal-content" id="reportContent"></div>
+</div>
+
+<script>
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.documentElement.classList.add('dark');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  e.matches ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+});
+
+var NOTES_SPANISH = { C:'Do', D:'Re', E:'Mi', F:'Fa', G:'Sol', A:'La', B:'Si' };
+var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var A4_FREQ = 440;
+
+function noteToFreq(note, octave) {
+  var idx = NOTE_NAMES.indexOf(note);
+  var semitones = (octave - 4) * 12 + (idx - 9);
+  return A4_FREQ * Math.pow(2, semitones / 12);
+}
+
+function freqToNoteInfo(freq) {
+  if (freq <= 0) return { note:'—', octave:0, cents:0, spanish:'—' };
+  var semitones = 12 * Math.log2(freq / A4_FREQ);
+  var rounded = Math.round(semitones);
+  var cents = Math.round((semitones - rounded) * 100);
+  var noteIdx = ((rounded % 12) + 12 + 9) % 12;
+  var octave = Math.floor((rounded + 9) / 12) + 4;
+  var noteName = NOTE_NAMES[noteIdx];
+  var base = noteName.replace('#','');
+  var spanish = (NOTES_SPANISH[base] || base) + (noteName.includes('#') ? '#' : '');
+  return { note: noteName, octave, cents, spanish: spanish + octave };
+}
+
+function spanishToNote(spanish) {
+  var map = { 'Do':'C','Re':'D','Mi':'E','Fa':'F','Sol':'G','La':'A','Si':'B' };
+  var match = spanish.match(/^(Do|Re|Mi|Fa|Sol|La|Si)(#?)(\d)$/);
+  if (!match) return null;
+  return { note: map[match[1]] + match[2], octave: parseInt(match[3]) };
+}
+
+var BASE_EXERCISES = [
+  { id:1, type:'sostenido', notes:['Do4'], vowel:'/a/', duration:3, intensity:'suave', reps:3, level:1, adapted:false,
+    instruction:'Mantenga la vocal <strong>/a/</strong> sobre la nota <strong>Do4</strong> durante <strong>3 segundos</strong> a intensidad <strong>suave</strong>.' },
+  { id:2, type:'sostenido', notes:['Re4'], vowel:'/i/', duration:3, intensity:'suave', reps:3, level:1, adapted:false,
+    instruction:'Emita la vocal <strong>/i/</strong> sobre la nota <strong>Re4</strong> durante <strong>3 segundos</strong>. Mantenga intensidad <strong>suave</strong> y tono estable.' },
+  { id:3, type:'sostenido', notes:['Mi4'], vowel:'/u/', duration:4, intensity:'media', reps:3, level:1, adapted:false,
+    instruction:'Produzca la vocal <strong>/u/</strong> en la nota <strong>Mi4</strong> durante <strong>4 segundos</strong> con intensidad <strong>media</strong>.' },
+  { id:4, type:'staccato', notes:['Do4','Re4','Mi4'], vowel:'"mi"', duration:1, intensity:'media', reps:4, level:2, adapted:false,
+    instruction:'Emita la sílaba <strong>"mi"</strong> en staccato sobre las notas <strong>Do4 → Re4 → Mi4</strong>. Golpes cortos (1s cada uno), intensidad <strong>media</strong>.' },
+  { id:5, type:'escala', notes:['Do4','Re4','Mi4','Fa4','Sol4'], vowel:'/a/', duration:2, intensity:'media', reps:2, level:2, adapted:false,
+    instruction:'Realice la escala ascendente <strong>Do4→Re4→Mi4→Fa4→Sol4</strong> con vocal <strong>/a/</strong>, 2 segundos por nota, intensidad <strong>media</strong>.' },
+  { id:6, type:'glissando', notes:['Do4','Sol4'], vowel:'/a/', duration:5, intensity:'media', reps:3, level:2, adapted:false,
+    instruction:'Ejecute un glissando ascendente de <strong>Do4 a Sol4</strong> con vocal <strong>/a/</strong> en <strong>5 segundos</strong>, manteniendo transición fluida.' },
+  { id:7, type:'sostenido', notes:['La3'], vowel:'/a/', duration:5, intensity:'fuerte', reps:3, level:3, adapted:false,
+    instruction:'Sostenga <strong>/a/</strong> en <strong>La3</strong> durante <strong>5 segundos</strong> a intensidad <strong>fuerte</strong>. Controle la presión subglótica.' },
+  { id:8, type:'escala', notes:['Sol4','Fa4','Mi4','Re4','Do4'], vowel:'"nu"', duration:2, intensity:'suave', reps:2, level:3, adapted:false,
+    instruction:'Escala descendente <strong>Sol4→Fa4→Mi4→Re4→Do4</strong> con sílaba <strong>"nu"</strong>, 2 segundos por nota, intensidad <strong>suave</strong>.' },
+];
+
+var state = {
+  audioCtx: null, analyser: null, micStream: null, micMode: false, demoMode: false,
+  sessionActive: false, currentExercise: 0, attemptActive: false, attemptNum: 0,
+  attemptStart: 0, sessionStart: 0, timerInterval: null, animFrame: null,
+  pitchHistory: [], intensityHistory: [], allResults: [], exerciseResults: [],
+  exerciseQueue: [], sessionPatterns: [], cumulativeAlerts: [], exerciseSummaries: [],
+};
+
+function getAudioCtx() {
+  if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
+  return state.audioCtx;
+}
+
+function playNote(noteName, octave, duration) {
+  var ctx = getAudioCtx();
+  var freq = noteToFreq(noteName, octave);
+  var now = ctx.currentTime;
+  var gain = ctx.createGain();
+  gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.15, now + 0.15);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  [1,2,3,4,6].forEach(function(h,i) {
+    var osc = ctx.createOscillator();
+    var hGain = ctx.createGain();
+    hGain.gain.value = [1,0.5,0.25,0.12,0.06][i];
+    osc.type = 'sine'; osc.frequency.value = freq * h;
+    osc.connect(hGain); hGain.connect(gain);
+    osc.start(now); osc.stop(now + duration);
+  });
+}
+
+function playTargetNotes() {
+  var ex = getCurrentExercise();
+  if (!ex) return;
+  var delay = 0;
+  ex.notes.forEach(function(n) {
+    var p = spanishToNote(n);
+    if (p) {
+      setTimeout(function() {
+        playNote(p.note, p.octave, 1.2);
+        highlightKey(p.note + p.octave, 1200);
+      }, delay);
+      delay += 1300;
+    }
+  });
+}
+
+function buildPiano() {
+  var container = document.getElementById('pianoKeyboard');
+  container.innerHTML = '';
+  var whites = [
+    {n:'C',o:3},{n:'D',o:3},{n:'E',o:3},{n:'F',o:3},{n:'G',o:3},{n:'A',o:3},{n:'B',o:3},
+    {n:'C',o:4},{n:'D',o:4},{n:'E',o:4},{n:'F',o:4},{n:'G',o:4},{n:'A',o:4},{n:'B',o:4},
+    {n:'C',o:5}
+  ];
+  var wi = 0;
+  whites.forEach(function(wn) {
+    var key = document.createElement('div');
+    key.className = 'key key-white';
+    key.dataset.note = wn.n + wn.o;
+    var label = document.createElement('span');
+    label.className = 'key-label';
+    label.textContent = (NOTES_SPANISH[wn.n] || wn.n) + wn.o;
+    key.appendChild(label);
+    key.addEventListener('pointerdown', function(e) {
+      e.preventDefault(); playNote(wn.n, wn.o, 1.5);
+      key.classList.add('active');
+      setTimeout(function() { key.classList.remove('active'); }, 300);
+    });
+    container.appendChild(key);
+    var ni = NOTE_NAMES.indexOf(wn.n);
+    if ([0,2,5,7,9].includes(ni) && !(wn.n === 'C' && wn.o === 5)) {
+      var sn = NOTE_NAMES[ni + 1];
+      var bkey = document.createElement('div');
+      bkey.className = 'key key-black';
+      bkey.dataset.note = sn + wn.o;
+      bkey.style.left = (wi * 40 + 27) + 'px';
+      var bl = document.createElement('span');
+      bl.className = 'key-label';
+      bl.textContent = (NOTES_SPANISH[wn.n] || wn.n) + '#';
+      bkey.appendChild(bl);
+      bkey.addEventListener('pointerdown', function(e) {
+        e.preventDefault(); playNote(sn, wn.o, 1.5);
+        bkey.classList.add('active');
+        setTimeout(function() { bkey.classList.remove('active'); }, 300);
+      });
+      container.appendChild(bkey);
+    }
+    wi++;
+  });
+}
+
+function highlightKey(noteId, ms) {
+  document.querySelectorAll('.key').forEach(function(k) {
+    if (k.dataset.note === noteId) {
+      k.classList.add('active');
+      setTimeout(function() { k.classList.remove('active'); }, ms);
+    }
+  });
+}
+
+function updateTargetKeys() {
+  document.querySelectorAll('.key').forEach(function(k) { k.classList.remove('target'); });
+  var ex = getCurrentExercise();
+  if (!ex) return;
+  ex.notes.forEach(function(n) {
+    var p = spanishToNote(n);
+    if (p) {
+      var noteId = p.note + p.octave;
+      document.querySelectorAll('.key').forEach(function(k) {
+        if (k.dataset.note === noteId) k.classList.add('target');
+      });
+    }
+  });
+}
+
+async function initMicrophone() {
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.micStream = stream;
+    var ctx = getAudioCtx();
+    state.analyser = ctx.createAnalyser();
+    state.analyser.fftSize = 4096;
+    state.analyser.smoothingTimeConstant = 0.8;
+    ctx.createMediaStreamSource(stream).connect(state.analyser);
+    state.micMode = true;
+    updateMicStatus('active', 'MIC ON');
+    return true;
+  } catch(e) { return false; }
+}
+
+function updateMicStatus(cls, text) {
+  var el = document.getElementById('micStatus');
+  el.className = 'mic-status ' + cls;
+  document.getElementById('micLabel').textContent = text;
+}
+
+function autoCorrelate(buf, sampleRate) {
+  var SIZE = buf.length;
+  var rms = 0;
+  for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.01) return -1;
+  var r1=0, r2=SIZE-1, thres=0.2;
+  for (var i=0; i<SIZE/2; i++) { if (Math.abs(buf[i]) < thres) { r1=i; break; } }
+  for (var i=1; i<SIZE/2; i++) { if (Math.abs(buf[SIZE-i]) < thres) { r2=SIZE-i; break; } }
+  buf = buf.slice(r1, r2);
+  var newSize = buf.length;
+  if (newSize < 2) return -1;
+  var c = new Float32Array(newSize);
+  for (var i=0; i<newSize; i++) for (var j=0; j<newSize-i; j++) c[i] += buf[j]*buf[j+i];
+  var d=0;
+  while (d < newSize-1 && c[d] > c[d+1]) d++;
+  var maxval=-1, maxpos=-1;
+  for (var i=d; i<newSize; i++) if (c[i] > maxval) { maxval=c[i]; maxpos=i; }
+  if (maxpos<1 || maxpos>=newSize-1) return -1;
+  var x1=c[maxpos-1], x2=c[maxpos], x3=c[maxpos+1];
+  var a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
+  var T0 = maxpos;
+  if (a) T0 = T0 - b/(2*a);
+  return sampleRate / T0;
+}
+
+function getRMS(buf) {
+  var sum=0;
+  for (var i=0; i<buf.length; i++) sum+=buf[i]*buf[i];
+  return Math.sqrt(sum/buf.length);
+}
+
+function drawWaveform(buf) {
+  var canvas = document.getElementById('waveformCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  var w = rect.width, h = rect.height;
+  ctx.fillStyle = '#060a14';
+  ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = 'rgba(0,229,195,0.15)'; ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+  if (!buf || buf.length === 0) return;
+  ctx.strokeStyle = '#00e5c3'; ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#00e5c3'; ctx.shadowBlur = 4;
+  ctx.beginPath();
+  var sliceWidth = w / buf.length, x = 0;
+  for (var i=0; i<buf.length; i++) {
+    var v = buf[i]*0.5+0.5, yy = v*h;
+    if (i===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy);
+    x += sliceWidth;
+  }
+  ctx.stroke(); ctx.shadowBlur = 0;
+}
+
+function simulateAnalysis() {
+  var ex = getCurrentExercise();
+  if (!ex) return null;
+  var t = spanishToNote(ex.notes[0]);
+  if (!t) return null;
+  var targetFreq = noteToFreq(t.note, t.octave);
+  var dev = (Math.random()-0.5)*60;
+  var freq = targetFreq * Math.pow(2, dev/1200);
+  var base = ex.intensity==='suave'?55:ex.intensity==='media'?65:75;
+  return {
+    pitch: freq, cents: Math.round(dev),
+    intensity: Math.round((base+Math.random()*10)*10)/10,
+    jitter: Math.round((0.3+Math.random()*1.8)*100)/100,
+    shimmer: Math.round((1.5+Math.random()*4)*100)/100,
+    hnr: Math.round((15+Math.random()*12)*10)/10,
+    stability: Math.round(70+Math.random()*25),
+    duration: Math.round((ex.duration*(0.7+Math.random()*0.4))*10)/10,
+    noteInfo: freqToNoteInfo(freq), targetFreq
+  };
+}
+
+function generateDemoWaveform() {
+  var len=1024, buf=new Float32Array(len), freq=5+Math.random()*10;
+  for (var i=0; i<len; i++) buf[i] = Math.sin(2*Math.PI*freq*i/len)*(0.3+Math.random()*0.2)+(Math.random()-0.5)*0.05;
+  return buf;
+}
+
+var analysisBuffer = null;
+function analysisLoop() {
+  if (!state.attemptActive) return;
+  if (state.micMode && state.analyser) {
+    var bufLen = state.analyser.fftSize;
+    if (!analysisBuffer || analysisBuffer.length !== bufLen) analysisBuffer = new Float32Array(bufLen);
+    state.analyser.getFloatTimeDomainData(analysisBuffer);
+    drawWaveform(analysisBuffer);
+    var ctx2 = getAudioCtx();
+    var pitch = autoCorrelate(analysisBuffer, ctx2.sampleRate);
+    var rms = getRMS(analysisBuffer);
+    var dB = rms>0 ? Math.round(20*Math.log10(rms)+90) : 0;
+    if (pitch>0 && pitch<2000) {
+      state.pitchHistory.push(pitch);
+      state.intensityHistory.push(dB);
+      var info = freqToNoteInfo(pitch);
+      updatePitchDisplay(pitch, info);
+      document.getElementById('mIntensity').innerHTML = dB + ' <span class="metric-unit">dB</span>';
+      if (state.pitchHistory.length > 5) {
+        var recent = state.pitchHistory.slice(-20);
+        var mean = recent.reduce((a,b)=>a+b,0)/recent.length;
+        var variance = recent.reduce((a,b)=>a+(b-mean)*(b-mean),0)/recent.length;
+        var stab = Math.max(0,Math.min(100,Math.round(100-Math.sqrt(variance)*2)));
+        document.getElementById('mStability').innerHTML = stab + ' <span class="metric-unit">%</span>';
+      }
+    }
+  }
+  var elapsed = (Date.now()-state.attemptStart)/1000;
+  document.getElementById('mDuration').innerHTML = elapsed.toFixed(1)+' <span class="metric-unit">s</span>';
+  state.animFrame = requestAnimationFrame(analysisLoop);
+}
+
+function updatePitchDisplay(pitch, info) {
+  document.getElementById('pitchHz').textContent = Math.round(pitch)+' Hz';
+  document.getElementById('pitchNoteName').textContent = info.spanish;
+  var devEl = document.getElementById('pitchDev');
+  devEl.style.display='inline-block';
+  devEl.textContent = (info.cents>=0?'+':'')+info.cents+' cents';
+  if (Math.abs(info.cents)<15) devEl.className='pitch-deviation on-pitch';
+  else if (info.cents>0) devEl.className='pitch-deviation sharp';
+  else devEl.className='pitch-deviation flat';
+}
+
+function getCurrentExercise() { return state.exerciseQueue[state.currentExercise] || null; }
+
+async function startSession(withMic) {
+  if (withMic) {
+    var ok = await initMicrophone();
+    if (!ok) { state.demoMode=true; updateMicStatus('demo','DEMO'); }
+  } else { state.demoMode=true; updateMicStatus('demo','DEMO'); }
+  state.sessionActive=true; state.currentExercise=0; state.allResults=[]; state.exerciseSummaries=[];
+  state.exerciseQueue = BASE_EXERCISES.map(ex => Object.assign({},ex));
+  state.sessionStart = Date.now();
+  document.getElementById('welcomeView').style.display='none';
+  document.getElementById('sessionView').style.display='flex';
+  document.getElementById('alertsCard').style.display='none';
+  buildPiano(); loadExercise();
+  state.timerInterval = setInterval(function() {
+    var e=Math.floor((Date.now()-state.sessionStart)/1000);
+    document.getElementById('sessionTimer').textContent=String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0');
+  }, 1000);
+}
+
+function loadExercise() {
+  var ex = getCurrentExercise();
+  if (!ex) { endSession(); return; }
+  state.exerciseResults=[]; state.attemptNum=0;
+  document.getElementById('chipType').textContent=ex.type.toUpperCase();
+  document.getElementById('chipVowel').textContent=ex.vowel;
+  document.getElementById('chipIntensity').textContent=ex.intensity.toUpperCase();
+  document.getElementById('chipReps').textContent='\u00d7'+ex.reps;
+  document.getElementById('exerciseInstruction').innerHTML=ex.instruction;
+  document.getElementById('levelBadge').textContent='NIVEL '+(ex.level||1);
+  document.getElementById('adaptedBadge').style.display=ex.adapted?'inline-flex':'none';
+  var tn=document.getElementById('targetNotes'); tn.innerHTML='';
+  ex.notes.forEach(function(n) {
+    var chip=document.createElement('div'); chip.className='target-note'; chip.textContent=n;
+    chip.addEventListener('click',function() {
+      var p=spanishToNote(n);
+      if (p) { playNote(p.note,p.octave,1.5); chip.classList.add('playing'); setTimeout(()=>chip.classList.remove('playing'),1200); }
+    });
+    tn.appendChild(chip);
+  });
+  updateTargetKeys();
+  var total=state.exerciseQueue.length, pct=Math.round((state.currentExercise/total)*100);
+  document.getElementById('progressLabel').textContent='Ejercicio '+(state.currentExercise+1)+' de '+total;
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+  resetDisplays();
+}
+
+function resetDisplays() {
+  document.getElementById('pitchHz').textContent='\u2014';
+  document.getElementById('pitchNoteName').textContent='Esperando señal...';
+  document.getElementById('pitchDev').style.display='none';
+  ['mIntensity','mJitter','mShimmer','mHNR','mDuration','mStability'].forEach(function(id) {
+    var u=id==='mIntensity'||id==='mHNR'?'dB':id==='mDuration'?'s':'%';
+    document.getElementById(id).innerHTML='\u2014 <span class="metric-unit">'+u+'</span>';
+  });
+  var fb=document.getElementById('feedbackBox');
+  fb.classList.remove('show','correct','high','low');
+  document.getElementById('noFeedbackYet').style.display='block';
+  document.getElementById('attemptList').innerHTML='<div style="font-size:0.8rem;color:var(--text-muted);">Sin intentos registrados aún.</div>';
+  document.getElementById('patternsRow').style.display='none';
+  document.getElementById('patternsRow').innerHTML='';
+  document.getElementById('alertsCard').style.display='none';
+}
+
+function startAttempt() {
+  if (state.attemptActive) return;
+  var ex=getCurrentExercise(); if (!ex) return;
+  state.attemptActive=true; state.attemptNum++; state.attemptStart=Date.now();
+  state.pitchHistory=[]; state.intensityHistory=[];
+  document.getElementById('btnAttempt').style.display='none';
+  document.getElementById('btnStopAttempt').style.display='inline-flex';
+  if (state.micMode) {
+    state.animFrame=requestAnimationFrame(analysisLoop);
+  } else if (state.demoMode) {
+    var demoInt=setInterval(function() {
+      if (!state.attemptActive) { clearInterval(demoInt); return; }
+      drawWaveform(generateDemoWaveform());
+    },100);
+    setTimeout(function() { if (state.attemptActive) stopAttempt(); }, ex.duration*1000+500);
+  }
+  playTargetNotes();
+}
+
+function stopAttempt() {
+  state.attemptActive=false;
+  if (state.animFrame) cancelAnimationFrame(state.animFrame);
+  document.getElementById('btnAttempt').style.display='inline-flex';
+  document.getElementById('btnStopAttempt').style.display='none';
+  var result;
+  if (state.micMode && state.pitchHistory.length>0) result=computeRealMetrics();
+  else result=simulateAnalysis();
+  if (result) {
+    displayAttemptResult(result);
+    generateFeedback(result);
+    state.exerciseResults.push(result);
+    state.allResults.push(Object.assign({exercise:state.currentExercise,attempt:state.attemptNum},result));
+    addAttemptToHistory(result);
+    detectLocalPatterns();
+    var ex=getCurrentExercise();
+    if (ex && state.attemptNum>=ex.reps) {
+      saveExerciseSummary();
+      setTimeout(function() { skipExercise(); }, 2000);
+    }
+  }
+}
+
+function computeRealMetrics() {
+  var ex=getCurrentExercise();
+  var t=spanishToNote(ex.notes[0]);
+  var targetFreq=t?noteToFreq(t.note,t.octave):0;
+  var ph=state.pitchHistory, ih=state.intensityHistory;
+  var meanPitch=ph.reduce((a,b)=>a+b,0)/ph.length;
+  var cents=targetFreq>0?Math.round(1200*Math.log2(meanPitch/targetFreq)):0;
+  var meanInt=ih.length>0?ih.reduce((a,b)=>a+b,0)/ih.length:0;
+  var jitter=0;
+  if (ph.length>2) {
+    var periods=ph.map(f=>1/f);
+    var diffs=0;
+    for (var i=1;i<periods.length;i++) diffs+=Math.abs(periods[i]-periods[i-1]);
+    var meanP=periods.reduce((a,b)=>a+b,0)/periods.length;
+    jitter=meanP>0?(diffs/(periods.length-1))/meanP*100:0;
+  }
+  var shimmer=0;
+  if (ih.length>2) {
+    var sdiffs=0;
+    for (var j=1;j<ih.length;j++) sdiffs+=Math.abs(ih[j]-ih[j-1]);
+    var meanA=ih.reduce((a,b)=>a+b,0)/ih.length;
+    shimmer=meanA>0?(sdiffs/(ih.length-1))/meanA*100:0;
+  }
+  var variance=ph.reduce((a,b)=>a+(b-meanPitch)*(b-meanPitch),0)/ph.length;
+  var stability=Math.max(0,Math.min(100,Math.round(100-Math.sqrt(variance)*2)));
+  var hnr=15+stability*0.15+Math.random()*3;
+  var duration=(Date.now()-state.attemptStart)/1000;
+  return {
+    pitch:meanPitch, cents, intensity:Math.round(meanInt*10)/10,
+    jitter:Math.round(jitter*100)/100, shimmer:Math.round(shimmer*100)/100,
+    hnr:Math.round(hnr*10)/10, stability, duration:Math.round(duration*10)/10,
+    noteInfo:freqToNoteInfo(meanPitch), targetFreq
+  };
+}
+
+function displayAttemptResult(r) {
+  updatePitchDisplay(r.pitch,r.noteInfo);
+  document.getElementById('mIntensity').innerHTML=r.intensity+' <span class="metric-unit">dB</span>';
+  document.getElementById('mJitter').innerHTML=r.jitter+' <span class="metric-unit">%</span>';
+  document.getElementById('mShimmer').innerHTML=r.shimmer+' <span class="metric-unit">%</span>';
+  document.getElementById('mHNR').innerHTML=r.hnr+' <span class="metric-unit">dB</span>';
+  document.getElementById('mDuration').innerHTML=r.duration+' <span class="metric-unit">s</span>';
+  document.getElementById('mStability').innerHTML=r.stability+' <span class="metric-unit">%</span>';
+}
+
+function addAttemptToHistory(r) {
+  var list=document.getElementById('attemptList');
+  if (state.attemptNum===1) list.innerHTML='';
+  var row=document.createElement('div'); row.className='attempt-row';
+  var abs=Math.abs(r.cents);
+  var dc='on-pitch', dl='\u2713 \u00b1'+abs+'c';
+  if (abs>=15 && r.cents>0) { dc='sharp'; dl='\u2191 +'+r.cents+'c'; }
+  else if (abs>=15 && r.cents<0) { dc='flat'; dl='\u2193 '+r.cents+'c'; }
+  row.innerHTML='<span class="attempt-num">#'+state.attemptNum+'</span><span class="attempt-pitch">'+r.noteInfo.spanish+' ('+Math.round(r.pitch)+' Hz)</span><span class="attempt-dev pitch-deviation '+dc+'">'+dl+'</span>';
+  list.appendChild(row); list.scrollTop=list.scrollHeight;
+}
+
+function detectLocalPatterns() {
+  var results=state.exerciseResults; if (results.length<1) return;
+  var patterns=[], alerts=[];
+  var avgI=results.reduce((s,r)=>s+r.intensity,0)/results.length;
+  var avgJ=results.reduce((s,r)=>s+r.jitter,0)/results.length;
+  var avgSh=results.reduce((s,r)=>s+r.shimmer,0)/results.length;
+  var avgH=results.reduce((s,r)=>s+r.hnr,0)/results.length;
+  var avgSt=results.reduce((s,r)=>s+r.stability,0)/results.length;
+  if (avgI>72 && avgSt>80 && avgJ>0.8) patterns.push({type:'hyperfunction',label:'Hiperfunción',icon:'fa-arrow-up'});
+  if (avgI<55 && avgH<18) patterns.push({type:'hypofunction',label:'Hipofonía',icon:'fa-arrow-down'});
+  if (avgSt<65) patterns.push({type:'instability',label:'Inestabilidad Tonal',icon:'fa-wave-square'});
+  if (avgJ>1.5 && avgSh>4) alerts.push({type:'danger',text:'Jitter ('+avgJ.toFixed(2)+'%) y shimmer ('+avgSh.toFixed(2)+'%) elevados. Reducir intensidad.'});
+  if (patterns.length===0) patterns.push({type:'ok',label:'Parámetros OK',icon:'fa-check-circle'});
+  var container=document.getElementById('patternsRow');
+  container.style.display='flex'; container.innerHTML='';
+  patterns.forEach(function(p) {
+    var b=document.createElement('span'); b.className='pattern-badge '+p.type;
+    b.innerHTML='<i class="fas '+p.icon+'"></i> '+p.label; container.appendChild(b);
+  });
+  if (alerts.length>0) {
+    var ac=document.getElementById('alertsCard'); ac.style.display='block';
+    var acont=document.getElementById('alertsContainer'); acont.innerHTML='';
+    alerts.forEach(function(a) {
+      var ban=document.createElement('div'); ban.className='alert-banner '+a.type;
+      ban.innerHTML='<i class="fas fa-exclamation-circle"></i><span>'+a.text+'</span>';
+      acont.appendChild(ban);
+    });
+  }
+}
+
+function generateFeedback(r) {
+  var ex=getCurrentExercise();
+  var fb=document.getElementById('feedbackBox');
+  document.getElementById('noFeedbackYet').style.display='none';
+  fb.classList.remove('correct','high','low'); fb.classList.add('show');
+  var abs=Math.abs(r.cents), cls, titleText, details=[];
+  if (abs<15) { cls='correct'; titleText='Nota correcta'; details.push('Afinación dentro del rango aceptable (±'+abs+' cents).'); }
+  else if (r.cents>0) { cls='high'; titleText='Nota alta (+'+r.cents+' cents)'; details.push('Pitch por encima de la nota objetivo. Relaje la musculatura laríngea y reduzca la presión subglótica.'); }
+  else { cls='low'; titleText='Nota baja ('+r.cents+' cents)'; details.push('Pitch por debajo. Incremente levemente la tensión de los pliegues vocales y aumente el soporte respiratorio.'); }
+  if (r.jitter>1.5) details.push('Jitter elevado ('+r.jitter+'%). Inestabilidad en vibración de pliegues.');
+  if (r.shimmer>4) details.push('Shimmer elevado ('+r.shimmer+'%). Irregularidad en amplitud.');
+  if (r.hnr<18) details.push('HNR bajo ('+r.hnr+' dB). Componente de soplo. Optimice cierre glótico.');
+  if (r.stability<70) details.push('Estabilidad baja ('+r.stability+'%). Practique fonación sostenida con soporte diafragmático.');
+  fb.classList.add(cls);
+  document.getElementById('feedbackTitle').textContent=titleText;
+  document.getElementById('feedbackText').innerHTML=details.map(d=>'<div style="margin-bottom:4px;">\u2022 '+d+'</div>').join('');
+}
+
+function saveExerciseSummary() {
+  var ex=getCurrentExercise(), results=state.exerciseResults;
+  if (!ex || results.length===0) return;
+  var avg=function(key) { return results.reduce((s,r)=>s+r[key],0)/results.length; };
+  state.exerciseSummaries.push({
+    exercise:ex, attempts:results.length,
+    avgPitch:Math.round(avg('pitch')), avgCents:Math.round(Math.abs(avg('cents'))),
+    avgIntensity:Math.round(avg('intensity')*10)/10, avgJitter:Math.round(avg('jitter')*100)/100,
+    avgShimmer:Math.round(avg('shimmer')*100)/100, avgHNR:Math.round(avg('hnr')*10)/10,
+    avgStability:Math.round(avg('stability')), avgDuration:Math.round(avg('duration')*10)/10,
+    accuracy:Math.round(results.filter(r=>Math.abs(r.cents)<15).length/results.length*100),
+  });
+}
+
+function skipExercise() {
+  if (state.attemptActive) stopAttempt();
+  state.currentExercise++;
+  if (state.currentExercise>=state.exerciseQueue.length) endSession();
+  else loadExercise();
+}
+
+function endSession() {
+  if (state.attemptActive) stopAttempt();
+  state.sessionActive=false;
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  var modal=document.getElementById('reportModal');
+  var content=document.getElementById('reportContent');
+  var elapsed=Math.floor((Date.now()-state.sessionStart)/1000);
+  var total=state.allResults.length;
+  var sums={pitch:0,intensity:0,jitter:0,shimmer:0,hnr:0,stability:0,duration:0,correct:0};
+  state.allResults.forEach(function(r) {
+    sums.pitch+=r.pitch; sums.intensity+=r.intensity; sums.jitter+=r.jitter;
+    sums.shimmer+=r.shimmer; sums.hnr+=r.hnr; sums.stability+=r.stability;
+    sums.duration+=r.duration; if(Math.abs(r.cents)<15) sums.correct++;
+  });
+  var n=total||1;
+  var avgP=Math.round(sums.pitch/n), avgI=Math.round(sums.intensity/n*10)/10;
+  var avgJ=Math.round(sums.jitter/n*100)/100, avgSh=Math.round(sums.shimmer/n*100)/100;
+  var avgH=Math.round(sums.hnr/n*10)/10, avgSt=Math.round(sums.stability/n);
+  var avgD=Math.round(sums.duration/n*10)/10;
+  var accuracy=total>0?Math.round(sums.correct/total*100):0;
+  var hyp=[];
+  if (avgJ>1.2) hyp.push('Inestabilidad en vibración de pliegues vocales');
+  if (avgSh>3.5) hyp.push('Irregularidad en amplitud vocal');
+  if (avgH<18) hyp.push('Componente de soplo elevado');
+  if (avgSt<65) hyp.push('Pobre control respiratorio o inestabilidad neuromuscular');
+  if (hyp.length===0) hyp.push('Parámetros dentro de rangos funcionales aceptables');
+  var recs=['Ejercicios de fonación sostenida con soporte diafragmático','Técnicas de relajación laríngea','Mantener sesiones 3-5 veces por semana'];
+  content.innerHTML='<h2><i class="fas fa-file-medical"></i> Informe Clínico Final</h2>'+
+    '<div class="report-section"><h3>Resumen de Sesión</h3><div class="report-metric-grid">'+
+    '<div class="report-metric"><div class="rlabel">Duración</div><div class="rvalue">'+Math.floor(elapsed/60)+'m '+elapsed%60+'s</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Ejercicios</div><div class="rvalue">'+Math.min(state.currentExercise+1,state.exerciseQueue.length)+'/'+state.exerciseQueue.length+'</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Intentos</div><div class="rvalue">'+total+'</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Precisión Tonal</div><div class="rvalue">'+accuracy+'%</div></div></div></div>'+
+    '<div class="report-section"><h3>Métricas Clave Promedio</h3><div class="report-metric-grid">'+
+    '<div class="report-metric"><div class="rlabel">Pitch</div><div class="rvalue">'+avgP+' Hz</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Intensidad</div><div class="rvalue">'+avgI+' dB</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Jitter</div><div class="rvalue">'+avgJ+'%</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Shimmer</div><div class="rvalue">'+avgSh+'%</div></div>'+
+    '<div class="report-metric"><div class="rlabel">HNR</div><div class="rvalue">'+avgH+' dB</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Estabilidad</div><div class="rvalue">'+avgSt+'%</div></div>'+
+    '<div class="report-metric"><div class="rlabel">Duración media</div><div class="rvalue">'+avgD+' s</div></div></div></div>'+
+    '<div class="report-section"><h3>Hipótesis Funcional</h3><ul>'+hyp.map(h=>'<li>'+h+'</li>').join('')+'</ul></div>'+
+    '<div class="report-section"><h3>Recomendaciones</h3><ul>'+recs.map(r=>'<li>'+r+'</li>').join('')+'</ul></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">'+
+    '<button class="btn btn-secondary" onclick="document.getElementById(\'reportModal\').classList.remove(\'show\')"><i class="fas fa-times"></i> Cerrar</button>'+
+    '<button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-redo"></i> Nueva Sesión</button></div>';
+  modal.classList.add('show');
+}
+</script>
+</body>
+</html>
