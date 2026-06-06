@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Misión Sonora</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ac:#7C3AED;--al:#EDE9FE;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:linear-gradient(160deg,var(--al) 0%,#fff 65%);
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:1.5rem 1.2rem 2.5rem;color:#1E1B4B;
+}
+
+.area-badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:var(--ac);color:white;
+  padding:.42rem 1.2rem;border-radius:999px;
+  font-size:.85rem;font-weight:800;margin-bottom:1.3rem;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  animation:badgeIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes badgeIn{from{opacity:0;transform:translateY(-12px) scale(.9);}}
+
+.m-title{
+  font-family:'Baloo 2',sans-serif;
+  font-size:clamp(1.6rem,5.5vw,2.4rem);
+  font-weight:800;text-align:center;
+  line-height:1.2;margin-bottom:.55rem;
+  color:var(--ac);
+  animation:titleIn .5s .15s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes titleIn{from{opacity:0;transform:translateY(10px);}}
+
+.m-meta{font-size:.88rem;color:#6B7280;margin-bottom:2rem;text-align:center;animation:titleIn .5s .25s both;}
+
+.play-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  margin-bottom:2rem;
+}
+.ring{
+  position:absolute;border-radius:50%;background:var(--ac);
+  opacity:.1;animation:ring 2.2s ease-in-out infinite;
+}
+.ring:nth-child(1){width:130px;height:130px;}
+.ring:nth-child(2){width:165px;height:165px;animation-delay:.45s;opacity:.06;}
+@keyframes ring{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+
+.play-btn{
+  position:relative;z-index:1;
+  width:112px;height:112px;border-radius:50%;
+  background:var(--ac);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,.22);
+  transition:transform .15s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.play-btn:active{transform:scale(.94);}
+.play-btn.playing{animation:playPulse .9s ease-in-out infinite alternate;}
+.play-btn svg{width:46px;height:46px;fill:white;}
+@keyframes playPulse{
+  from{box-shadow:0 8px 32px rgba(0,0,0,.22);}
+  to{box-shadow:0 8px 48px var(--ac),0 0 0 8px rgba(124,58,237,.15);}
+}
+
+.text-card{
+  background:white;border-radius:24px;
+  padding:1.4rem 1.7rem;margin-bottom:1.2rem;
+  box-shadow:0 4px 22px rgba(0,0,0,.07);
+  font-size:1.08rem;line-height:1.68;max-width:580px;width:100%;
+  text-align:center;color:#374151;
+  transition:opacity .3s,transform .3s;
+}
+.text-card.hidden{opacity:0;pointer-events:none;transform:translateY(-8px);}
+
+.toggle-text{
+  background:none;border:2px solid #E5E7EB;border-radius:999px;
+  padding:.4rem 1.1rem;font-family:'Nunito',sans-serif;font-weight:700;
+  font-size:.82rem;cursor:pointer;color:#9CA3AF;margin-bottom:1.5rem;
+  transition:all .2s;
+}
+.toggle-text:hover{border-color:var(--ac);color:var(--ac);}
+
+.actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:.8rem;
+  width:100%;max-width:480px;
+}
+.act-btn{
+  padding:1rem .8rem;border-radius:18px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  transition:transform .15s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;line-height:1.2;
+}
+.act-btn:active{transform:scale(.96);}
+.act-btn .ic{font-size:1.65rem;}
+.btn-repeat{background:#EDE9FE;color:#7C3AED;}
+.btn-clue{background:#FEF3C7;color:#B45309;}
+.btn-done{
+  grid-column:span 2;
+  background:linear-gradient(135deg,var(--ac) 0%,color-mix(in srgb,var(--ac) 65%,#fff) 100%);
+  color:white;font-size:1.08rem;padding:1.15rem;
+  box-shadow:0 5px 22px rgba(0,0,0,.16);
+}
+.btn-done .ic{font-size:2rem;}
+
+.clue-box{
+  background:#FFFBEB;border:2px solid #FCD34D;border-radius:18px;
+  padding:1rem 1.3rem;max-width:480px;width:100%;margin-bottom:1rem;
+  font-size:.95rem;color:#92400E;line-height:1.55;
+  display:none;
+}
+.clue-box.show{display:block;animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px);}}
+
+.completion{
+  display:none;position:fixed;inset:0;
+  background:linear-gradient(160deg,#FEF3C7 0%,#D1FAE5 100%);
+  flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;padding:2rem;text-align:center;
+}
+.completion.show{display:flex;animation:completionIn .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes completionIn{from{opacity:0;transform:scale(.82);}}
+.comp-icon{font-size:6rem;animation:bounce 1s ease infinite;margin-bottom:1rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+.comp-title{font-family:'Baloo 2',sans-serif;font-size:2.2rem;font-weight:800;color:#059669;margin-bottom:.7rem;}
+.comp-reward{font-size:1.05rem;color:#374151;max-width:380px;line-height:1.65;margin-bottom:2rem;}
+.comp-back{
+  padding:.9rem 2rem;background:#059669;color:white;
+  border:none;border-radius:999px;font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:1rem;cursor:pointer;
+  box-shadow:0 4px 16px rgba(5,150,105,.35);
+}
+
+.no-mission{text-align:center;padding:4rem 1.5rem;}
+.no-mission .ni{font-size:4rem;margin-bottom:1rem;}
+.no-mission h2{font-family:'Baloo 2',sans-serif;font-size:1.5rem;margin-bottom:.6rem;}
+.no-mission p{color:#6B7280;}
+
+.confetti-p{
+  position:fixed;pointer-events:none;opacity:0;
+  animation:cfFall 2.8s ease-in forwards;border-radius:2px;
+}
+@keyframes cfFall{
+  0%{opacity:1;transform:translateY(-20px) rotate(0deg);}
+  100%{opacity:0;transform:translateY(100vh) rotate(720deg);}
+}
+
+@media(max-width:380px){
+  .actions{grid-template-columns:1fr;}
+  .btn-done{grid-column:span 1;}
+}
+</style>
+</head>
+<body>
+
+<div id="app" style="width:100%;max-width:580px;display:flex;flex-direction:column;align-items:center;"></div>
+
+<div class="completion" id="completion">
+  <div class="comp-icon">🏆</div>
+  <div class="comp-title">¡Misión completada!</div>
+  <div class="comp-reward" id="comp-reward"></div>
+  <button class="comp-back" onclick="again()">🔄 ¡Repetir misión!</button>
+</div>
+
+<script>
+const AREAS={
+  fonologia:{l:'Fonología',i:'🔊',c:'#7C3AED',bg:'#EDE9FE'},
+  semantica:{l:'Semántica',i:'🌍',c:'#2563EB',bg:'#DBEAFE'},
+  memoria:{l:'Memoria auditiva',i:'🧠',c:'#F43F5E',bg:'#FFE4E6'},
+  instrucciones:{l:'Instrucciones',i:'📋',c:'#059669',bg:'#D1FAE5'},
+  narracion:{l:'Narración oral',i:'📖',c:'#EA580C',bg:'#FFEDD5'},
+  conciencia:{l:'Conciencia fonológica',i:'🔤',c:'#D97706',bg:'#FEF3C7'}
+};
+
+let mission=null,playing=false,textVisible=false;
+
+function decode(){
+  const h=location.hash.slice(1);
+  if(!h)return null;
+  try{return JSON.parse(decodeURIComponent(escape(atob(h))));}catch{return null;}
+}
+
+function setColors(area){
+  const a=AREAS[area]||{c:'#7C3AED',bg:'#EDE9FE'};
+  document.documentElement.style.setProperty('--ac',a.c);
+  document.documentElement.style.setProperty('--al',a.bg);
+}
+
+function render(){
+  mission=decode();
+  const app=document.getElementById('app');
+  if(!mission){
+    app.innerHTML=`<div class="no-mission"><div class="ni">😕</div><h2>Misión no encontrada</h2><p>Este código QR no contiene una misión válida.</p></div>`;
+    return;
+  }
+  const a=AREAS[mission.area]||{l:mission.area,i:'📋',c:'#7C3AED',bg:'#EDE9FE'};
+  setColors(mission.area);
+  document.title=mission.title+' · QR Sonoro';
+  app.innerHTML=`
+    <div class="area-badge">${a.i} ${a.l}</div>
+    <div class="m-title">${mission.title}</div>
+    <div class="m-meta">${mission.age||''} &nbsp;·&nbsp; ${'⭐'.repeat(mission.level||1)}</div>
+    <div class="play-wrap">
+      <div class="ring"></div><div class="ring"></div>
+      <button class="play-btn" id="pbtn" onclick="togglePlay()">
+        <svg id="pico" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
+    <div class="text-card hidden" id="tcard">${mission.text}</div>
+    <button class="toggle-text" onclick="toggleText()" id="ttbtn">👁 Ver el texto</button>
+    ${mission.clue?`<div class="clue-box" id="cluebox"><strong>💡 Pista:</strong> ${mission.clue}</div>`:''}
+    <div class="actions">
+      <button class="act-btn btn-repeat" onclick="repeat()">
+        <span class="ic">🔄</span><span>Repetir</span>
+      </button>
+      ${mission.clue
+        ?`<button class="act-btn btn-clue" onclick="clue()"><span class="ic">💡</span><span>Dame una pista</span></button>`
+        :'<div></div>'
+      }
+      <button class="act-btn btn-done" onclick="done()">
+        <span class="ic">✅</span><span>¡Misión completada!</span>
+      </button>
+    </div>`;
+  setTimeout(()=>speak(mission.text),700);
+}
+
+function speak(txt,cb){
+  if(!window.speechSynthesis)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='es-ES';u.rate=0.88;u.pitch=1.05;
+  const vs=speechSynthesis.getVoices();
+  const v=vs.find(x=>x.lang.startsWith('es')&&!x.name.includes('Google'))||vs.find(x=>x.lang.startsWith('es'));
+  if(v)u.voice=v;
+  u.onend=()=>{setPlay(false);if(cb)cb();};
+  u.onerror=()=>setPlay(false);
+  speechSynthesis.speak(u);
+  setPlay(true);
+}
+
+function setPlay(val){
+  playing=val;
+  const btn=document.getElementById('pbtn');
+  const ico=document.getElementById('pico');
+  if(!btn)return;
+  btn.classList.toggle('playing',val);
+  ico.innerHTML=val
+    ?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    :'<path d="M8 5v14l11-7z"/>';
+}
+
+function togglePlay(){
+  if(playing){speechSynthesis.cancel();setPlay(false);}
+  else speak(mission.text);
+}
+function repeat(){speechSynthesis.cancel();setTimeout(()=>speak(mission.text),120);}
+function clue(){
+  const b=document.getElementById('cluebox');if(b)b.classList.add('show');
+  speak('Pista: '+mission.clue);
+}
+function toggleText(){
+  textVisible=!textVisible;
+  document.getElementById('tcard').classList.toggle('hidden',!textVisible);
+  document.getElementById('ttbtn').textContent=textVisible?'🙈 Ocultar texto':'👁 Ver el texto';
+}
+
+function done(){
+  speechSynthesis.cancel();
+  confetti();
+  const r=mission.reward||'¡Lo has conseguido! Eres absolutamente increíble. ¡Misión superada con éxito!';
+  document.getElementById('comp-reward').textContent=r;
+  document.getElementById('completion').classList.add('show');
+  setTimeout(()=>speak(r),900);
+}
+function again(){
+  speechSynthesis.cancel();
+  document.getElementById('completion').classList.remove('show');
+  setTimeout(()=>speak(mission.text),400);
+}
+
+function confetti(){
+  const cols=['#7C3AED','#F43F5E','#F59E0B','#10B981','#3B82F6','#F97316','#EC4899'];
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='confetti-p';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;`+
+      `background:${cols[Math.floor(Math.random()*cols.length)]};`+
+      `width:${7+Math.random()*11}px;height:${7+Math.random()*11}px;`+
+      `border-radius:${Math.random()>.5?'50%':'3px'};`+
+      `animation-delay:${Math.random()*1.6}s;animation-duration:${2.2+Math.random()*1.8}s;`+
+      `transform:rotate(${Math.random()*360}deg);`;
+    document.body.appendChild(el);
+    el.addEventListener('animationend',()=>el.remove());
+  }
+}
+
+if(speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=()=>{};
+render();
+</script>
+</body>
+</html>
