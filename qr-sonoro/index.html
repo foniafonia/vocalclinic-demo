@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Sonoro | Misiones de Lenguaje</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+<style>
+:root{
+  --cp:#7C3AED;--cpl:#EDE9FE;
+  --cb:#2563EB;--cbl:#DBEAFE;
+  --cc:#F43F5E;--ccl:#FFE4E6;
+  --cg:#059669;--cgl:#D1FAE5;
+  --co:#EA580C;--col:#FFEDD5;
+  --cy:#D97706;--cyl:#FEF3C7;
+  --bg:#F5F3FF;--white:#fff;--dark:#1E1B4B;--gray:#6B7280;
+  --shadow:0 4px 24px rgba(124,58,237,.1);
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+
+.header{
+  background:linear-gradient(135deg,#3B0764 0%,#6D28D9 55%,#A78BFA 100%);
+  padding:2.5rem 1.5rem 3.5rem;text-align:center;position:relative;overflow:hidden;
+}
+.header::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+}
+.logo{font-family:'Baloo 2',sans-serif;font-size:2.8rem;font-weight:800;color:white;margin-bottom:.3rem;text-shadow:0 2px 12px rgba(0,0,0,.2);position:relative;}
+.logo span{color:#FCD34D;}
+.tagline{color:rgba(255,255,255,.88);font-size:1rem;font-weight:600;margin-bottom:.8rem;position:relative;}
+.header-badge{
+  display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+  color:white;padding:.4rem 1.2rem;border-radius:999px;font-size:.82rem;font-weight:700;
+  border:1px solid rgba(255,255,255,.25);position:relative;
+}
+
+.tabs-wrap{background:white;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.07);}
+.tabs{display:flex;max-width:900px;margin:0 auto;padding:0 1rem;gap:.25rem;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{
+  flex-shrink:0;padding:.9rem 1.3rem;font-family:'Nunito',sans-serif;font-weight:800;
+  font-size:.9rem;border:none;background:none;cursor:pointer;color:var(--gray);
+  border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.tab-btn.active{color:var(--cp);border-bottom-color:var(--cp);}
+.tab-btn:hover:not(.active){color:var(--dark);}
+
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}}
+
+.card{background:white;border-radius:var(--r);padding:2rem;box-shadow:var(--shadow);margin-bottom:1.5rem;}
+.card-heading{font-family:'Baloo 2',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:1.6rem;display:flex;align-items:center;gap:.5rem;}
+
+.form-group{margin-bottom:1.4rem;}
+label{display:block;font-weight:800;font-size:.88rem;margin-bottom:.55rem;color:var(--dark);}
+input[type=text],textarea{
+  width:100%;padding:.85rem 1rem;border:2px solid #E5E7EB;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:1rem;color:var(--dark);
+  transition:border-color .2s,box-shadow .2s;outline:none;background:#FAFAFA;
+}
+input[type=text]:focus,textarea:focus{border-color:var(--cp);background:white;box-shadow:0 0 0 3px rgba(124,58,237,.1);}
+textarea{resize:vertical;min-height:90px;line-height:1.55;}
+.char-count{font-size:.76rem;color:var(--gray);text-align:right;margin-top:.3rem;}
+
+.area-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.55rem;}
+.area-pill{
+  padding:.6rem .9rem;border-radius:12px;border:2px solid transparent;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.83rem;text-align:center;
+  transition:all .18s;display:flex;align-items:center;gap:.35rem;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.area-pill[data-area=fonologia]{background:var(--cpl);color:var(--cp);}
+.area-pill[data-area=semantica]{background:var(--cbl);color:var(--cb);}
+.area-pill[data-area=memoria]{background:var(--ccl);color:var(--cc);}
+.area-pill[data-area=instrucciones]{background:var(--cgl);color:var(--cg);}
+.area-pill[data-area=narracion]{background:var(--col);color:var(--co);}
+.area-pill[data-area=conciencia]{background:var(--cyl);color:var(--cy);}
+.area-pill.selected{border-color:currentColor;box-shadow:0 0 0 3px rgba(124,58,237,.12);transform:scale(1.03);}
+
+.stars{display:flex;gap:.5rem;align-items:center;}
+.star-btn{font-size:2rem;cursor:pointer;background:none;border:none;transition:transform .15s;filter:grayscale(1) opacity(.3);-webkit-tap-highlight-color:transparent;}
+.star-btn.active{filter:none;transform:scale(1.15);}
+.star-label{font-size:.85rem;color:var(--gray);margin-left:.4rem;font-weight:600;}
+
+.age-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:.5rem;}
+.age-pill{
+  padding:.5rem .7rem;border-radius:10px;border:2px solid #E5E7EB;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:.83rem;text-align:center;
+  transition:all .18s;background:#F9FAFB;color:var(--gray);
+}
+.age-pill.selected{background:var(--cpl);border-color:var(--cp);color:var(--cp);}
+
+.btn{
+  padding:.85rem 1.8rem;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;
+  transition:all .2s;display:inline-flex;align-items:center;gap:.45rem;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-primary{background:linear-gradient(135deg,var(--cp),#A78BFA);color:white;box-shadow:0 4px 14px rgba(124,58,237,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.4);}
+.btn-secondary{background:#F3F4F6;color:var(--dark);}
+.btn-secondary:hover{background:#E5E7EB;}
+.btn-sm{padding:.5rem 1rem;font-size:.82rem;border-radius:10px;}
+.form-actions{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #F3F4F6;}
+.hint-tag{display:inline-flex;align-items:center;gap:.3rem;background:#F0FDF4;color:#059669;border-radius:8px;padding:.25rem .6rem;font-size:.78rem;font-weight:700;margin-bottom:.4rem;}
+
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(30,27,75,.55);
+  backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;padding:1.5rem;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:white;border-radius:28px;max-width:500px;width:100%;
+  max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.22);
+  animation:modalIn .32s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.88) translateY(20px);}}
+.modal-header{padding:1.6rem 1.8rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F3F4F6;}
+.modal-body{padding:1.4rem 1.8rem 1.8rem;}
+.modal-title{font-family:'Baloo 2',sans-serif;font-size:1.3rem;font-weight:800;}
+.modal-close{background:#F3F4F6;border:none;width:34px;height:34px;border-radius:999px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:#E5E7EB;}
+
+#qr-wrap{display:flex;justify-content:center;margin:1.4rem 0;}
+#qr-wrap canvas,#qr-wrap img{border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);}
+.qr-url-box{
+  background:#F5F3FF;border-radius:12px;padding:.75rem 1rem;
+  font-size:.75rem;word-break:break-all;color:var(--cp);margin-bottom:1.2rem;
+  border:1px solid #DDD6FE;font-family:monospace;line-height:1.5;
+}
+.qr-actions{display:flex;gap:.7rem;flex-wrap:wrap;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.2rem;}
+.m-card{
+  background:white;border-radius:20px;padding:1.3rem;box-shadow:0 3px 16px rgba(0,0,0,.07);
+  transition:transform .2s,box-shadow .2s;
+}
+.m-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.11);}
+.m-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.28rem .75rem;border-radius:999px;font-size:.76rem;font-weight:800;margin-bottom:.7rem;}
+.m-title{font-family:'Baloo 2',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.3rem;line-height:1.3;}
+.m-meta{font-size:.8rem;color:var(--gray);margin-bottom:.6rem;}
+.m-preview{font-size:.85rem;color:#374151;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.9rem;}
+.m-actions{display:flex;gap:.45rem;flex-wrap:wrap;}
+
+.filter-bar{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.chip{padding:.38rem .85rem;border-radius:999px;border:2px solid #E5E7EB;cursor:pointer;font-size:.8rem;font-weight:800;background:white;color:var(--gray);transition:all .18s;}
+.chip.active{background:var(--cp);border-color:var(--cp);color:white;}
+
+.section-h{font-family:'Baloo 2',sans-serif;font-size:1.55rem;font-weight:800;margin-bottom:.35rem;}
+.section-sub{color:var(--gray);font-size:.92rem;margin-bottom:1.6rem;}
+
+.empty{text-align:center;padding:4rem 2rem;color:var(--gray);grid-column:1/-1;}
+.empty .ei{font-size:4rem;margin-bottom:.8rem;}
+
+.toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);
+  background:#1E1B4B;color:white;padding:.75rem 1.4rem;border-radius:999px;
+  font-weight:800;font-size:.88rem;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  display:flex;align-items:center;gap:.45rem;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .header{padding:2rem 1rem 2.8rem;}
+  .logo{font-size:2.2rem;}
+  .card{padding:1.3rem;}
+  .modal-body,.modal-header{padding:1.1rem;}
+  .form-actions{flex-direction:column;}
+  .btn{width:100%;justify-content:center;}
+  .qr-actions{flex-direction:column;}
+  .grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">📻 QR <span>Sonoro</span></div>
+  <div class="tagline">Convierte un papel en una misión secreta de lenguaje</div>
+  <div class="header-badge">✨ No es realidad aumentada. Es realidad activada.</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="crear">✏️ Crear Misión</button>
+    <button class="tab-btn" data-tab="mias">📁 Mis Misiones</button>
+    <button class="tab-btn" data-tab="biblioteca">📚 Biblioteca</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tab-panel active" id="tab-crear">
+    <div class="card">
+      <div class="card-heading">🎯 Nueva Misión Sonora</div>
+      <div class="form-group">
+        <label>Título de la misión</label>
+        <input type="text" id="f-title" placeholder="ej: Caza del sonido /P/" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label>Área de trabajo</label>
+        <div class="area-grid">
+          <button type="button" class="area-pill" data-area="fonologia">🔊 Fonología</button>
+          <button type="button" class="area-pill" data-area="semantica">🌍 Semántica</button>
+          <button type="button" class="area-pill" data-area="memoria">🧠 Memoria auditiva</button>
+          <button type="button" class="area-pill" data-area="instrucciones">📋 Instrucciones</button>
+          <button type="button" class="area-pill" data-area="narracion">📖 Narración oral</button>
+          <button type="button" class="area-pill" data-area="conciencia">🔤 Conciencia fonológica</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Edad recomendada</label>
+        <div class="age-grid">
+          <button type="button" class="age-pill" data-age="3-4 años">3-4 años</button>
+          <button type="button" class="age-pill" data-age="4-6 años">4-6 años</button>
+          <button type="button" class="age-pill" data-age="6-8 años">6-8 años</button>
+          <button type="button" class="age-pill" data-age="8-10 años">8-10 años</button>
+          <button type="button" class="age-pill" data-age="10-12 años">10-12 años</button>
+          <button type="button" class="age-pill" data-age="Todas las edades">Todas las edades</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nivel de dificultad</label>
+        <div class="stars">
+          <button type="button" class="star-btn" data-level="1">⭐</button>
+          <button type="button" class="star-btn" data-level="2">⭐</button>
+          <button type="button" class="star-btn" data-level="3">⭐</button>
+          <span class="star-label" id="level-label">Elige nivel</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Texto de la misión <span style="color:var(--cp);font-weight:600;font-size:.8em">(se leerá en voz alta)</span></label>
+        <textarea id="f-text" placeholder="Escribe aquí la misión que escuchará el niño..." maxlength="500" rows="4"></textarea>
+        <div class="char-count"><span id="text-count">0</span>/500</div>
+      </div>
+      <div class="form-group">
+        <div class="hint-tag">💡 Opcional</div>
+        <label>Pista</label>
+        <textarea id="f-clue" placeholder="Pista que el niño puede pedir si necesita ayuda..." maxlength="200" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <div class="hint-tag">🏆 Opcional</div>
+        <label>Recompensa verbal al completar</label>
+        <textarea id="f-reward" placeholder="Mensaje de celebración que se leerá al terminar..." maxlength="200" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="generateQR()">🔲 Generar código QR</button>
+        <button class="btn btn-secondary" onclick="previewMission()">👁 Vista previa</button>
+        <button class="btn btn-secondary" onclick="resetForm()">🗑 Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-mias">
+    <div class="section-h">📁 Mis Misiones</div>
+    <div class="section-sub">Misiones creadas y guardadas en este dispositivo.</div>
+    <div class="grid" id="my-grid"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-biblioteca">
+    <div class="section-h">📚 Biblioteca de Misiones</div>
+    <div class="section-sub">30 misiones listas para usar, creadas por especialistas en logopedia y educación.</div>
+    <div class="filter-bar" id="filters">
+      <button class="chip active" data-f="all">Todas</button>
+      <button class="chip" data-f="fonologia">🔊 Fonología</button>
+      <button class="chip" data-f="semantica">🌍 Semántica</button>
+      <button class="chip" data-f="memoria">🧠 Memoria</button>
+      <button class="chip" data-f="instrucciones">📋 Instrucciones</button>
+      <button class="chip" data-f="narracion">📖 Narración</button>
+      <button class="chip" data-f="conciencia">🔤 Conciencia</button>
+    </div>
+    <div class="grid" id="lib-grid"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔲 Código QR listo</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="qr-preview"></div>
+      <div id="qr-wrap"></div>
+      <div class="qr-url-box" id="qr-url"></div>
+      <div class="qr-actions">
+        <button class="btn btn-primary" onclick="downloadQR()">⬇️ Descargar QR</button>
+        <button class="btn btn-secondary" onclick="copyLink()">🔗 Copiar enlace</button>
+        <button class="btn btn-secondary" onclick="printQR()">🖨️ Imprimir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SK='qrsonoro_v1';
+const MISSION_URL=(()=>{
+  const b=window.location.href.split('?')[0].split('#')[0];
+  return b.replace(/index\.html$/,'')+'mision.html';
+})();
+
+const AREAS={
+  fonologia:{l:'Fonología',i:'🔊',c:'#7C3AED',bg:'#EDE9FE'},
+  semantica:{l:'Semántica',i:'🌍',c:'#2563EB',bg:'#DBEAFE'},
+  memoria:{l:'Memoria auditiva',i:'🧠',c:'#F43F5E',bg:'#FFE4E6'},
+  instrucciones:{l:'Instrucciones',i:'📋',c:'#059669',bg:'#D1FAE5'},
+  narracion:{l:'Narración oral',i:'📖',c:'#EA580C',bg:'#FFEDD5'},
+  conciencia:{l:'Conciencia fonológica',i:'🔤',c:'#D97706',bg:'#FEF3C7'}
+};
+const LEVELS=['','Fácil','Medio','Difícil'];
+let selArea='',selAge='',selLevel=0,curMission=null,curFilter='all';
+
+document.querySelectorAll('.area-pill').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.area-pill').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');selArea=b.dataset.area;
+}));
+document.querySelectorAll('.age-pill').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.age-pill').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');selAge=b.dataset.age;
+}));
+document.querySelectorAll('.star-btn').forEach(b=>b.addEventListener('click',()=>{
+  selLevel=+b.dataset.level;
+  document.querySelectorAll('.star-btn').forEach((x,i)=>x.classList.toggle('active',i<selLevel));
+  document.getElementById('level-label').textContent=LEVELS[selLevel]||'';
+}));
+document.getElementById('f-text').addEventListener('input',function(){
+  document.getElementById('text-count').textContent=this.value.length;
+});
+
+function enc(m){return btoa(unescape(encodeURIComponent(JSON.stringify(m))));}
+
+function getForm(){
+  const t=document.getElementById('f-title').value.trim();
+  const tx=document.getElementById('f-text').value.trim();
+  if(!t){toast('⚠️ Escribe un título');return null;}
+  if(!selArea){toast('⚠️ Elige el área de trabajo');return null;}
+  if(!tx){toast('⚠️ Escribe el texto de la misión');return null;}
+  return{id:'u'+Date.now(),title:t,area:selArea,age:selAge||'Todas las edades',level:selLevel||1,
+    text:tx,clue:document.getElementById('f-clue').value.trim(),
+    reward:document.getElementById('f-reward').value.trim(),created:new Date().toISOString()};
+}
+
+function generateQR(){const m=getForm();if(!m)return;save(m);showQR(m);}
+
+function previewMission(){const m=getForm();if(!m)return;window.open(MISSION_URL+'#'+enc(m),'_blank');}
+
+function showQR(m){
+  curMission=m;
+  const url=MISSION_URL+'#'+enc(m);
+  const a=AREAS[m.area]||{l:m.area,i:'📋',c:'#1E1B4B',bg:'#F3F4F6'};
+  document.getElementById('qr-url').textContent=url;
+  document.getElementById('qr-wrap').innerHTML='';
+  document.getElementById('qr-preview').innerHTML=`
+    <div style="display:flex;align-items:center;gap:.7rem;padding:.9rem;background:${a.bg};border-radius:14px;margin-bottom:1rem;">
+      <span style="font-size:1.5rem">${a.i}</span>
+      <div><div style="font-weight:800;font-size:1.02rem">${m.title}</div>
+      <div style="font-size:.8rem;color:#6B7280;margin-top:.1rem">${a.l} &middot; ${m.age} &middot; ${'⭐'.repeat(m.level)}</div></div>
+    </div>`;
+  new QRCode(document.getElementById('qr-wrap'),{text:url,width:220,height:220,colorDark:a.c,colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('qr-modal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('qr-modal').classList.remove('open');}
+
+function downloadQR(){
+  const c=document.querySelector('#qr-wrap canvas');if(!c)return;
+  const a=document.createElement('a');
+  a.download='qr-sonoro-'+(curMission?.title||'mision').replace(/\s+/g,'-')+'.png';
+  a.href=c.toDataURL();a.click();toast('✅ QR descargado');
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(document.getElementById('qr-url').textContent).then(()=>toast('🔗 Enlace copiado'));
+}
+
+function printQR(){
+  const c=document.querySelector('#qr-wrap canvas');if(!c)return;
+  const img=c.toDataURL();const m=curMission;
+  const a=AREAS[m?.area]||{l:'',i:'',c:'#1E1B4B',bg:'#F3F4F6'};
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><style>body{font-family:sans-serif;text-align:center;padding:3rem;background:#fff;}h1{font-size:2rem;margin:1rem 0;color:${a.c};}img{border-radius:16px;margin:1.5rem 0;box-shadow:0 4px 20px rgba(0,0,0,.15);}.badge{display:inline-block;background:${a.bg};color:${a.c};padding:.4rem 1.2rem;border-radius:999px;font-weight:800;font-size:.95rem;margin-bottom:.5rem;}p{color:#555;margin:.4rem 0;}.footer{margin-top:2rem;font-size:.8rem;color:#aaa;}</style></head><body><div class="badge">${a.i} ${a.l}</div><h1>${m?.title||'Misión QR Sonoro'}</h1><p>📱 Escanea con tu móvil para escuchar la misión</p><img src="${img}" width="220"><br><p><strong>${m?.age||''}</strong> &nbsp;·&nbsp; ${'⭐'.repeat(m?.level||1)}</p><div class="footer">creado con QR Sonoro &middot; No es realidad aumentada. Es realidad activada.</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);
+}
+
+function save(m){const ms=load();const i=ms.findIndex(x=>x.id===m.id);if(i>=0)ms[i]=m;else ms.unshift(m);localStorage.setItem(SK,JSON.stringify(ms));}
+function load(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch{return [];}}
+function del(id){if(!confirm('¿Eliminar esta misión?'))return;localStorage.setItem(SK,JSON.stringify(load().filter(m=>m.id!==id)));renderMy();toast('🗑 Misión eliminada');}
+
+function cardHtml(m,btns){
+  const a=AREAS[m.area]||{l:m.area,i:'📋',c:'#6B7280',bg:'#F3F4F6'};
+  return `<div class="m-card"><div class="m-badge" style="background:${a.bg};color:${a.c}">${a.i} ${a.l}</div><div class="m-title">${m.title}</div><div class="m-meta">${m.age} &middot; ${'⭐'.repeat(m.level||1)}</div><div class="m-preview">${m.text}</div><div class="m-actions">${btns(m)}</div></div>`;
+}
+
+function renderMy(){
+  const g=document.getElementById('my-grid');const ms=load();
+  if(!ms.length){g.innerHTML='<div class="empty"><div class="ei">📭</div><p>Todavía no has creado ninguna misión.<br>¡Ve a <strong>Crear Misión</strong> para empezar!</p></div>';return;}
+  g.innerHTML=ms.map(m=>cardHtml(m,m=>`<button class="btn btn-primary btn-sm" onclick='showQR(${JSON.stringify(m)})'>🔲 QR</button><button class="btn btn-secondary btn-sm" onclick='window.open(MISSION_URL+"#"+enc(${JSON.stringify(m)}),"_blank")'>👁 Ver</button><button class="btn btn-secondary btn-sm" onclick="del('${m.id}')">🗑</button>`)).join('');
+}
+
+function renderLib(f){
+  const g=document.getElementById('lib-grid');const ms=f==='all'?BASE:BASE.filter(m=>m.area===f);
+  g.innerHTML=ms.map(m=>cardHtml(m,m=>`<button class="btn btn-primary btn-sm" onclick='showQR(${JSON.stringify(m)})'>🔲 QR</button><button class="btn btn-secondary btn-sm" onclick='window.open(MISSION_URL+"#"+enc(${JSON.stringify(m)}),"_blank")'>👁 Ver</button><button class="btn btn-secondary btn-sm" onclick='useLib(${JSON.stringify(m)})'>📥 Guardar</button>`)).join('');
+}
+
+function useLib(m){save({...m,id:'u'+Date.now(),created:new Date().toISOString()});toast('✅ Guardada en Mis Misiones');}
+
+function resetForm(){
+  selArea='';selAge='';selLevel=0;
+  document.querySelectorAll('.area-pill,.age-pill').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('level-label').textContent='Elige nivel';
+  document.getElementById('text-count').textContent='0';
+  ['f-title','f-text','f-clue','f-reward'].forEach(id=>document.getElementById(id).value='');
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(b.dataset.tab==='mias')renderMy();
+  if(b.dataset.tab==='biblioteca')renderLib(curFilter);
+}));
+
+document.getElementById('filters').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');curFilter=c.dataset.f;renderLib(curFilter);
+});
+
+document.getElementById('qr-modal').addEventListener('click',e=>{if(e.target===document.getElementById('qr-modal'))closeModal();});
+
+const BASE=[
+  {id:'b01',area:'fonologia',title:'Caza del sonido /P/',age:'4-6 años',level:1,text:'¡Misión secreta! Tienes que encontrar cinco cosas en esta habitación que empiecen por el sonido P, como en pelota o puerta. Di cada una en voz alta cuando la encuentres.',clue:'Piensa en cosas que puedas ver, tocar o señalar cerca de ti ahora mismo.',reward:'¡Eres un auténtico detective del sonido P! Tu oído es increíble. ¡Misión superada!'},
+  {id:'b02',area:'fonologia',title:'La vibrante R fuerte',age:'6-8 años',level:2,text:'Tu misión es decir en voz alta tres palabras que tengan la erre fuerte, como en perro, ratón o guitarra. Después invéntate una frase usando una de esas palabras.',clue:'Piensa en animales, comidas o cosas de casa que tengan esa erre que vibra mucho en la boca.',reward:'¡Fantástico! Tu erre suena perfecta. Eres un campeón de los sonidos difíciles.'},
+  {id:'b03',area:'fonologia',title:'El sonido escondido /S/',age:'4-6 años',level:1,text:'Escucha con mucha atención esta frase: La serpiente silenciosa sube por la silla. ¿Cuántas veces escuchas el sonido S? Cuenta con los dedos y di el número en voz alta.',clue:'Escucha la frase muy despacio, palabra por palabra.',reward:'¡Bravo! Tus oídos son como superpoderes. Has encontrado todos los sonidos escondidos.'},
+  {id:'b04',area:'fonologia',title:'Palmea tu nombre',age:'3-4 años',level:1,text:'Di tu nombre en voz alta y aplaude por cada sílaba. Por ejemplo, María son tres palmadas: Ma-rí-a. Hazlo con tu nombre completo y luego con el nombre de tu mejor amigo.',clue:'Una sílaba es cada golpe de voz. Empieza despacio.',reward:'¡Lo has conseguido! Eres un maestro de las sílabas. ¡Tu nombre suena genial aplaudido!'},
+  {id:'b05',area:'fonologia',title:'La rima mágica',age:'4-6 años',level:1,text:'Las palabras que riman terminan igual, como gato y plato. Tu misión es encontrar tres palabras que rimen con la palabra SOL. Di cada rima en voz alta.',clue:'Piensa en cosas redondas, en números o en palabras del campo y del cielo.',reward:'¡Eres un poeta increíble! Las rimas son tu superpoder. ¡Misión completada!'},
+  {id:'b06',area:'semantica',title:'Frutas de todos los colores',age:'4-6 años',level:1,text:'Tienes que nombrar cinco frutas que sean de colores diferentes. Di el nombre de la fruta y su color juntos, como naranja naranja o plátano amarillo.',clue:'Piensa en el arcoíris: rojo, amarillo, verde, naranja, morado...',reward:'¡Eso es! Tu vocabulario crece como un árbol frutal. ¡Misión superada!'},
+  {id:'b07',area:'semantica',title:'Habitantes del océano',age:'4-6 años',level:1,text:'¡Bajo del mar hay un mundo increíble! Nombra cuatro animales que vivan en el mar. Después elige uno y descríbelo: de qué color es, cómo nada, qué come.',clue:'Piensa en animales con escamas, con aletas, con tentáculos o con concha.',reward:'¡Eres un experto oceanógrafo del lenguaje! El mar no tiene secretos para ti.'},
+  {id:'b08',area:'semantica',title:'Herramientas para escribir',age:'6-8 años',level:2,text:'Imagina que eres inventor y tienes que hacer una lista de cosas que sirvan para escribir o dibujar. Nombra al menos seis objetos diferentes. Puedes incluir cosas del cole, de casa o del futuro.',clue:'Hay cosas que pintan, otras que marcan, otras que dibujan...',reward:'¡Increíble inventario de palabras! Tu mente es un almacén de vocabulario. ¡Agente activado!'},
+  {id:'b09',area:'semantica',title:'Secretos de la cocina',age:'4-6 años',level:1,text:'Imagina que estás en una cocina. Nombra cinco objetos que encuentres allí. Después di para qué sirve cada uno.',clue:'Piensa en cosas para cocinar, para guardar comida, para comer o para limpiar.',reward:'¡Eres un chef del lenguaje! Conoces la cocina mejor que nadie.'},
+  {id:'b10',area:'semantica',title:'Transportes que vuelan',age:'4-6 años',level:1,text:'Nombra tres cosas que puedan volar y que sirvan para transportar personas. Después explica cuál te gustaría usar y por qué.',clue:'Algunos son enormes, otros pequeños. Algunos los pilota una persona, otros van solos.',reward:'¡Piloto del lenguaje! Has completado el vuelo con éxito. ¡Aterrizaje perfecto!'},
+  {id:'b11',area:'instrucciones',title:'Nariz y dos saltos',age:'3-4 años',level:1,text:'Haz exactamente lo que te diga: primero tócate la nariz con un dedo, y después da dos saltos en el sitio. Recuerda: primero la nariz, luego los saltos.',clue:'Hazlo despacio: primero terminas lo primero, luego haces lo segundo.',reward:'¡Perfecto! Has seguido las dos instrucciones sin equivocarte. ¡Campeón de la escucha activa!'},
+  {id:'b12',area:'instrucciones',title:'Aplauso y color favorito',age:'3-4 años',level:1,text:'Aplaude tres veces contando en voz alta uno, dos, tres, y después di cuál es tu color favorito y una cosa que tenga ese color.',clue:'Primero terminas de aplaudir del todo, luego piensas en tu color y lo dices.',reward:'¡Genial! Escuchas, recuerdas y actúas. ¡Eso es lo que hacen los superhéroes del lenguaje!'},
+  {id:'b13',area:'instrucciones',title:'Cuenta y abre los ojos',age:'4-6 años',level:1,text:'Cierra los ojos, cuenta muy despacio hasta diez sin saltarte ningún número, y cuando llegues al diez di en voz alta ¡Ya! y abre los ojos.',clue:'Ve muy despacio: uno... dos... tres... No te saltes ninguno.',reward:'¡Concentración máxima! Eres capaz de controlar tu mente y tu voz al mismo tiempo.'},
+  {id:'b14',area:'instrucciones',title:'Señala y busca el rojo',age:'4-6 años',level:2,text:'Primero señala con el dedo la puerta más cercana que veas, y después busca con la vista algo de color rojo en esta habitación y dile a alguien dónde está.',clue:'Señala bien la puerta con el brazo extendido, luego empieza a buscar el rojo por toda la habitación.',reward:'¡Detective del espacio! Sabes atender dos instrucciones seguidas. ¡Inteligencia real!'},
+  {id:'b15',area:'instrucciones',title:'Vuelta y nombre de animal',age:'4-6 años',level:2,text:'Da una vuelta completa sobre ti mismo girando, y cuando termines di el nombre de un animal que empiece por la misma letra que tu nombre.',clue:'Gira despacio para no marearte. Luego piensa cuál es la primera letra de tu nombre.',reward:'¡Has girado y pensado al mismo tiempo! Tu cerebro es increíblemente ágil.'},
+  {id:'b16',area:'memoria',title:'Los tres amigos animales',age:'4-6 años',level:1,text:'Escucha estos tres amigos y repítelos en orden: el perro, el gato y el pájaro. Cierra los ojos e intenta decirlos sin escucharlos de nuevo.',clue:'Imagínate una foto de los tres animales juntos en el mismo lugar.',reward:'¡Memoria de elefante! Has recordado a los tres amigos en orden perfecto.'},
+  {id:'b17',area:'memoria',title:'El arcoíris de cuatro colores',age:'4-6 años',level:2,text:'Escucha estos cuatro colores en orden y repítelos exactamente igual: rojo, azul, verde, amarillo. Cierra los ojos, visualiza el arcoíris, y dílos en orden.',clue:'Imagina que cada color está pintado en el arcoíris de izquierda a derecha.',reward:'¡El arcoíris de tu memoria es perfecto! Cuatro colores en orden. ¡Memoria de campeonato!'},
+  {id:'b18',area:'memoria',title:'La frase del parque',age:'6-8 años',level:2,text:'Escucha esta frase y repítela exactamente: La niña de trenzas rojas come manzanas verdes sentada en el parque. Cierra los ojos y di la frase completa.',clue:'Divídela en trozos: la niña de trenzas rojas... come manzanas verdes... en el parque.',reward:'¡Memoria narrativa activada! Recuerdas frases largas como un ordenador. ¡Impresionante!'},
+  {id:'b19',area:'memoria',title:'Números al revés',age:'8-10 años',level:3,text:'Escucha estos números: cuatro, ocho, dos, seis. Ahora repítelos empezando por el último. Al revés sería: seis, dos, ocho, cuatro.',clue:'Puedes escribirlos en el aire con el dedo antes de decirlos al revés.',reward:'¡Memoria inversa desbloqueada! Ese es un superpoder mental de nivel avanzado.'},
+  {id:'b20',area:'memoria',title:'La lista mágica de cuatro',age:'6-8 años',level:2,text:'Escucha estas cuatro palabras, espera cinco segundos en silencio, y luego dílas todas: zapatilla, árbol, luna, pescado.',clue:'Inventa una historia loca que las una: la zapatilla subió al árbol para ver la luna con el pescado.',reward:'¡Lista memorizada! Inventar historias es el truco secreto de los mejores memorizadores.'},
+  {id:'b21',area:'narracion',title:'Mi mañana en tres objetos',age:'6-8 años',level:2,text:'Cuéntame cómo ha sido tu mañana de hoy, pero solo puedes mencionar tres objetos que hayas usado. Con esos tres objetos construye un relato de al menos cinco frases.',clue:'Piensa qué fue lo primero que hiciste al levantarte. Elige tres objetos de ese momento.',reward:'¡Narrador estrella! Contar historias con límites es lo que hacen los mejores escritores.'},
+  {id:'b22',area:'narracion',title:'El animal misterioso',age:'4-6 años',level:2,text:'Piensa en tu animal favorito pero no lo digas. Descríbelo con cinco pistas: color, movimiento, lugar donde vive, qué come y qué sonido hace. Alguien tiene que adivinar qué animal es.',clue:'Empieza por lo más fácil de describir. No digas el nombre ni el nombre de su familia.',reward:'¡Maestro de la descripción! Tu forma de hablar hace que cualquiera entienda perfectamente.'},
+  {id:'b23',area:'narracion',title:'El dragón que no podía volar',age:'6-8 años',level:2,text:'Escucha el comienzo: Había una vez un dragón pequeño que no podía volar como los demás. Invéntate el final con al menos seis frases y que termine bien.',clue:'Piensa: ¿por qué no puede volar? ¿Quién le ayuda? ¿Cómo lo consigue?',reward:'¡Cuentacuentos oficial! Tu imaginación no tiene límites. ¡Ese dragón vuela gracias a ti!'},
+  {id:'b24',area:'narracion',title:'Mi desayuno favorito',age:'4-6 años',level:1,text:'Explica cómo se prepara tu desayuno favorito paso a paso. Usa las palabras primero, después, luego y por último.',clue:'Empieza por lo primero que haces: ¿abres la nevera? ¿enciendes algo? ¿buscas un vaso?',reward:'¡Chef narrador! Explicar pasos en orden es una habilidad de superprofesor.'},
+  {id:'b25',area:'narracion',title:'Algo divertido de esta semana',age:'6-8 años',level:2,text:'Cuéntanos algo divertido o sorprendente que te haya pasado esta semana. Di cuándo pasó, dónde estabas, quién estaba contigo y por qué fue tan divertido.',clue:'No tiene que ser algo grande. A veces lo más pequeño es lo más gracioso.',reward:'¡Narrador de la vida real! Los mejores cuentos son los que realmente ocurren.'},
+  {id:'b26',area:'conciencia',title:'Empieza por la letra M',age:'4-6 años',level:1,text:'Di cinco palabras que empiecen por la letra M, como mesa o mano. Después ordénalas de más corta a más larga según sus sílabas.',clue:'Piensa en personas, animales, comidas o cosas del cole que empiecen por M.',reward:'¡La letra M te adora! Cinco palabras perfectas. ¡Conciencia fonológica superada!'},
+  {id:'b27',area:'conciencia',title:'Segmenta y conquista',age:'4-6 años',level:2,text:'Separa en sílabas estas tres palabras aplaudiendo: mariposa, elefante, camión. Aplaude cada sílaba y cuenta cuántas tiene cada una.',clue:'Ma-ri-po-sa... ¿cuántos aplausos son? Cuenta en voz alta mientras aplaudes.',reward:'¡Campeón de las sílabas! Separar palabras en partes es la base de aprender a leer.'},
+  {id:'b28',area:'conciencia',title:'La palabra intrusa',age:'6-8 años',level:2,text:'Escucha estas cuatro palabras: gato, pato, rato, libro. Tres riman entre sí. ¿Cuál es la intrusa, la que no rima? Di cuál es y explica por qué.',clue:'Compara cómo terminan las palabras. Las que riman terminan con el mismo sonido.',reward:'¡Detective fonológico! Encontrar la intrusa requiere escucha y análisis. ¡Oídos de oro!'},
+  {id:'b29',area:'conciencia',title:'Palabras largas y cortas',age:'4-6 años',level:1,text:'Piensa en una palabra muy larga con muchas sílabas y una muy corta con una o dos. Di las dos en voz alta, aplaude sus sílabas, y explica cuál es más difícil de decir rápido.',clue:'Las palabras muy largas suelen ser nombres de animales exóticos o lugares lejanos.',reward:'¡Explorador de palabras! Sabes distinguir palabras largas de cortas con los oídos y las manos.'},
+  {id:'b30',area:'conciencia',title:'La cadena de palabras',age:'8-10 años',level:3,text:'Vamos a hacer una cadena. La primera palabra es casa. Cada nueva palabra empieza por la última sílaba de la anterior: ca-sa, sa-po, po-zo, zo-rro. ¡Haz una cadena de cinco palabras!',clue:'Repite en voz alta la última sílaba de la palabra anterior y piensa qué palabra empieza así.',reward:'¡Maestro de la cadena fonológica! Ese juego lo inventaron los logopedas más creativos del mundo.'}
+];
+
+renderMy();
+</script>
+</body>
+</html>
