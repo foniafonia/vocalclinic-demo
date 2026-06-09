@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroTrack Watch — Simulador</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* LAYOUT */
+header{background:#161b22;border-bottom:1px solid #30363d;padding:14px 24px;display:flex;align-items:center;gap:16px}
+header h1{font-size:18px;font-weight:700;letter-spacing:-.3px}
+header span{font-size:12px;color:#8b949e;background:#21262d;padding:3px 10px;border-radius:20px}
+.disclaimer{font-size:11px;color:#8b949e;margin-left:auto;max-width:400px;text-align:right;line-height:1.4}
+
+.app{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 53px)}
+
+/* WATCH PANEL */
+.watch-panel{background:#161b22;border-right:1px solid #30363d;display:flex;flex-direction:column;overflow:hidden}
+.panel-title{font-size:11px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;padding:14px 16px 10px}
+
+.watch-face{margin:0 16px;background:#0d1117;border-radius:16px;padding:14px;border:1px solid #30363d}
+.watch-status{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:#3fb950}
+.pulse-dot.inactive{background:#484f58}
+.pulse-dot.active{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+.watch-label{font-size:12px;color:#8b949e}
+#watch-count{font-size:12px;font-weight:600;color:#e6edf3;margin-left:auto}
+
+canvas#waveform{width:100%;height:90px;display:block;border-radius:8px;background:#0a0d12}
+
+.live-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.feat{background:#21262d;border-radius:8px;padding:8px 10px}
+.feat-label{font-size:10px;color:#8b949e;margin-bottom:2px}
+.feat-value{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.feat-value.low{color:#8b949e}
+.feat-value.mid{color:#d29922}
+.feat-value.high{color:#3fb950}
+
+.episode-indicator{margin-top:10px;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;text-align:center;transition:all .3s}
+.episode-indicator.idle{background:#21262d;color:#8b949e}
+.episode-indicator.building{background:rgba(210,153,34,.15);color:#d29922;border:1px solid rgba(210,153,34,.3)}
+.episode-indicator.active{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.4);animation:glow .8s ease-in-out infinite alternate}
+@keyframes glow{from{box-shadow:0 0 4px rgba(63,185,80,.3)}to{box-shadow:0 0 12px rgba(63,185,80,.5)}}
+
+/* MODE BUTTONS */
+.section{padding:12px 16px;border-top:1px solid #30363d}
+.section-label{font-size:11px;color:#8b949e;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mode-btn{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:8px;cursor:pointer;transition:all .2s;text-align:left;color:#e6edf3}
+.mode-btn:hover{background:#2d333b;border-color:#484f58}
+.mode-btn.selected{background:rgba(88,166,255,.12);border-color:#58a6ff;color:#58a6ff}
+.mode-btn .mode-name{font-size:12px;font-weight:600;display:block}
+.mode-btn .mode-desc{font-size:10px;color:#8b949e;margin-top:2px;display:block}
+.mode-btn.selected .mode-desc{color:rgba(88,166,255,.7)}
+
+/* THRESHOLD SLIDERS */
+.thresholds{display:flex;flex-direction:column;gap:10px}
+.threshold-row{display:flex;flex-direction:column;gap:3px}
+.threshold-header{display:flex;justify-content:space-between;align-items:center}
+.threshold-name{font-size:11px;color:#c9d1d9}
+.threshold-val{font-size:11px;font-weight:600;color:#58a6ff;font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+input[type=range]{width:100%;height:3px;-webkit-appearance:none;appearance:none;background:#30363d;border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#58a6ff;cursor:pointer}
+
+/* START BUTTON */
+.start-btn{margin:12px 16px 16px;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;width:calc(100% - 32px)}
+.start-btn.start{background:#238636;color:#fff}
+.start-btn.start:hover{background:#2ea043}
+.start-btn.stop{background:#da3633;color:#fff}
+.start-btn.stop:hover{background:#f85149}
+
+/* IPHONE PANEL */
+.iphone-panel{display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid #30363d;background:#161b22}
+.tab{padding:12px 20px;font-size:13px;font-weight:600;color:#8b949e;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:#58a6ff;border-bottom-color:#58a6ff}
+.tab-content{flex:1;overflow-y:auto;display:none;padding:16px}
+.tab-content.active{display:block}
+
+/* METRIC CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;text-align:center}
+.card-icon{font-size:20px;margin-bottom:6px}
+.card-value{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.card-label{font-size:11px;color:#8b949e;margin-top:3px}
+
+/* EPISODE LIST */
+.episode-list{display:flex;flex-direction:column;gap:8px}
+.episode-item{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .2s}
+.episode-item:hover{border-color:#484f58}
+.ep-status{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ep-status.pending{background:rgba(210,153,34,.15)}
+.ep-status.validated{background:rgba(63,185,80,.15)}
+.ep-status.false{background:rgba(248,81,73,.15)}
+.ep-info{flex:1}
+.ep-time{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.ep-metrics{display:flex;gap:12px;margin-top:3px}
+.ep-metric{font-size:11px;color:#8b949e}
+.ep-metric span{color:#c9d1d9;font-weight:600}
+.ep-actions{display:flex;gap:6px}
+.ep-btn{padding:4px 10px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#8b949e;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ep-btn:hover{border-color:#484f58;color:#e6edf3}
+.ep-btn.ep-ok{border-color:rgba(63,185,80,.4);color:#3fb950;background:rgba(63,185,80,.08)}
+.ep-btn.ep-fp{border-color:rgba(248,81,73,.4);color:#f85149;background:rgba(248,81,73,.08)}
+.ep-note{width:100%;margin-top:8px;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:6px 8px;color:#e6edf3;font-size:11px;resize:none;font-family:inherit;outline:none}
+.ep-note:focus{border-color:#58a6ff}
+.empty-state{text-align:center;padding:60px 20px;color:#8b949e}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:600;color:#c9d1d9;margin-bottom:6px}
+
+/* CHARTS */
+.chart-section{margin-bottom:20px}
+.chart-title{font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:10px}
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:80px;padding-bottom:18px;position:relative}
+.bar-chart::after{content:'';position:absolute;bottom:18px;left:0;right:0;height:1px;background:#21262d}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%}
+.bar-inner{width:100%;display:flex;flex-direction:column;justify-content:flex-end;flex:1}
+.bar{width:100%;border-radius:2px 2px 0 0;background:#58a6ff;min-height:0;transition:height .3s}
+.bar-label{font-size:9px;color:#484f58;text-align:center}
+
+.scatter{position:relative;height:100px;background:#0d1117;border-radius:8px;overflow:hidden;border:1px solid #21262d;margin-bottom:6px}
+.scatter-dot{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);transition:opacity .3s}
+.scatter-axis{position:absolute;bottom:0;left:0;right:0;height:1px;background:#21262d}
+.scatter-label{font-size:10px;color:#484f58;margin-top:4px}
+
+.validation-row{display:flex;gap:10px}
+.val-pill{flex:1;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center}
+.val-pill-n{font-size:20px;font-weight:700}
+.val-pill-l{font-size:10px;color:#8b949e;margin-top:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div>⌚</div>
+  <h1>NeuroTrack Watch</h1>
+  <span>Simulador MVP</span>
+  <div class="disclaimer">Herramienta de observación de patrones motores repetitivos.<br>No diagnostica. No sustituye valoración clínica.</div>
+</header>
+
+<div class="app">
+
+  <!-- ===== WATCH PANEL ===== -->
+  <div class="watch-panel">
+    <div class="panel-title">⌚ Apple Watch</div>
+
+    <div class="watch-face">
+      <div class="watch-status">
+        <div class="pulse-dot inactive" id="pulse-dot"></div>
+        <span class="watch-label" id="watch-state-label">Sesión inactiva</span>
+        <span id="watch-count">0 episodios</span>
+      </div>
+      <canvas id="waveform" width="280" height="90"></canvas>
+      <div class="live-features">
+        <div class="feat">
+          <div class="feat-label">Intensidad RMS</div>
+          <div class="feat-value low" id="feat-rms">— g</div>
+        </div>
+        <div class="feat">
+          <div class="feat-label">Ritmicidad</div>
+          <div class="feat-value low" id="feat-rhythm">—</div>
+        </div>
+        <div class="feat">
+          <div class="feat-label">Frecuencia</div>
+          <div class="feat-value low" id="feat-freq">— Hz</div>
+        </div>
+        <div class="feat">
+          <div class="feat-label">Varianza</div>
+          <div class="feat-value low" id="feat-var">—</div>
+        </div>
+      </div>
+      <div class="episode-indicator idle" id="episode-indicator">Sin actividad detectada</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Modo de señal</div>
+      <div class="mode-grid">
+        <button class="mode-btn selected" data-mode="flapping">
+          <span class="mode-name">🙌 Aleteo</span>
+          <span class="mode-desc">~3 Hz, bilateral</span>
+        </button>
+        <button class="mode-btn" data-mode="shaking">
+          <span class="mode-name">🤚 Sacudida</span>
+          <span class="mode-desc">~2.5 Hz, intensa</span>
+        </button>
+        <button class="mode-btn" data-mode="normal">
+          <span class="mode-name">🚶 Normal</span>
+          <span class="mode-desc">Marcha, gestos</span>
+        </button>
+        <button class="mode-btn" data-mode="resting">
+          <span class="mode-name">😴 Reposo</span>
+          <span class="mode-desc">Brazo quieto</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Umbrales del detector</div>
+      <div class="thresholds">
+        <div class="threshold-row">
+          <div class="threshold-header">
+            <span class="threshold-name">Intensidad mínima (RMS)</span>
+            <span class="threshold-val" id="val-rms">0.15 g</span>
+          </div>
+          <input type="range" id="sl-rms" min="0.05" max="0.5" step="0.01" value="0.15">
+        </div>
+        <div class="threshold-row">
+          <div class="threshold-header">
+            <span class="threshold-name">Ritmicidad mínima</span>
+            <span class="threshold-val" id="val-rhythm">0.28</span>
+          </div>
+          <input type="range" id="sl-rhythm" min="0.1" max="0.7" step="0.01" value="0.28">
+        </div>
+        <div class="threshold-row">
+          <div class="threshold-header">
+            <span class="threshold-name">Banda de frecuencia</span>
+            <span class="threshold-val" id="val-freq">1.0–4.5 Hz</span>
+          </div>
+          <input type="range" id="sl-fmin" min="0.5" max="2.5" step="0.1" value="1.0">
+          <input type="range" id="sl-fmax" min="2.0" max="8.0" step="0.1" value="4.5" style="margin-top:4px">
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn start" id="start-btn">▶  Iniciar sesión</button>
+  </div>
+
+  <!-- ===== IPHONE PANEL ===== -->
+  <div class="iphone-panel">
+    <div class="tabs">
+      <div class="tab active" data-tab="events">Eventos</div>
+      <div class="tab" data-tab="summary">Resumen</div>
+    </div>
+
+    <div class="tab-content active" id="tab-events">
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">〰️</div>
+        <div class="empty-title">Sin episodios registrados</div>
+        <div>Inicia la sesión en el Watch para comenzar.</div>
+      </div>
+      <div class="episode-list" id="episode-list" style="display:none"></div>
+    </div>
+
+    <div class="tab-content" id="tab-summary">
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">〰️</div>
+          <div class="card-value" id="s-count" style="color:#58a6ff">0</div>
+          <div class="card-label">Episodios</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⏱️</div>
+          <div class="card-value" id="s-duration" style="color:#d29922">0 s</div>
+          <div class="card-label">Duración total</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <div class="card-value" id="s-intensity" style="color:#f0883e">—</div>
+          <div class="card-label">Intens. media</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">✅</div>
+          <div class="card-value" id="s-validated" style="color:#3fb950">0</div>
+          <div class="card-label">Validados</div>
+        </div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-title">Distribución por hora</div>
+        <div class="bar-chart" id="hourly-chart"></div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-title">Intensidad por episodio</div>
+        <div class="scatter" id="scatter-chart"><div class="scatter-axis"></div></div>
+        <div class="scatter-label">Eje X: tiempo · Eje Y: intensidad RMS (g) · Color: estado de validación</div>
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-title">Estado de validación</div>
+        <div class="validation-row">
+          <div class="val-pill">
+            <div class="val-pill-n" style="color:#d29922" id="v-pending">0</div>
+            <div class="val-pill-l">Pendientes</div>
+          </div>
+          <div class="val-pill">
+            <div class="val-pill-n" style="color:#3fb950" id="v-validated">0</div>
+            <div class="val-pill-l">Validados</div>
+          </div>
+          <div class="val-pill">
+            <div class="val-pill-n" style="color:#f85149" id="v-fp">0</div>
+            <div class="val-pill-l">Falsos positivos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// ALGORITHM — identical logic to the Swift implementation
+// =====================================================================
+
+const SR = 50;          // sample rate Hz
+const WIN = 100;        // window size (2 s)
+const STEP = 25;        // step size (0.5 s)
+const DISPLAY_LEN = 300; // samples shown in waveform (6 s)
+
+// ---- Signal generators ----
+
+function genFlapping(t) {
+  const f = 2.8 + Math.sin(t * 0.4) * 0.4;
+  const a = 0.55 + Math.sin(t * 1.1) * 0.1;
+  return {
+    x: a * Math.sin(2 * Math.PI * f * t) + rnd(0.07),
+    y: a * 0.8 * Math.sin(2 * Math.PI * f * t + 0.25) + rnd(0.06),
+    z: a * 0.25 * Math.cos(2 * Math.PI * f * t) + rnd(0.04)
+  };
+}
+
+function genShaking(t) {
+  const f = 2.4 + Math.sin(t * 0.5) * 0.3;
+  const a = 0.9 + Math.sin(t * 0.7) * 0.15;
+  return {
+    x: a * Math.sin(2 * Math.PI * f * t) + rnd(0.08),
+    y: a * 0.35 * Math.cos(2 * Math.PI * f * t + 0.4) + rnd(0.07),
+    z: a * 0.55 * Math.sin(2 * Math.PI * f * t + Math.PI / 3) + rnd(0.06)
+  };
+}
+
+function genNormal(t) {
+  // Walking: regular cadence but NOT consistently rhythmic enough
+  const f1 = 1.75, f2 = 3.5;
+  const a = 0.28;
+  return {
+    x: a * Math.sin(2 * Math.PI * f1 * t) * (0.7 + rnd(0.4)) + rnd(0.12),
+    y: a * 0.5 * Math.sin(2 * Math.PI * f2 * t + 1.1) + rnd(0.1),
+    z: a * 0.3 * Math.cos(2 * Math.PI * f1 * t * 1.07) + rnd(0.09)
+  };
+}
+
+function genResting(t) {
+  return { x: rnd(0.035), y: rnd(0.028), z: rnd(0.022) };
+}
+
+function rnd(amp) { return (Math.random() - 0.5) * 2 * amp; }
+
+function magnitude(s) {
+  return Math.sqrt(s.x * s.x + s.y * s.y + s.z * s.z);
+}
+
+// ---- Feature extraction ----
+
+function computeRMS(v) {
+  return Math.sqrt(v.reduce((s, x) => s + x * x, 0) / v.length);
+}
+
+function computeVariance(v) {
+  const mean = v.reduce((s, x) => s + x, 0) / v.length;
+  return v.reduce((s, x) => s + (x - mean) ** 2, 0) / (v.length - 1);
+}
+
+function computeRhythmicity(v) {
+  const mean = v.reduce((s, x) => s + x, 0) / v.length;
+  const c = v.map(x => x - mean);
+  const r0 = c.reduce((s, x) => s + x * x, 0);
+  if (r0 < 1e-10) return { score: 0, freq: 0 };
+
+  const minLag = Math.floor(SR / thresholds.fmax);
+  const maxLag = Math.floor(SR / thresholds.fmin);
+  const n = c.length;
+
+  let peakCorr = 0, peakLag = 0;
+  for (let lag = minLag; lag <= Math.min(maxLag, Math.floor(n / 2)); lag++) {
+    let corr = 0;
+    for (let i = 0; i < n - lag; i++) corr += c[i] * c[i + lag];
+    const norm = corr / r0;
+    if (norm > peakCorr) { peakCorr = norm; peakLag = lag; }
+  }
+  return { score: peakCorr, freq: peakLag > 0 ? SR / peakLag : 0 };
+}
+
+function extractFeatures(window) {
+  const mags = window.map(magnitude);
+  const { score, freq } = computeRhythmicity(mags);
+  return {
+    rms: computeRMS(mags),
+    variance: computeVariance(mags),
+    rhythmicity: score,
+    freq
+  };
+}
+
+// ---- Thresholds ----
+
+let thresholds = { minRMS: 0.15, minVariance: 0.015, minRhythmicity: 0.28, fmin: 1.0, fmax: 4.5 };
+const MIN_CONSECUTIVE = 3;
+const GAP_TOLERANCE   = 2;
+
+function meetsThresholds(f) {
+  return f.rms >= thresholds.minRMS
+    && f.variance >= thresholds.minVariance
+    && f.rhythmicity >= thresholds.minRhythmicity
+    && f.freq >= thresholds.fmin
+    && f.freq <= thresholds.fmax;
+}
+
+// ---- Detector state ----
+
+let detState = {
+  consecutive: 0, gap: 0, open: false,
+  start: null, windows: [], building: false
+};
+
+function processWindow(window) {
+  const f = extractFeatures(window);
+  updateLiveFeatures(f);
+
+  if (meetsThresholds(f)) {
+    detState.gap = 0;
+    detState.consecutive++;
+    detState.windows.push(f);
+
+    if (!detState.open && detState.consecutive >= MIN_CONSECUTIVE) {
+      detState.open  = true;
+      detState.start = new Date();
+      detState.building = false;
+    } else if (!detState.open) {
+      detState.building = true;
+    }
+  } else {
+    detState.building = false;
+    if (detState.open) {
+      detState.gap++;
+      if (detState.gap <= GAP_TOLERANCE) {
+        detState.windows.push(f);
+      } else {
+        finaliseEpisode(new Date());
+      }
+    } else {
+      detState.consecutive = 0;
+      detState.windows = [];
+    }
+  }
+
+  updateEpisodeIndicator();
+}
+
+function finaliseEpisode(endTime) {
+  const ws = detState.windows.filter(w => meetsThresholds(w));
+  if (ws.length === 0 || !detState.start) { resetDetector(); return; }
+
+  const meanRMS  = ws.reduce((s, w) => s + w.rms, 0) / ws.length;
+  const meanRhyt = ws.reduce((s, w) => s + w.rhythmicity, 0) / ws.length;
+  const freqs    = ws.map(w => w.freq).filter(f => f > 0);
+  const meanFreq = freqs.length ? freqs.reduce((s, f) => s + f, 0) / freqs.length : 0;
+  const dur      = (endTime - detState.start) / 1000;
+
+  const ep = {
+    id: Date.now(),
+    startTime: detState.start,
+    endTime,
+    duration: dur,
+    intensityRMS: meanRMS,
+    rhythmicity: meanRhyt,
+    freq: meanFreq,
+    windows: ws.length,
+    status: 'pending',
+    notes: ''
+  };
+
+  episodes.unshift(ep);
+  sessionEpisodeCount++;
+  renderEpisodes();
+  updateSummary();
+  updateWatchCount();
+  resetDetector();
+}
+
+function resetDetector() {
+  detState = { consecutive: 0, gap: 0, open: false, start: null, windows: [], building: false };
+}
+
+// ---- App state ----
+
+let running = false;
+let mode    = 'flapping';
+let t       = 0;
+let displayBuffer = new Float32Array(DISPLAY_LEN);
+let displayHead   = 0;
+let windowAccum   = [];
+let episodes      = [];
+let sessionEpisodeCount = 0;
+let intervalId    = null;
+let isEpisodeActive = false;
+
+// ---- Main loop ----
+
+function tick() {
+  const generators = { flapping: genFlapping, shaking: genShaking, normal: genNormal, resting: genResting };
+  const sample = generators[mode](t);
+  t += 1 / SR;
+
+  const mag = magnitude(sample);
+  displayBuffer[displayHead % DISPLAY_LEN] = mag;
+  displayHead++;
+
+  windowAccum.push(sample);
+  while (windowAccum.length >= WIN) {
+    processWindow(windowAccum.slice(0, WIN));
+    windowAccum.splice(0, STEP);
+  }
+
+  drawWaveform();
+}
+
+// ---- Waveform canvas ----
+
+const canvas  = document.getElementById('waveform');
+const ctx     = canvas.getContext('2d');
+
+function drawWaveform() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = '#1a2030';
+  ctx.lineWidth = 1;
+  for (let y = H / 4; y < H; y += H / 4) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Episode highlight
+  if (detState.open) {
+    ctx.fillStyle = 'rgba(63,185,80,0.06)';
+    ctx.fillRect(0, 0, W, H);
+  } else if (detState.building) {
+    ctx.fillStyle = 'rgba(210,153,34,0.06)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // Waveform
+  const maxVal = 2.0;
+  const n = Math.min(DISPLAY_LEN, displayHead);
+  const dx = W / DISPLAY_LEN;
+
+  ctx.beginPath();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = detState.open ? '#3fb950' : (detState.building ? '#d29922' : '#58a6ff');
+
+  for (let i = 0; i < DISPLAY_LEN; i++) {
+    const idx = (displayHead - DISPLAY_LEN + i + DISPLAY_LEN) % DISPLAY_LEN;
+    const val = displayBuffer[idx];
+    const x = i * dx;
+    const y = H - (val / maxVal) * H * 0.85 - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Threshold line
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(248,81,73,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  const threshY = H - (thresholds.minRMS / maxVal) * H * 0.85 - 4;
+  ctx.moveTo(0, threshY); ctx.lineTo(W, threshY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ---- UI updates ----
+
+function levelClass(v, lo, hi) {
+  if (v < lo) return 'low';
+  if (v < hi) return 'mid';
+  return 'high';
+}
+
+function updateLiveFeatures(f) {
+  if (!running) return;
+  setFeat('feat-rms',    f.rms.toFixed(3) + ' g', levelClass(f.rms, 0.1, 0.3));
+  setFeat('feat-rhythm', f.rhythmicity.toFixed(3), levelClass(f.rhythmicity, 0.2, 0.4));
+  setFeat('feat-freq',   f.freq > 0 ? f.freq.toFixed(1) + ' Hz' : '— Hz', levelClass(f.freq, 0.5, 1.5));
+  setFeat('feat-var',    f.variance.toFixed(4), levelClass(f.variance, 0.01, 0.05));
+}
+
+function setFeat(id, text, cls) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'feat-value ' + cls;
+}
+
+function updateEpisodeIndicator() {
+  const el = document.getElementById('episode-indicator');
+  if (detState.open) {
+    el.className = 'episode-indicator active';
+    el.textContent = '⬤  Episodio en curso…';
+  } else if (detState.building) {
+    el.className = 'episode-indicator building';
+    el.textContent = '◐  Actividad detectada…';
+  } else {
+    el.className = 'episode-indicator idle';
+    el.textContent = 'Sin actividad detectada';
+  }
+}
+
+function updateWatchCount() {
+  document.getElementById('watch-count').textContent =
+    sessionEpisodeCount + (sessionEpisodeCount === 1 ? ' episodio' : ' episodios');
+}
+
+function renderEpisodes() {
+  const list  = document.getElementById('episode-list');
+  const empty = document.getElementById('empty-state');
+
+  if (episodes.length === 0) {
+    empty.style.display = 'block';
+    list.style.display  = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  list.style.display  = 'flex';
+
+  list.innerHTML = episodes.map(ep => {
+    const statusIcon  = ep.status === 'validated' ? '✅' : ep.status === 'false' ? '❌' : '⏳';
+    const statusClass = ep.status === 'validated' ? 'validated' : ep.status === 'false' ? 'false' : 'pending';
+    const okClass     = ep.status === 'validated' ? 'ep-ok' : '';
+    const fpClass     = ep.status === 'false'     ? 'ep-fp' : '';
+    const time        = ep.startTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    return `<div class="episode-item" id="ep-${ep.id}">
+      <div class="ep-status ${statusClass}">${statusIcon}</div>
+      <div class="ep-info">
+        <div class="ep-time">${time}</div>
+        <div class="ep-metrics">
+          <div class="ep-metric">⏱ <span>${ep.duration.toFixed(1)} s</span></div>
+          <div class="ep-metric">⚡ <span>${ep.intensityRMS.toFixed(3)} g</span></div>
+          <div class="ep-metric">♻ <span>${ep.freq.toFixed(1)} Hz</span></div>
+          <div class="ep-metric">〰 <span>${ep.rhythmicity.toFixed(2)}</span></div>
+        </div>
+        <textarea class="ep-note" placeholder="Notas (opcional)…" rows="1"
+          onchange="updateNote(${ep.id}, this.value)">${ep.notes}</textarea>
+      </div>
+      <div class="ep-actions">
+        <button class="ep-btn ${okClass}" onclick="setStatus(${ep.id},'validated')">✓ Válido</button>
+        <button class="ep-btn ${fpClass}" onclick="setStatus(${ep.id},'false')">✗ FP</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setStatus(id, status) {
+  const ep = episodes.find(e => e.id === id);
+  if (ep) { ep.status = status; renderEpisodes(); updateSummary(); }
+}
+
+function updateNote(id, text) {
+  const ep = episodes.find(e => e.id === id);
+  if (ep) ep.notes = text;
+}
+
+function updateSummary() {
+  const confirmed = episodes.filter(e => e.status !== 'false');
+  const totalDur  = confirmed.reduce((s, e) => s + e.duration, 0);
+  const meanInt   = confirmed.length
+    ? confirmed.reduce((s, e) => s + e.intensityRMS, 0) / confirmed.length : 0;
+
+  document.getElementById('s-count').textContent     = confirmed.length;
+  document.getElementById('s-duration').textContent  = totalDur.toFixed(0) + ' s';
+  document.getElementById('s-intensity').textContent = confirmed.length ? meanInt.toFixed(3) + ' g' : '—';
+  document.getElementById('s-validated').textContent = confirmed.filter(e => e.status === 'validated').length;
+
+  document.getElementById('v-pending').textContent   = episodes.filter(e => e.status === 'pending').length;
+  document.getElementById('v-validated').textContent = episodes.filter(e => e.status === 'validated').length;
+  document.getElementById('v-fp').textContent        = episodes.filter(e => e.status === 'false').length;
+
+  renderHourlyChart(confirmed);
+  renderScatter(confirmed);
+}
+
+function renderHourlyChart(evs) {
+  const counts = new Array(24).fill(0);
+  evs.forEach(e => counts[e.startTime.getHours()]++);
+  const max = Math.max(...counts, 1);
+
+  // Show only active hours window ± 2 or full 24h if sparse
+  const chart = document.getElementById('hourly-chart');
+  chart.innerHTML = counts.map((c, h) => {
+    const pct = (c / max) * 100;
+    return `<div class="bar-wrap">
+      <div class="bar-inner">
+        <div class="bar" style="height:${pct}%;background:${c>0?'#58a6ff':'#21262d'}"></div>
+      </div>
+      <div class="bar-label">${h % 6 === 0 ? h + 'h' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderScatter(evs) {
+  const sc = document.getElementById('scatter-chart');
+  // Remove old dots
+  sc.querySelectorAll('.scatter-dot').forEach(d => d.remove());
+  if (evs.length === 0) return;
+
+  const now   = Date.now();
+  const start = Math.min(...evs.map(e => e.startTime.getTime()));
+  const range = Math.max(now - start, 1);
+  const maxI  = Math.max(...evs.map(e => e.intensityRMS), 0.1);
+
+  evs.forEach(ep => {
+    const x = ((ep.startTime.getTime() - start) / range) * 92 + 4;
+    const y = (1 - ep.intensityRMS / maxI) * 85 + 4;
+    const color = ep.status === 'validated' ? '#3fb950' : ep.status === 'false' ? '#f85149' : '#d29922';
+    const dot = document.createElement('div');
+    dot.className = 'scatter-dot';
+    dot.style.cssText = `left:${x}%;top:${y}%;background:${color};border:1px solid rgba(255,255,255,.2)`;
+    dot.title = `${ep.startTime.toLocaleTimeString('es-ES')} | ${ep.intensityRMS.toFixed(3)} g`;
+    sc.appendChild(dot);
+  });
+}
+
+// ---- Controls ----
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  if (!running) {
+    running = true;
+    t = 0;
+    displayHead = 0;
+    windowAccum = [];
+    sessionEpisodeCount = 0;
+    resetDetector();
+    episodes = [];
+    renderEpisodes();
+    updateSummary();
+
+    document.getElementById('start-btn').textContent = '■  Detener sesión';
+    document.getElementById('start-btn').className = 'start-btn stop';
+    document.getElementById('pulse-dot').className = 'pulse-dot active';
+    document.getElementById('watch-state-label').textContent = 'Sesión activa';
+    updateWatchCount();
+
+    intervalId = setInterval(tick, 1000 / SR);
+  } else {
+    running = false;
+    clearInterval(intervalId);
+    if (detState.open) finaliseEpisode(new Date());
+    resetDetector();
+
+    document.getElementById('start-btn').textContent = '▶  Iniciar sesión';
+    document.getElementById('start-btn').className = 'start-btn start';
+    document.getElementById('pulse-dot').className = 'pulse-dot inactive';
+    document.getElementById('watch-state-label').textContent = 'Sesión detenida';
+    document.getElementById('episode-indicator').className = 'episode-indicator idle';
+    document.getElementById('episode-indicator').textContent = 'Sin actividad detectada';
+
+    ['feat-rms','feat-rhythm','feat-freq','feat-var'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = '—'; el.className = 'feat-value low';
+    });
+  }
+});
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    mode = btn.dataset.mode;
+    resetDetector();
+    windowAccum = [];
+  });
+});
+
+// Threshold sliders
+function bindSlider(id, key, fmt, displayId) {
+  const sl = document.getElementById(id);
+  sl.addEventListener('input', () => {
+    thresholds[key] = parseFloat(sl.value);
+    document.getElementById(displayId).textContent = fmt(parseFloat(sl.value));
+    resetDetector();
+  });
+}
+
+bindSlider('sl-rms',    'minRMS',           v => v.toFixed(2) + ' g', 'val-rms');
+bindSlider('sl-rhythm', 'minRhythmicity',   v => v.toFixed(2),        'val-rhythm');
+
+document.getElementById('sl-fmin').addEventListener('input', () => {
+  thresholds.fmin = parseFloat(document.getElementById('sl-fmin').value);
+  document.getElementById('val-freq').textContent =
+    thresholds.fmin.toFixed(1) + '–' + thresholds.fmax.toFixed(1) + ' Hz';
+  resetDetector();
+});
+document.getElementById('sl-fmax').addEventListener('input', () => {
+  thresholds.fmax = parseFloat(document.getElementById('sl-fmax').value);
+  document.getElementById('val-freq').textContent =
+    thresholds.fmin.toFixed(1) + '–' + thresholds.fmax.toFixed(1) + ' Hz';
+  resetDetector();
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'summary') updateSummary();
+  });
+});
+
+// Initial draw
+drawWaveform();
+renderHourlyChart([]);
+</script>
+</body>
+</html>
