@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FoniaWatch Rehab · Vista previa en Apple Watch</title>
+<style>
+  :root{
+    --accent:#0a84ff; --green:#30d158; --yellow:#ffd60a; --red:#ff453a;
+    --gray:#8e8e93; --bg:#000; --card:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%,#1b2230 0%,#0a0d12 55%,#05070a 100%);
+    color:#e9edf3; min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:28px 16px 60px;
+  }
+  .head{max-width:760px; text-align:center; margin-bottom:22px;}
+  .head h1{font-size:30px; margin:0 0 6px; letter-spacing:-.5px;}
+  .head h1 b{color:var(--green);}
+  .head p{margin:0; color:#9aa6b2; font-size:15px; line-height:1.5;}
+  .head .pill{display:inline-block; margin-top:12px; font-size:12px; color:#9aa6b2;
+    border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:5px 12px;}
+
+  /* ---------- Reloj ---------- */
+  .stage{display:flex; flex-wrap:wrap; gap:34px; justify-content:center; align-items:flex-start; margin-top:6px;}
+  .watch-wrap{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .band{width:120px; height:40px; background:linear-gradient(#3a3f46,#23262b); border-radius:14px 14px 6px 6px;}
+  .band.bottom{border-radius:6px 6px 14px 14px;}
+  .watch{
+    position:relative; width:240px; height:290px;
+    background:linear-gradient(145deg,#2c2f35,#16181c);
+    border-radius:58px; padding:14px;
+    box-shadow:0 30px 60px rgba(0,0,0,.55), inset 0 1px 2px rgba(255,255,255,.18);
+  }
+  .crown{position:absolute; right:-7px; top:96px; width:9px; height:42px;
+    background:linear-gradient(#4a4e55,#2a2d31); border-radius:4px;
+    box-shadow:inset 0 0 3px rgba(0,0,0,.6);}
+  .sidebtn{position:absolute; right:-5px; top:150px; width:6px; height:54px;
+    background:linear-gradient(#3a3d42,#23262b); border-radius:4px;}
+  .screen{
+    position:relative; width:100%; height:100%; background:#000; border-radius:46px;
+    overflow:hidden; box-shadow:inset 0 0 0 2px #000, inset 0 0 22px rgba(0,0,0,.9);
+  }
+  .statusbar{display:flex; justify-content:space-between; align-items:center;
+    padding:7px 18px 2px; font-size:12px; color:#c9d2dc;}
+  .statusbar .t{color:var(--green); font-weight:700;}
+  .viewport{position:absolute; inset:26px 0 0; overflow-y:auto; padding:0 12px 16px;
+    scrollbar-width:none;}
+  .viewport::-webkit-scrollbar{display:none;}
+
+  h2.title{font-size:17px; margin:2px 0 8px; text-align:center; color:#fff;}
+  .menu-btn{display:flex; align-items:center; gap:10px; width:100%; border:none; cursor:pointer;
+    background:var(--card); color:#fff; border-radius:14px; padding:13px 12px; margin-bottom:7px;
+    font-size:17px; font-weight:700; text-align:left;}
+  .menu-btn .ico{font-size:20px; width:26px; text-align:center;}
+  .menu-btn:active{background:rgba(255,255,255,.16);}
+  .back{background:none; border:none; color:var(--accent); font-size:14px; font-weight:600;
+    cursor:pointer; padding:2px 4px; margin-bottom:4px;}
+  .hint{color:#9aa6b2; font-size:12px; text-align:center; margin:4px 2px 10px; line-height:1.35;}
+  .stim{font-size:38px; font-weight:800; text-align:center; background:var(--card);
+    border-radius:14px; padding:14px 8px; margin:8px 0; line-height:1.1; letter-spacing:.5px;}
+  .stim .emoji{font-size:46px; display:block; margin-bottom:4px;}
+  .big{font-size:42px; font-weight:800; text-align:center; font-variant-numeric:tabular-nums;}
+  .row{display:flex; justify-content:space-between; font-size:14px; padding:4px 2px;}
+  .row span:first-child{color:#9aa6b2;}
+  .row b{font-size:16px;}
+  .btn{display:block; width:100%; border:none; cursor:pointer; border-radius:13px;
+    padding:11px; font-size:16px; font-weight:700; margin:6px 0; color:#fff;}
+  .btn.green{background:var(--green); color:#04210e;}
+  .btn.blue{background:var(--accent);}
+  .btn.red{background:var(--red);}
+  .btn.yellow{background:var(--yellow); color:#3a2e00;}
+  .btn.gray{background:#3a3f46;}
+  .btn.purple{background:#bf5af2; color:#1b0033;}
+  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.2); font-size:13px; padding:8px;}
+  .btn:active{filter:brightness(.85);}
+  .btn:disabled{opacity:.4;}
+  .score{display:flex; align-items:center; gap:8px; text-align:left; justify-content:flex-start;}
+
+  /* círculo de voz */
+  .circle-stage{position:relative; height:150px; display:flex; align-items:center; justify-content:center; margin:6px 0;}
+  .ring{position:absolute; width:130px; height:130px; border-radius:50%; border:4px solid rgba(255,255,255,.25);}
+  .blob{position:absolute; width:46px; height:46px; border-radius:50%; background:var(--accent);
+    transition:width .1s, height .1s, background .2s;}
+  .circle-stage .time{position:relative; z-index:2; font-size:22px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums;}
+
+  /* metrónomo */
+  .metro{width:58px; height:58px; border-radius:50%; background:#3a3f46; margin:8px auto;
+    transition:transform .08s, background .08s;}
+  .metro.on{background:var(--green); transform:scale(1.22);}
+
+  /* chart */
+  .chart{display:flex; align-items:flex-end; gap:5px; height:80px; padding:6px 2px;}
+  .chart .col{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .chart .bar{width:100%; background:var(--accent); border-radius:3px; min-height:2px;}
+  .chart .d{font-size:9px; color:#9aa6b2;}
+  .chart .n{font-size:9px; color:#9aa6b2;}
+
+  .toggle{display:flex; justify-content:space-between; align-items:center; background:var(--card);
+    border-radius:12px; padding:11px 12px; margin:6px 0; font-size:15px; font-weight:600;}
+  .sw{width:46px; height:28px; border-radius:999px; background:#3a3f46; position:relative; cursor:pointer; transition:background .2s;}
+  .sw.on{background:var(--green);}
+  .sw i{position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .2s;}
+  .sw.on i{left:21px;}
+  input[type=range]{width:100%; accent-color:var(--accent);}
+
+  .legend{max-width:760px; margin-top:30px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;}
+  .legend .c{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:14px 16px;}
+  .legend .c h3{margin:0 0 6px; font-size:15px; color:#fff;}
+  .legend .c p{margin:0; font-size:13px; color:#9aa6b2; line-height:1.5;}
+  .foot{max-width:680px; margin-top:26px; text-align:center; color:#6f7a86; font-size:12px; line-height:1.6;}
+  .note{max-width:680px; background:rgba(255,214,10,.08); border:1px solid rgba(255,214,10,.25);
+    border-radius:12px; padding:12px 16px; margin-top:18px; font-size:13px; color:#e7d9a0; line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>FoniaWatch <b>Rehab</b></h1>
+  <p>Vista previa interactiva de la app de Apple Watch para logopedia y rehabilitación<br>
+     cognitivo-lingüística tras daño cerebral adquirido.</p>
+  <span class="pill">⌚️ Toca los botones del reloj — funciona de verdad</span>
+</div>
+
+<div class="stage">
+  <div class="watch-wrap">
+    <div class="band top"></div>
+    <div class="watch">
+      <div class="crown"></div>
+      <div class="sidebtn"></div>
+      <div class="screen">
+        <div class="statusbar"><span class="t" id="clock">9:41</span><span>FoniaWatch</span><span>🔋</span></div>
+        <div class="viewport" id="app"></div>
+      </div>
+    </div>
+    <div class="band bottom"></div>
+  </div>
+
+  <div class="note" style="max-width:300px">
+    <b>Esto es la maqueta web.</b> Reproduce la lógica real de la app SwiftUI
+    (mismos módulos, hápticos, cronómetros y registro). La app nativa instalada en
+    el reloj añade micrófono real y sensores de movimiento.
+  </div>
+</div>
+
+<div class="legend">
+  <div class="c"><h3>🎤 Voz</h3><p>Tiempo de fonación, intensidad y estabilidad con biofeedback. Círculo que crece con la voz.</p></div>
+  <div class="c"><h3>🥁 Ritmo</h3><p>Metrónomo visual y háptico. Sílabas pa-ta-ka y frases a ritmo lento.</p></div>
+  <div class="c"><h3>💬 Afasia</h3><p>Denominación, comprensión, asociación semántica, fluidez verbal y repetición.</p></div>
+  <div class="c"><h3>📖 Lectura</h3><p>Sílabas, palabras y decisión léxica con tiempo de respuesta y tipo de error.</p></div>
+  <div class="c"><h3>✏️ Escritura</h3><p>El reloj como registro: copia, dictado y tipo de error (omisión, inversión…).</p></div>
+  <div class="c"><h3>🤸 Movimiento</h3><p>Inclinar para elegir y secuencias de gestos. Apraxia y planificación motora.</p></div>
+</div>
+
+<div class="foot">
+  ⚠️ FoniaWatch Rehab no diagnostica ni sustituye al logopeda: mide, da biofeedback y
+  registra la ejecución de la sesión.<br>Autor del proyecto clínico: José Aserraf — Logopeda.
+</div>
+
+<script>
+//=================== Datos clínicos (espejo de ContentData.swift) ===================
+const DATA = {
+  naming:[["CASA","🏠"],["PERRO","🐶"],["MESA","🪑"],["SOL","☀️"],["AGUA","💧"],["PAN","🍞"],["COCHE","🚗"],["FLOR","🌸"]],
+  comprehension:[["CASA",["CASA","PERRO"]],["AGUA",["PAN","AGUA"]],["SOL",["SOL","LUNA"]],["MESA",["SILLA","MESA"]]],
+  semantic:[["PERRO","LADRAR","CUCHARA"],["PÁJARO","VOLAR","MARTILLO"],["OJO","VER","CORRER"],["PAN","COMER","ESCRIBIR"]],
+  fluency:["animales","comidas","ropa","frutas","profesiones"],
+  repetition:["pa","ta","casa","perro","quiero agua","hoy hace sol"],
+  syllables:["pa-ta-ka","pa-pa-pa","ta-ka-la","ma-na-ma"],
+  phrases:["Buenos días","Quiero agua","Hoy hace sol","Voy a comer"],
+  readWords:["CASA","AGUA","PERRO","MESA","SOL","PAN","FLOR","LIBRO"],
+  readSyll:["pa","me","lo","si","tu","ca","do","fe"],
+  lexical:[["CASA",true],["TASO",false],["PERRO",true],["LIMUR",false],["AGUA",true],["BREDO",false]],
+  copy:["CASA","SOL","PAN","AGUA","MESA"],
+  dictation:["PERRO","FLOR","LIBRO","RELOJ","COCHE"],
+  writeErrors:["Omisión","Sustitución","Inversión","Perseveración","Ilegible"],
+};
+
+//=================== Estado / persistencia (espejo de SessionStore) ===================
+const KEY="foniawatch.web.v1";
+let S = load();
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(KEY)); if(d) return d;}catch(e){}
+  return {records:[], settings:{childMode:false, target:8, bpm:60, sessions:0}};
+}
+function save(){localStorage.setItem(KEY, JSON.stringify(S));}
+function addRecord(r){ r.date=Date.now(); S.records.push(r); save(); }
+// contar sesión una vez por carga
+S.settings.sessions=(S.settings.sessions||0)+1; save();
+
+//=================== Hápticos ===================
+function buzz(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
+const H={tap:()=>buzz(8), ok:()=>buzz([0,40]), warn:()=>buzz([0,30,40,30]), beat:()=>buzz(15), done:()=>buzz([0,60,40,60])};
+
+//=================== Router ===================
+const app=document.getElementById('app');
+let timers=[];
+function clearTimers(){ timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); timers=[]; }
+function go(view, arg){ clearTimers(); app.scrollTop=0; SCREENS[view](arg); }
+function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d; }
+function emoji(m){return {Voz:'🎤',Ritmo:'🥁',Afasia:'💬',Lectura:'📖',Escritura:'✏️',Movimiento:'🤸',Resultados:'⭐️'}[m];}
+function icon(m){return {Voz:'〰️',Ritmo:'🎵',Afasia:'🗨️',Lectura:'📘',Escritura:'🖊️',Movimiento:'🏃',Resultados:'📊'}[m];}
+
+//=================== Pantallas ===================
+const SCREENS={};
+
+SCREENS.home=()=>{
+  const mods=["Voz","Ritmo","Afasia","Lectura","Escritura","Movimiento","Resultados"];
+  app.innerHTML="";
+  app.appendChild(el(`<h2 class="title">FoniaWatch</h2>`));
+  mods.forEach(m=>{
+    const b=el(`<button class="menu-btn"><span class="ico">${S.settings.childMode?emoji(m):icon(m)}</span>${m}</button>`).firstChild;
+    b.onclick=()=>{H.tap(); go(m.toLowerCase());};
+    app.appendChild(b);
+  });
+  const s=el(`<button class="menu-btn"><span class="ico">⚙️</span>Ajustes</button>`).firstChild;
+  s.onclick=()=>{H.tap(); go('ajustes');};
+  app.appendChild(s);
+};
+
+function header(title, back='home'){
+  const h=el(`<div><button class="back">‹ Atrás</button><h2 class="title">${title}</h2></div>`);
+  h.querySelector('.back').onclick=()=>{H.tap(); go(back);};
+  app.innerHTML=""; app.appendChild(h);
+}
+
+//---------- VOZ ----------
+SCREENS.voz=()=>{
+  header('Voz');
+  ["Tiempo máx. fonación","Repetir vocal /a/","Soplo sostenido"].forEach(ex=>{
+    const b=el(`<button class="menu-btn">${ex}</button>`).firstChild;
+    b.onclick=()=>{H.tap(); phonation(ex);};
+    app.appendChild(b);
+  });
+};
+function phonation(ex){
+  header('Voz','voz');
+  app.appendChild(el(`<p class="hint">Mantén pulsado «Sostener voz» mientras el paciente fona. Suelta al terminar.</p>`));
+  const stage=el(`<div class="circle-stage"><div class="ring"></div><div class="blob" id="blob"></div><div class="time" id="ptime">0.0 s</div></div>`);
+  app.appendChild(stage);
+  const info=el(`<div><div class="row"><span>Objetivo</span><b>${S.settings.target} s</b></div>
+    <div class="row"><span>Estabilidad</span><b id="pstab">—</b></div></div>`);
+  app.appendChild(info);
+  const hold=el(`<button class="btn green">Sostener voz ⌛️</button>`).firstChild;
+  app.appendChild(hold);
+
+  let t=0, running=false, reached=false, samples=[], iv;
+  const blob=document.getElementById('blob'), ptime=document.getElementById('ptime');
+  function start(){
+    if(running) return; running=true; t=0; reached=false; samples=[]; H.beat();
+    iv=setInterval(()=>{
+      t+=0.1;
+      const lvl=0.45+Math.random()*0.4;           // nivel simulado de voz
+      samples.push(lvl);
+      const size=46+lvl*90;
+      blob.style.width=size+'px'; blob.style.height=size+'px';
+      blob.style.background=reached?'var(--green)':'var(--accent)';
+      ptime.textContent=t.toFixed(1)+' s';
+      if(!reached && t>=S.settings.target){reached=true; H.ok(); blob.style.background='var(--green)';}
+    },100); timers.push(iv);
+  }
+  function stop(){
+    if(!running) return; running=false; clearInterval(iv);
+    const mean=samples.reduce((a,b)=>a+b,0)/(samples.length||1);
+    const sd=Math.sqrt(samples.reduce((a,b)=>a+(b-mean)**2,0)/(samples.length||1));
+    const stab=Math.max(0,Math.min(100,Math.round((1-sd*2)*100)));
+    document.getElementById('pstab').textContent=stab+'%';
+    blob.style.width='46px'; blob.style.height='46px';
+    addRecord({module:"Voz",exercise:ex,durationSeconds:+t.toFixed(1),correct:reached?1:0,errors:0,note:"Estab "+stab+"%"});
+    H.done();
+  }
+  hold.addEventListener('mousedown',start); hold.addEventListener('touchstart',e=>{e.preventDefault();start();});
+  hold.addEventListener('mouseup',stop); hold.addEventListener('mouseleave',stop);
+  hold.addEventListener('touchend',e=>{e.preventDefault();stop();});
+}
+
+//---------- RITMO ----------
+SCREENS.ritmo=()=>{
+  header('Ritmo');
+  let phrases=false, running=false, beats=0, resp=0, start=0, iv;
+  let stim=DATA.syllables[0];
+  const card=el(`<div class="stim" id="rstim">${stim}</div>`);
+  const toggle=el(`<button class="btn purple">Modo: Sílabas</button>`).firstChild;
+  const metro=el(`<div class="metro" id="metro"></div>`);
+  const rows=el(`<div><div class="row"><span>Tempo</span><b>${S.settings.bpm} ppm</b></div>
+    <div class="row"><span>Pulsos</span><b id="rb">0</b></div>
+    <div class="row"><span>Respuestas</span><b id="rr">0</b></div></div>`);
+  const plus=el(`<button class="btn blue" disabled>＋ Respuesta válida</button>`).firstChild;
+  const run=el(`<button class="btn green">Iniciar metrónomo</button>`).firstChild;
+  app.append(toggle,card,metro,rows,plus,run);
+  function newStim(){stim=(phrases?DATA.phrases:DATA.syllables)[Math.floor(Math.random()*(phrases?DATA.phrases:DATA.syllables).length)]; document.getElementById('rstim').textContent=stim;}
+  toggle.onclick=()=>{if(running)return; phrases=!phrases; toggle.textContent="Modo: "+(phrases?"Frases":"Sílabas"); newStim(); H.tap();};
+  plus.onclick=()=>{if(!running)return; resp++; document.getElementById('rr').textContent=resp; H.tap();};
+  run.onclick=()=>{
+    if(running){ running=false; clearInterval(iv); run.textContent="Iniciar metrónomo"; run.className="btn green"; plus.disabled=true;
+      addRecord({module:"Ritmo",exercise:phrases?"Frases a ritmo":"Sílabas con metrónomo",durationSeconds:(Date.now()-start)/1000,responses:resp,correct:resp,note:S.settings.bpm+" ppm"}); H.done();
+    } else {
+      running=true; beats=0; resp=0; start=Date.now(); run.textContent="Detener y guardar"; run.className="btn red"; plus.disabled=false;
+      document.getElementById('rr').textContent="0";
+      const m=document.getElementById('metro');
+      iv=setInterval(()=>{beats++; document.getElementById('rb').textContent=beats; H.beat(); m.classList.add('on'); setTimeout(()=>m.classList.remove('on'),110);},60000/S.settings.bpm);
+      timers.push(iv);
+    }
+  };
+};
+
+//---------- AFASIA ----------
+SCREENS.afasia=()=>{
+  header('Afasia');
+  const items=[["1 · Denominación",denomination],["2 · Comprensión",comprehension],["3 · Asociación",semantic],["4 · Fluidez verbal",fluency],["5 · Repetición",repetition]];
+  items.forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
+};
+function scoringBar(onScore){
+  const wrap=el('<div></div>');
+  [["Correcto","green","✅"],["Aproximación","yellow","◐"],["Error","red","❌"],["No responde","gray","—"]].forEach(([t,c,i])=>{
+    const b=el(`<button class="btn ${c} score">${i}&nbsp;${t}</button>`).firstChild; b.onclick=()=>{H.tap();onScore(t);}; wrap.appendChild(b);
+  });
+  return wrap;
+}
+function denomination(){
+  header('Denominación','afasia'); let i=0;
+  app.appendChild(el(`<p class="hint">El paciente debe decir la palabra.</p>`));
+  const card=el(`<div class="stim" id="dn"></div>`); app.appendChild(card);
+  const bar=scoringBar(t=>{addRecord({module:"Afasia",exercise:"Denominación",correct:t=="Correcto"?1:0,approx:t=="Aproximación"?1:0,errors:(t=="Error"||t=="No responde")?1:0,note:DATA.naming[i][0]+" · "+t}); i=(i+1)%DATA.naming.length; render();});
+  app.appendChild(bar);
+  function render(){const[w,e]=DATA.naming[i]; card.innerHTML=(S.settings.childMode?`<span class="emoji">${e}</span>`:'')+w;}
+  render();
+}
+function comprehension(){
+  header('Comprensión','afasia'); let i=0; H.done();
+  const wrap=el('<div></div>'); app.appendChild(wrap);
+  function render(){
+    const[t,opts]=DATA.comprehension[i]; wrap.innerHTML='';
+    wrap.appendChild(el(`<p class="hint">Consigna (el reloj vibra)</p><div class="big" style="font-size:24px">Toca ${t}</div>`));
+    opts.forEach(o=>{const b=el(`<button class="btn blue">${o}</button>`).firstChild; b.onclick=()=>{
+      const ok=o===t; H.tap(); ok?H.ok():H.warn();
+      addRecord({module:"Afasia",exercise:"Comprensión auditiva",correct:ok?1:0,errors:ok?0:1,note:t+" → "+o});
+      i=(i+1)%DATA.comprehension.length; setTimeout(render,400);};
+      wrap.appendChild(b);});
+  }
+  render();
+}
+function semantic(){
+  header('Asociación','afasia'); let i=0;
+  const wrap=el('<div></div>'); app.appendChild(wrap);
+  function render(){
+    const[t,c,d]=DATA.semantic[i]; const opts=[c,d].sort(()=>Math.random()-.5); wrap.innerHTML='';
+    wrap.appendChild(el(`<p class="hint">¿Qué se relaciona con…?</p><div class="stim">${t}</div>`));
+    opts.forEach(o=>{const b=el(`<button class="btn blue">${o}</button>`).firstChild; b.onclick=()=>{
+      const ok=o===c; H.tap(); ok?H.ok():H.warn();
+      addRecord({module:"Afasia",exercise:"Asociación semántica",correct:ok?1:0,errors:ok?0:1,note:t+" → "+o});
+      i=(i+1)%DATA.semantic.length; setTimeout(render,400);}; wrap.appendChild(b);});
+  }
+  render();
+}
+function fluency(){
+  header('Fluidez','afasia'); let cat=DATA.fluency[0], running=false, rem=30, count=0, iv;
+  const c=el(`<div class="stim" id="fc">${cat}</div>`);
+  const tm=el(`<div class="big" id="ft">30 s</div>`);
+  const cc=el(`<div class="row"><span>Respuestas</span><b id="fn">0</b></div>`);
+  const plus=el(`<button class="btn green" disabled>＋ Respuesta válida</button>`).firstChild;
+  const run=el(`<button class="btn blue">Iniciar 30 s</button>`).firstChild;
+  const oth=el(`<button class="btn ghost">Otra categoría</button>`).firstChild;
+  app.append(c,tm,cc,plus,run,oth);
+  oth.onclick=()=>{if(running)return; cat=DATA.fluency[Math.floor(Math.random()*DATA.fluency.length)]; document.getElementById('fc').textContent=cat; H.tap();};
+  plus.onclick=()=>{if(!running)return; count++; document.getElementById('fn').textContent=count; H.tap();};
+  run.onclick=()=>{
+    if(running) return;
+    running=true; count=0; rem=30; plus.disabled=false; run.disabled=true; H.beat();
+    iv=setInterval(()=>{rem--; document.getElementById('ft').textContent=rem+' s';
+      if(rem<=0){clearInterval(iv); running=false; plus.disabled=true;
+        addRecord({module:"Afasia",exercise:"Fluidez verbal",durationSeconds:30,responses:count,correct:count,note:"Cat "+cat}); H.done(); run.disabled=false;}
+    },1000); timers.push(iv);
+  };
+}
+function repetition(){
+  header('Repetición','afasia'); let i=0;
+  app.appendChild(el(`<p class="hint">Pide que repita.</p>`));
+  const card=el(`<div class="stim" id="rp">${DATA.repetition[0]}</div>`); app.appendChild(card);
+  [["Correcto","green"],["Aproximación","yellow"],["Error","red"]].forEach(([t,c])=>{
+    const b=el(`<button class="btn ${c}">${t}</button>`).firstChild;
+    b.onclick=()=>{H.tap(); addRecord({module:"Afasia",exercise:"Repetición",correct:t=="Correcto"?1:0,approx:t=="Aproximación"?1:0,errors:t=="Error"?1:0,note:DATA.repetition[i]+" · "+t}); i=(i+1)%DATA.repetition.length; card.textContent=DATA.repetition[i];};
+    app.appendChild(b);
+  });
+}
+
+//---------- LECTURA ----------
+SCREENS.lectura=()=>{
+  header('Lectura');
+  [["Lectura de sílabas",()=>readAloud(DATA.readSyll,"Sílabas")],["Palabras frecuentes",()=>readAloud(DATA.readWords,"Palabras")],["Decisión léxica",lexical]]
+    .forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
+};
+function readAloud(items,title){
+  header(title,'lectura'); let i=0, shown=Date.now();
+  app.appendChild(el(`<p class="hint">Pide que lea en voz alta.</p>`));
+  const card=el(`<div class="stim" id="ra">${items[0]}</div>`); app.appendChild(card);
+  [["Correcto","green",null],["Error visual","yellow","Visual"],["Error fonológico","red","Fonológico"],["Autocorrección","blue","Autocorrección"],["No lee","gray","No lee"]]
+   .forEach(([t,c,err])=>{const b=el(`<button class="btn ${c}">${t}</button>`).firstChild;
+     b.onclick=()=>{H.tap(); const ok=(t=="Correcto"||t=="Autocorrección");
+       addRecord({module:"Lectura",exercise:"Lectura "+title.toLowerCase(),reactionMs:Date.now()-shown,correct:ok?1:0,errors:ok?0:1,note:items[i]+" · "+t});
+       i=(i+1)%items.length; card.textContent=items[i]; shown=Date.now();};
+     app.appendChild(b);});
+}
+function lexical(){
+  header('Decisión léxica','lectura'); let i=0, shown=Date.now();
+  const wrap=el('<div></div>'); app.appendChild(wrap);
+  function render(){
+    const[txt,isW]=DATA.lexical[i]; wrap.innerHTML='';
+    wrap.appendChild(el(`<p class="hint">¿Es una palabra real?</p><div class="stim">${txt}</div>`));
+    const r=el(`<div style="display:flex;gap:8px"></div>`);
+    const a=el(`<button class="btn green" style="flex:1">PALABRA</button>`).firstChild;
+    const b=el(`<button class="btn red" style="flex:1">NO</button>`).firstChild;
+    a.onclick=()=>ans(true); b.onclick=()=>ans(false); r.append(a,b); wrap.appendChild(r);
+    function ans(said){const ok=said===isW; H.tap(); ok?H.ok():H.warn();
+      addRecord({module:"Lectura",exercise:"Decisión léxica",reactionMs:Date.now()-shown,correct:ok?1:0,errors:ok?0:1,note:txt});
+      i=(i+1)%DATA.lexical.length; shown=Date.now(); setTimeout(render,400);}
+  }
+  render();
+}
+
+//---------- ESCRITURA ----------
+SCREENS.escritura=()=>{
+  header('Escritura');
+  [["Copia",()=>writeTask(DATA.copy,"Copia")],["Dictado",()=>writeTask(DATA.dictation,"Dictado")]]
+    .forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
+};
+function writeTask(items,title){
+  header(title,'escritura'); let i=0;
+  app.appendChild(el(`<p class="hint">${title=="Dictado"?"Dicta la palabra (no la muestres).":"El paciente copia la palabra."}</p>`));
+  const card=el(`<div class="stim" id="wr">${items[0]}</div>`); app.appendChild(card);
+  const ok=el(`<button class="btn green">Correcto</button>`).firstChild;
+  ok.onclick=()=>{H.tap(); rec("Correcto",true);}; app.appendChild(ok);
+  DATA.writeErrors.forEach(e=>{const b=el(`<button class="btn red">${e}</button>`).firstChild; b.onclick=()=>{H.tap(); rec(e,false);}; app.appendChild(b);});
+  function rec(t,good){addRecord({module:"Escritura",exercise:title,correct:good?1:0,errors:good?0:1,note:items[i]+" · "+t}); i=(i+1)%items.length; card.textContent=items[i];}
+}
+
+//---------- MOVIMIENTO ----------
+SCREENS.movimiento=()=>{
+  header('Movimiento'); let trials=0, hits=0, target=Math.random()<.5?"IZQUIERDA":"DERECHA";
+  app.appendChild(el(`<p class="hint">Inclina la muñeca hacia el lado indicado (aquí: pulsa la flecha).</p>`));
+  const cons=el(`<div class="big" id="mc" style="font-size:22px">Inclina a la ${target}</div>`); app.appendChild(cons);
+  const r=el(`<div style="display:flex;gap:8px"></div>`);
+  const L=el(`<button class="btn blue" style="flex:1;font-size:26px">←</button>`).firstChild;
+  const R=el(`<button class="btn blue" style="flex:1;font-size:26px">→</button>`).firstChild;
+  r.append(L,R); app.appendChild(r);
+  const sc=el(`<div class="row"><span>Aciertos</span><b id="ms">0/0</b></div>`); app.appendChild(sc);
+  const fin=el(`<button class="btn ghost">Terminar y guardar</button>`).firstChild; app.appendChild(fin);
+  function pick(side){trials++; const ok=side===target; if(ok){hits++;H.ok();}else H.warn();
+    document.getElementById('ms').textContent=hits+"/"+trials;
+    target=Math.random()<.5?"IZQUIERDA":"DERECHA"; document.getElementById('mc').textContent="Inclina a la "+target;}
+  L.onclick=()=>pick("IZQUIERDA"); R.onclick=()=>pick("DERECHA");
+  fin.onclick=()=>{if(trials>0)addRecord({module:"Movimiento",exercise:"Elegir con inclinación",responses:trials,correct:hits,errors:trials-hits,note:hits+"/"+trials}); H.done(); go('home');};
+};
+
+//---------- RESULTADOS ----------
+SCREENS.resultados=()=>{
+  header('Resultados');
+  const R=S.records;
+  const sum=(f)=>R.reduce((a,b)=>a+(b[f]||0),0);
+  const correct=sum('correct'), approx=sum('approx'), errors=sum('errors');
+  const attempts=correct+approx+errors;
+  const acc=attempts?Math.round(correct/attempts*100):0;
+  const bestPhon=Math.max(0,...R.filter(r=>r.module=="Voz").map(r=>r.durationSeconds||0));
+  const readErr=R.filter(r=>r.module=="Lectura").reduce((a,b)=>a+(b.errors||0),0);
+  const wrErr=R.filter(r=>r.module=="Escritura").reduce((a,b)=>a+(b.errors||0),0);
+  app.appendChild(el(`<div>
+    <div class="row"><span>Sesiones</span><b>${S.settings.sessions}</b></div>
+    <div class="row"><span>Ejercicios</span><b>${R.length}</b></div>
+    <div class="row"><span>Aciertos</span><b>${correct}</b></div>
+    <div class="row"><span>Errores</span><b>${errors}</b></div>
+    <div class="row"><span>% Aciertos</span><b>${acc}%</b></div>
+    <div class="row"><span>Mejor fonación</span><b>${bestPhon.toFixed(1)} s</b></div>
+    <div class="row"><span>Errores lectura</span><b>${readErr}</b></div>
+    <div class="row"><span>Errores escritura</span><b>${wrErr}</b></div>
+  </div>`));
+  // últimos 7 días
+  const days=[]; const now=new Date(); now.setHours(0,0,0,0);
+  for(let k=6;k>=0;k--){const d=new Date(now); d.setDate(d.getDate()-k);
+    const c=R.filter(r=>{const rd=new Date(r.date); rd.setHours(0,0,0,0); return rd.getTime()==d.getTime();}).length;
+    days.push([d,c]);}
+  const mx=Math.max(1,...days.map(d=>d[1]));
+  const chart=el(`<div class="chart"></div>`);
+  const dn=["D","L","M","X","J","V","S"];
+  days.forEach(([d,c])=>{
+    const col=el(`<div class="col"><div class="n">${c}</div><div class="bar" style="height:${c/mx*60+2}px"></div><div class="d">${dn[d.getDay()]}</div></div>`).firstChild;
+    chart.appendChild(col);
+  });
+  app.appendChild(el(`<p class="hint" style="margin-top:10px">Últimos 7 días</p>`));
+  app.appendChild(chart);
+  const reset=el(`<button class="btn red">🗑️ Reiniciar datos</button>`).firstChild;
+  reset.onclick=()=>{if(confirm("¿Borrar todos los datos?")){S.records=[]; S.settings.sessions=0; save(); H.warn(); go('resultados');}};
+  app.appendChild(reset);
+};
+
+//---------- AJUSTES ----------
+SCREENS.ajustes=()=>{
+  header('Ajustes');
+  const child=el(`<div class="toggle">Modo infantil (emojis)<div class="sw ${S.settings.childMode?'on':''}"><i></i></div></div>`);
+  child.querySelector('.sw').onclick=function(){S.settings.childMode=!S.settings.childMode; this.classList.toggle('on'); save(); H.tap();};
+  app.appendChild(child);
+  app.appendChild(el(`<div style="margin:10px 2px"><div class="row"><span>Objetivo fonación</span><b id="tv">${S.settings.target} s</b></div></div>`));
+  const t=el(`<input type="range" min="3" max="30" step="1" value="${S.settings.target}">`).firstChild;
+  t.oninput=()=>{S.settings.target=+t.value; document.getElementById('tv').textContent=t.value+' s'; save();};
+  app.appendChild(t);
+  app.appendChild(el(`<div style="margin:14px 2px 4px"><div class="row"><span>Metrónomo</span><b id="bv">${S.settings.bpm} ppm</b></div></div>`));
+  const b=el(`<input type="range" min="30" max="120" step="5" value="${S.settings.bpm}">`).firstChild;
+  b.oninput=()=>{S.settings.bpm=+b.value; document.getElementById('bv').textContent=b.value+' ppm'; save();};
+  app.appendChild(b);
+};
+
+//=================== Reloj de la status bar ===================
+function tick(){const d=new Date(); document.getElementById('clock').textContent=d.getHours()+":"+String(d.getMinutes()).padStart(2,'0');}
+setInterval(tick,10000); tick();
+
+go('home');
+</script>
+</body>
+</html>
