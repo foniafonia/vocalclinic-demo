@@ -229,7 +229,8 @@ const DEFAULT = {
              presentation:false },
   checkins:{},      // {fecha: {sleep,fatigue,stress}}
   sessions:[],      // [{date,ts,durationSec,ses,efficientSec,disfluencySec,silenceSec,pauseSec,regPauses,segments,activation,notes,mode}]
-  seeded:false
+  seeded:false,
+  onboarded:false
 };
 let S = loadState();
 
@@ -1100,12 +1101,30 @@ function closeOverlay(){ document.getElementById('overlay').innerHTML=""; }
 //==================================================================
 // INIT
 //==================================================================
+function openWelcome(){
+  const ov=h(`<div class="modal-bg" style="align-items:center"><div class="modal" style="border-radius:22px;margin:0 14px;max-width:430px">
+    <div class="center" style="padding:6px 0 2px">
+      <div class="logo" style="width:54px;height:54px;border-radius:16px;font-size:24px;margin:0 auto 10px">EF</div>
+      <h3 style="font-size:21px;margin:0">Bienvenido a EthosFlow</h3>
+      <p class="small muted" style="margin:8px 4px 0">Apoyo diario para el ritmo, la fluidez y la regulación del habla.
+      Una rutina breve antes, durante o después de tu sesión de logopedia.</p>
+    </div>
+    <button class="btn primary" id="wDemo" style="margin-top:16px">Ver con datos de ejemplo</button>
+    <button class="btn" id="wFresh">Empezar de cero</button>
+    <div class="disclaimer" style="padding:12px 6px 0">Herramienta de apoyo, no diagnóstico. Tus datos se quedan en este dispositivo.</div>
+  </div></div>`);
+  overlay(ov);
+  ov.querySelector('#wDemo').onclick=()=>{ seedDemo(true); S.onboarded=true; S.settings.presentation=true; save(); closeOverlay(); nav('inicio'); toast("Datos de ejemplo cargados ✓"); };
+  ov.querySelector('#wFresh').onclick=()=>{ S.onboarded=true; save(); closeOverlay(); nav('inicio'); };
+}
 function init(){
   const params=new URLSearchParams(location.search);
-  if(params.get('demo')==='ethosflow'){ seedDemo(true); S.settings.presentation=true; S.settings.profile="comunidad"; save(); }
+  if(params.get('demo')==='ethosflow'){ seedDemo(true); S.settings.presentation=true; S.settings.profile="comunidad"; S.onboarded=true; save(); }
   document.getElementById('topsub').innerHTML=topSub();
   renderTabs();
   nav('inicio');
+  // Primera apertura del archivo (sin parámetro y sin datos): pantalla de bienvenida.
+  if(!S.onboarded && !S.seeded && S.sessions.length===0){ openWelcome(); }
 }
 init();
 </script>
