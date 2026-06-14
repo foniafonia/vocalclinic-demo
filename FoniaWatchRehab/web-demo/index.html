@@ -2,520 +2,1112 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>FoniaWatch Rehab · Vista previa en Apple Watch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d9488">
+<title>EthosFlow · Apoyo a la fluidez del habla</title>
 <style>
-  :root{
-    --accent:#0a84ff; --green:#30d158; --yellow:#ffd60a; --red:#ff453a;
-    --gray:#8e8e93; --bg:#000; --card:rgba(255,255,255,.08);
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0;}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",system-ui,sans-serif;
-    background:radial-gradient(1200px 800px at 50% -10%,#1b2230 0%,#0a0d12 55%,#05070a 100%);
-    color:#e9edf3; min-height:100vh; display:flex; flex-direction:column; align-items:center;
-    padding:28px 16px 60px;
-  }
-  .head{max-width:760px; text-align:center; margin-bottom:22px;}
-  .head h1{font-size:30px; margin:0 0 6px; letter-spacing:-.5px;}
-  .head h1 b{color:var(--green);}
-  .head p{margin:0; color:#9aa6b2; font-size:15px; line-height:1.5;}
-  .head .pill{display:inline-block; margin-top:12px; font-size:12px; color:#9aa6b2;
-    border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:5px 12px;}
+:root{
+  --bg:#eef1f6; --bg2:#e6eaf1; --card:#ffffff; --ink:#16202c; --muted:#5b6675;
+  --line:#e3e8ef; --teal:#0d9488; --teal-d:#0b7d72; --indigo:#4f46e5; --amber:#d97706;
+  --red:#dc2626; --green:#16a34a; --gray:#94a3b8;
+  --eff:#16a34a; --dis:#e0a82e; --sil:#9aa7b8; --pau:#4f46e5;
+  --shadow:0 6px 22px rgba(20,30,45,.08); --shadow-s:0 2px 8px rgba(20,30,45,.06);
+  --r:18px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+input,select{font-family:inherit;}
+.app{max-width:460px; margin:0 auto; min-height:100vh; background:var(--bg);
+  display:flex; flex-direction:column; position:relative; padding-bottom:78px;}
+@media(min-width:560px){ .app{box-shadow:0 0 60px rgba(0,0,0,.12); min-height:100vh;} body{padding:0;} }
 
-  /* ---------- Reloj ---------- */
-  .stage{display:flex; flex-wrap:wrap; gap:34px; justify-content:center; align-items:flex-start; margin-top:6px;}
-  .watch-wrap{display:flex; flex-direction:column; align-items:center; gap:14px;}
-  .band{width:120px; height:40px; background:linear-gradient(#3a3f46,#23262b); border-radius:14px 14px 6px 6px;}
-  .band.bottom{border-radius:6px 6px 14px 14px;}
-  .watch{
-    position:relative; width:240px; height:290px;
-    background:linear-gradient(145deg,#2c2f35,#16181c);
-    border-radius:58px; padding:14px;
-    box-shadow:0 30px 60px rgba(0,0,0,.55), inset 0 1px 2px rgba(255,255,255,.18);
-  }
-  .crown{position:absolute; right:-7px; top:96px; width:9px; height:42px;
-    background:linear-gradient(#4a4e55,#2a2d31); border-radius:4px;
-    box-shadow:inset 0 0 3px rgba(0,0,0,.6);}
-  .sidebtn{position:absolute; right:-5px; top:150px; width:6px; height:54px;
-    background:linear-gradient(#3a3d42,#23262b); border-radius:4px;}
-  .screen{
-    position:relative; width:100%; height:100%; background:#000; border-radius:46px;
-    overflow:hidden; box-shadow:inset 0 0 0 2px #000, inset 0 0 22px rgba(0,0,0,.9);
-  }
-  .statusbar{display:flex; justify-content:space-between; align-items:center;
-    padding:7px 18px 2px; font-size:12px; color:#c9d2dc;}
-  .statusbar .t{color:var(--green); font-weight:700;}
-  .viewport{position:absolute; inset:26px 0 0; overflow-y:auto; padding:0 12px 16px;
-    scrollbar-width:none;}
-  .viewport::-webkit-scrollbar{display:none;}
+/* ---------- Top bar ---------- */
+.topbar{position:sticky; top:0; z-index:30; background:rgba(238,241,246,.86);
+  backdrop-filter:blur(12px); padding:14px 18px 10px; border-bottom:1px solid var(--line);}
+.topbar .brand{display:flex; align-items:center; gap:9px;}
+.logo{width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--teal),var(--indigo));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:15px;
+  box-shadow:var(--shadow-s);}
+.topbar h1{font-size:18px; margin:0; font-weight:700; letter-spacing:-.3px;}
+.topbar .sub{font-size:12px; color:var(--muted); margin-left:auto; text-align:right;}
+.topbar .sub b{display:block; color:var(--ink); font-weight:600; text-transform:capitalize;}
 
-  h2.title{font-size:17px; margin:2px 0 8px; text-align:center; color:#fff;}
-  .menu-btn{display:flex; align-items:center; gap:10px; width:100%; border:none; cursor:pointer;
-    background:var(--card); color:#fff; border-radius:14px; padding:13px 12px; margin-bottom:7px;
-    font-size:17px; font-weight:700; text-align:left;}
-  .menu-btn .ico{font-size:20px; width:26px; text-align:center;}
-  .menu-btn:active{background:rgba(255,255,255,.16);}
-  .back{background:none; border:none; color:var(--accent); font-size:14px; font-weight:600;
-    cursor:pointer; padding:2px 4px; margin-bottom:4px;}
-  .hint{color:#9aa6b2; font-size:12px; text-align:center; margin:4px 2px 10px; line-height:1.35;}
-  .stim{font-size:38px; font-weight:800; text-align:center; background:var(--card);
-    border-radius:14px; padding:14px 8px; margin:8px 0; line-height:1.1; letter-spacing:.5px;}
-  .stim .emoji{font-size:46px; display:block; margin-bottom:4px;}
-  .big{font-size:42px; font-weight:800; text-align:center; font-variant-numeric:tabular-nums;}
-  .row{display:flex; justify-content:space-between; font-size:14px; padding:4px 2px;}
-  .row span:first-child{color:#9aa6b2;}
-  .row b{font-size:16px;}
-  .btn{display:block; width:100%; border:none; cursor:pointer; border-radius:13px;
-    padding:11px; font-size:16px; font-weight:700; margin:6px 0; color:#fff;}
-  .btn.green{background:var(--green); color:#04210e;}
-  .btn.blue{background:var(--accent);}
-  .btn.red{background:var(--red);}
-  .btn.yellow{background:var(--yellow); color:#3a2e00;}
-  .btn.gray{background:#3a3f46;}
-  .btn.purple{background:#bf5af2; color:#1b0033;}
-  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.2); font-size:13px; padding:8px;}
-  .btn:active{filter:brightness(.85);}
-  .btn:disabled{opacity:.4;}
-  .score{display:flex; align-items:center; gap:8px; text-align:left; justify-content:flex-start;}
+/* ---------- Layout ---------- */
+.screen{padding:16px 16px 8px; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+.card{background:var(--card); border-radius:var(--r); padding:16px; box-shadow:var(--shadow); margin-bottom:14px;
+  border:1px solid rgba(255,255,255,.6);}
+.card.tight{padding:13px 14px;}
+.sec-h{display:flex; align-items:center; justify-content:space-between; margin:2px 4px 10px;}
+.sec-h h2{font-size:15px; margin:0; font-weight:700; color:var(--ink);}
+.sec-h .link{font-size:13px; color:var(--teal); font-weight:600;}
+.eyebrow{font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--muted);}
+.muted{color:var(--muted);} .small{font-size:13px;} .xs{font-size:11.5px;}
+.center{text-align:center;}
+.rowflex{display:flex; gap:10px;} .rowflex>*{flex:1;}
+.spacer{height:6px;}
 
-  /* círculo de voz */
-  .circle-stage{position:relative; height:150px; display:flex; align-items:center; justify-content:center; margin:6px 0;}
-  .ring{position:absolute; width:130px; height:130px; border-radius:50%; border:4px solid rgba(255,255,255,.25);}
-  .blob{position:absolute; width:46px; height:46px; border-radius:50%; background:var(--accent);
-    transition:width .1s, height .1s, background .2s;}
-  .circle-stage .time{position:relative; z-index:2; font-size:22px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums;}
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  padding:14px 16px; border-radius:14px; font-size:16px; font-weight:700; transition:.12s;
+  background:var(--card); color:var(--ink); box-shadow:var(--shadow-s); border:1px solid var(--line);}
+.btn:active{transform:scale(.98);}
+.btn.primary{background:linear-gradient(135deg,var(--teal),var(--teal-d)); color:#fff; border:none; box-shadow:0 8px 20px rgba(13,148,136,.32);}
+.btn.indigo{background:linear-gradient(135deg,#5b54e8,var(--indigo)); color:#fff; border:none;}
+.btn.ghost{background:transparent; box-shadow:none;}
+.btn.sm{padding:10px 12px; font-size:14px; border-radius:11px; width:auto;}
+.btn.danger{color:var(--red); border-color:#f3c9c9;}
+.btn.block{width:100%;}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:6px 11px;
+  border-radius:999px; background:var(--bg2); color:var(--muted);}
+.chip.ok{background:#e7f6ee; color:#0f7a43;}
 
-  /* metrónomo */
-  .metro{width:58px; height:58px; border-radius:50%; background:#3a3f46; margin:8px auto;
-    transition:transform .08s, background .08s;}
-  .metro.on{background:var(--green); transform:scale(1.22);}
+/* ---------- Metrics ---------- */
+.metric-grid{display:grid; grid-template-columns:1fr 1fr; gap:11px;}
+.metric{background:var(--card); border-radius:14px; padding:13px; box-shadow:var(--shadow-s); border:1px solid var(--line);}
+.metric .v{font-size:25px; font-weight:800; letter-spacing:-.5px; line-height:1.1;}
+.metric .l{font-size:12px; color:var(--muted); margin-top:3px;}
+.metric .v small{font-size:13px; font-weight:600; color:var(--muted);}
+.delta{font-size:12px; font-weight:700;} .delta.up{color:var(--green);} .delta.down{color:var(--red);} .delta.flat{color:var(--muted);}
 
-  /* chart */
-  .chart{display:flex; align-items:flex-end; gap:5px; height:80px; padding:6px 2px;}
-  .chart .col{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;}
-  .chart .bar{width:100%; background:var(--accent); border-radius:3px; min-height:2px;}
-  .chart .d{font-size:9px; color:#9aa6b2;}
-  .chart .n{font-size:9px; color:#9aa6b2;}
+/* ---------- Capacity gauge ---------- */
+.cap-card{background:linear-gradient(135deg,#0f766e,#3b3aa3); color:#fff; border:none;}
+.cap-card .eyebrow{color:rgba(255,255,255,.75);}
+.cap-row{display:flex; align-items:center; gap:16px;}
+.cap-val{font-size:42px; font-weight:800; letter-spacing:-1px; line-height:1;}
+.cap-band{font-size:14px; font-weight:700; margin-top:2px;}
+.cap-rec{font-size:13.5px; color:rgba(255,255,255,.92); margin-top:9px; line-height:1.5;}
+.cap-card .obj{margin-top:11px; background:rgba(255,255,255,.14); border-radius:12px; padding:9px 12px; font-size:13px;}
 
-  .toggle{display:flex; justify-content:space-between; align-items:center; background:var(--card);
-    border-radius:12px; padding:11px 12px; margin:6px 0; font-size:15px; font-weight:600;}
-  .sw{width:46px; height:28px; border-radius:999px; background:#3a3f46; position:relative; cursor:pointer; transition:background .2s;}
-  .sw.on{background:var(--green);}
-  .sw i{position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .2s;}
-  .sw.on i{left:21px;}
-  input[type=range]{width:100%; accent-color:var(--accent);}
+/* ---------- Sliders ---------- */
+.slider-row{margin:13px 0;}
+.slider-row label{display:flex; justify-content:space-between; font-size:14px; font-weight:600; margin-bottom:7px;}
+.slider-row label b{color:var(--teal);}
+input[type=range]{width:100%; height:6px; -webkit-appearance:none; appearance:none; background:var(--line);
+  border-radius:99px; outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:26px; height:26px; border-radius:50%;
+  background:#fff; border:3px solid var(--teal); box-shadow:var(--shadow-s); cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid var(--teal); cursor:pointer;}
 
-  .legend{max-width:760px; margin-top:30px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:14px;}
-  .legend .c{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:14px 16px;}
-  .legend .c h3{margin:0 0 6px; font-size:15px; color:#fff;}
-  .legend .c p{margin:0; font-size:13px; color:#9aa6b2; line-height:1.5;}
-  .foot{max-width:680px; margin-top:26px; text-align:center; color:#6f7a86; font-size:12px; line-height:1.6;}
-  .note{max-width:680px; background:rgba(255,214,10,.08); border:1px solid rgba(255,214,10,.25);
-    border-radius:12px; padding:12px 16px; margin-top:18px; font-size:13px; color:#e7d9a0; line-height:1.5;}
+/* ---------- Toggle ---------- */
+.toggle{display:flex; justify-content:space-between; align-items:center; padding:13px 2px; border-bottom:1px solid var(--line);}
+.toggle:last-child{border-bottom:none;}
+.toggle .t{font-size:14.5px; font-weight:600;}
+.toggle .d{font-size:12px; color:var(--muted); margin-top:2px; max-width:230px;}
+.sw{width:48px; height:29px; border-radius:99px; background:#cdd5e0; position:relative; transition:.2s; flex:none;}
+.sw.on{background:var(--teal);}
+.sw i{position:absolute; top:3px; left:3px; width:23px; height:23px; border-radius:50%; background:#fff; transition:.2s; box-shadow:var(--shadow-s);}
+.sw.on i{left:22px;}
+.segctl{display:flex; background:var(--bg2); border-radius:12px; padding:4px; gap:4px;}
+.segctl button{flex:1; padding:9px; border-radius:9px; font-size:13px; font-weight:700; color:var(--muted);}
+.segctl button.on{background:#fff; color:var(--ink); box-shadow:var(--shadow-s);}
+
+/* ---------- Bottom nav ---------- */
+.tabbar{position:fixed; bottom:0; left:0; right:0; max-width:460px; margin:0 auto; z-index:40;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(14px); border-top:1px solid var(--line);
+  display:flex; padding:7px 6px calc(7px + env(safe-area-inset-bottom));}
+.tabbar button{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 0;
+  font-size:10.5px; font-weight:600; color:var(--muted);}
+.tabbar button .ic{font-size:21px; line-height:1;}
+.tabbar button.on{color:var(--teal);}
+
+/* ---------- Session ---------- */
+.session-wrap{position:fixed; inset:0; max-width:460px; margin:0 auto; background:linear-gradient(170deg,#0d2a35,#10203f 60%,#1a1740);
+  color:#fff; z-index:60; display:flex; flex-direction:column; padding:20px 18px calc(18px + env(safe-area-inset-bottom)); overflow-y:auto;}
+.session-wrap.breathe{background:linear-gradient(170deg,#0b3a44,#0d2740);}
+.phase-top{display:flex; justify-content:space-between; align-items:center;}
+.phase-name{font-size:14px; font-weight:700; color:#7fe6d4;}
+.phase-x{font-size:14px; color:rgba(255,255,255,.7);}
+.phase-steps{display:flex; gap:5px; margin:14px 0;}
+.phase-steps .s{flex:1; height:4px; border-radius:99px; background:rgba(255,255,255,.18);}
+.phase-steps .s.done{background:#7fe6d4;} .phase-steps .s.cur{background:#fff;}
+.ses-big{font-size:60px; font-weight:800; letter-spacing:-2px; text-align:center; line-height:1;}
+.ses-lbl{text-align:center; color:rgba(255,255,255,.7); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;}
+.timer{text-align:center; font-size:15px; color:rgba(255,255,255,.85); font-variant-numeric:tabular-nums; margin-top:6px;}
+.live-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0;}
+.live{background:rgba(255,255,255,.08); border-radius:13px; padding:11px 12px;}
+.live .v{font-size:20px; font-weight:800;} .live .l{font-size:11px; color:rgba(255,255,255,.7);}
+.timeline{height:26px; border-radius:8px; overflow:hidden; display:flex; background:rgba(255,255,255,.1); margin:6px 0;}
+.timeline span{height:100%;}
+.tl-key{display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:rgba(255,255,255,.8); margin-top:6px;}
+.tl-key i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px;}
+.reco{background:rgba(127,230,212,.14); border:1px solid rgba(127,230,212,.3); border-radius:13px; padding:12px 14px;
+  font-size:13.5px; margin:14px 0; color:#d9fff7;}
+.reco b{color:#fff;}
+.activation-bar{height:8px; border-radius:99px; background:rgba(255,255,255,.15); overflow:hidden; margin-top:6px;}
+.activation-bar i{display:block; height:100%; background:linear-gradient(90deg,#7fe6d4,#ffd479,#ff8a8a); transition:width .3s;}
+.mic-pill{display:inline-flex; align-items:center; gap:7px; font-size:12px; padding:6px 12px; border-radius:99px;
+  background:rgba(255,255,255,.12); color:rgba(255,255,255,.9); margin:0 auto;}
+.session-actions{margin-top:auto; padding-top:16px;}
+.btn.light{background:#fff; color:#10203f;} .btn.outline-l{background:transparent; border:1px solid rgba(255,255,255,.35); color:#fff; box-shadow:none;}
+
+/* breathing */
+.breath-stage{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;}
+.breath-orb{width:200px; height:200px; border-radius:50%; background:radial-gradient(circle at 50% 40%,rgba(127,230,212,.5),rgba(79,70,229,.25));
+  display:flex; align-items:center; justify-content:center; transition:transform 4s ease-in-out; box-shadow:0 0 60px rgba(127,230,212,.25);}
+.breath-orb .ph{font-size:20px; font-weight:700;}
+.breath-count{font-size:48px; font-weight:800; color:#fff;}
+
+/* metronome */
+.metro-orb{width:120px; height:120px; border-radius:50%; margin:10px auto; background:var(--bg2);
+  display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:800; color:var(--muted);
+  transition:transform .07s, background .07s, color .07s;}
+.metro-orb.on{background:linear-gradient(135deg,var(--teal),var(--indigo)); color:#fff; transform:scale(1.12);}
+
+/* charts */
+.chart-box{width:100%;} .chart-box svg{width:100%; height:auto; display:block; overflow:visible;}
+.legend-row{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); margin-top:8px;}
+.legend-row i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px;}
+
+/* report */
+.report-pre{background:#0f1722; color:#cfe6df; border-radius:13px; padding:14px; font-size:12px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; max-height:300px; overflow-y:auto; line-height:1.5;}
+
+/* empty state */
+.empty{text-align:center; padding:26px 16px; color:var(--muted);}
+.empty .ic{font-size:34px; opacity:.5;}
+.empty p{font-size:13.5px; margin:8px 0 0;}
+
+/* disclaimer */
+.disclaimer{font-size:11.5px; color:var(--muted); text-align:center; padding:6px 20px 16px; line-height:1.5;}
+.note-inline{font-size:11.5px; color:var(--muted); margin-top:8px; display:flex; gap:6px; align-items:flex-start;}
+.note-inline .i{color:var(--teal); font-weight:800;}
+
+/* toast */
+.toast{position:fixed; bottom:96px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+  background:#16202c; color:#fff; padding:11px 18px; border-radius:12px; font-size:13.5px; font-weight:600;
+  z-index:80; transition:.25s; box-shadow:0 10px 30px rgba(0,0,0,.3); pointer-events:none; max-width:90%;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* modal */
+.modal-bg{position:fixed; inset:0; background:rgba(15,23,34,.5); z-index:70; display:flex; align-items:flex-end; justify-content:center;
+  max-width:460px; margin:0 auto;}
+.modal{background:var(--card); border-radius:22px 22px 0 0; padding:20px 18px calc(20px + env(safe-area-inset-bottom)); width:100%; max-height:88vh; overflow-y:auto; animation:up .25s ease;}
+@keyframes up{from{transform:translateY(40px);} to{transform:none;}}
+.modal h3{margin:2px 0 4px; font-size:17px;}
+.pill-row{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;}
+.opt{flex:1; min-width:120px; text-align:left; padding:12px 13px; border-radius:13px; border:1.5px solid var(--line); background:var(--card);}
+.opt.on{border-color:var(--teal); background:#effaf8;}
+.opt b{font-size:14px;} .opt span{font-size:12px; color:var(--muted); display:block; margin-top:2px;}
 </style>
 </head>
 <body>
-
-<div class="head">
-  <h1>FoniaWatch <b>Rehab</b></h1>
-  <p>Vista previa interactiva de la app de Apple Watch para logopedia y rehabilitación<br>
-     cognitivo-lingüística tras daño cerebral adquirido.</p>
-  <span class="pill">⌚️ Toca los botones del reloj — funciona de verdad</span>
-</div>
-
-<div class="stage">
-  <div class="watch-wrap">
-    <div class="band top"></div>
-    <div class="watch">
-      <div class="crown"></div>
-      <div class="sidebtn"></div>
-      <div class="screen">
-        <div class="statusbar"><span class="t" id="clock">9:41</span><span>FoniaWatch</span><span>🔋</span></div>
-        <div class="viewport" id="app"></div>
-      </div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">EF</div>
+      <h1>EthosFlow</h1>
+      <div class="sub" id="topsub"></div>
     </div>
-    <div class="band bottom"></div>
   </div>
-
-  <div class="note" style="max-width:300px">
-    <b>Esto es la maqueta web.</b> Reproduce la lógica real de la app SwiftUI
-    (mismos módulos, hápticos, cronómetros y registro). La app nativa instalada en
-    el reloj añade micrófono real y sensores de movimiento.
-  </div>
+  <div id="root"></div>
 </div>
-
-<div class="legend">
-  <div class="c"><h3>🎤 Voz</h3><p>Tiempo de fonación, intensidad y estabilidad con biofeedback. Círculo que crece con la voz.</p></div>
-  <div class="c"><h3>🥁 Ritmo</h3><p>Metrónomo visual y háptico. Sílabas pa-ta-ka y frases a ritmo lento.</p></div>
-  <div class="c"><h3>💬 Afasia</h3><p>Denominación, comprensión, asociación semántica, fluidez verbal y repetición.</p></div>
-  <div class="c"><h3>📖 Lectura</h3><p>Sílabas, palabras y decisión léxica con tiempo de respuesta y tipo de error.</p></div>
-  <div class="c"><h3>✏️ Escritura</h3><p>El reloj como registro: copia, dictado y tipo de error (omisión, inversión…).</p></div>
-  <div class="c"><h3>🤸 Movimiento</h3><p>Inclinar para elegir y secuencias de gestos. Apraxia y planificación motora.</p></div>
-</div>
-
-<div class="foot">
-  ⚠️ FoniaWatch Rehab no diagnostica ni sustituye al logopeda: mide, da biofeedback y
-  registra la ejecución de la sesión.<br>Autor del proyecto clínico: José Aserraf — Logopeda.
-</div>
+<div class="tabbar" id="tabbar"></div>
+<div id="overlay"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-//=================== Datos clínicos (espejo de ContentData.swift) ===================
-const DATA = {
-  naming:[["CASA","🏠"],["PERRO","🐶"],["MESA","🪑"],["SOL","☀️"],["AGUA","💧"],["PAN","🍞"],["COCHE","🚗"],["FLOR","🌸"]],
-  comprehension:[["CASA",["CASA","PERRO"]],["AGUA",["PAN","AGUA"]],["SOL",["SOL","LUNA"]],["MESA",["SILLA","MESA"]]],
-  semantic:[["PERRO","LADRAR","CUCHARA"],["PÁJARO","VOLAR","MARTILLO"],["OJO","VER","CORRER"],["PAN","COMER","ESCRIBIR"]],
-  fluency:["animales","comidas","ropa","frutas","profesiones"],
-  repetition:["pa","ta","casa","perro","quiero agua","hoy hace sol"],
-  syllables:["pa-ta-ka","pa-pa-pa","ta-ka-la","ma-na-ma"],
-  phrases:["Buenos días","Quiero agua","Hoy hace sol","Voy a comer"],
-  readWords:["CASA","AGUA","PERRO","MESA","SOL","PAN","FLOR","LIBRO"],
-  readSyll:["pa","me","lo","si","tu","ca","do","fe"],
-  lexical:[["CASA",true],["TASO",false],["PERRO",true],["LIMUR",false],["AGUA",true],["BREDO",false]],
-  copy:["CASA","SOL","PAN","AGUA","MESA"],
-  dictation:["PERRO","FLOR","LIBRO","RELOJ","COCHE"],
-  writeErrors:["Omisión","Sustitución","Inversión","Perseveración","Ilegible"],
+"use strict";
+//==================================================================
+// EthosFlow — apoyo a la fluidez del habla (tartamudez/ritmo/respiración)
+// App web autocontenida. Sin backend. Datos solo en este dispositivo.
+// El análisis de voz es ESTIMADO y no diagnostica ni sustituye terapia.
+//==================================================================
+
+//------------------- Estado / persistencia -------------------
+const KEY = "ethosflow.v2";
+const todayStr = () => new Date().toISOString().slice(0,10);
+
+const DEFAULT = {
+  settings:{ profile:"paciente", micSensitivity:55, baseBPM:66, vibration:true, dailyGoalMin:10,
+             presentation:false },
+  checkins:{},      // {fecha: {sleep,fatigue,stress}}
+  sessions:[],      // [{date,ts,durationSec,ses,efficientSec,disfluencySec,silenceSec,pauseSec,regPauses,segments,activation,notes,mode}]
+  seeded:false
+};
+let S = loadState();
+
+function loadState(){
+  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.settings) return d; }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT));
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+
+//------------------- Datos demo realistas -------------------
+function seedDemo(force){
+  if(S.seeded && !force) return;
+  S.sessions=[]; S.checkins={};
+  const base=58;
+  for(let i=13;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i); const ds=d.toISOString().slice(0,10);
+    // tendencia ascendente con ruido
+    const trend=base + (13-i)*1.4 + (Math.random()*10-5);
+    S.checkins[ds]={ sleep:5+Math.round(Math.random()*4), fatigue:3+Math.round(Math.random()*4), stress:3+Math.round(Math.random()*5) };
+    const nSess = i%3===0?0:1; // algún día de descanso
+    for(let k=0;k<nSess;k++){
+      const dur=420+Math.round(Math.random()*360);
+      const ses=Math.max(35,Math.min(92,Math.round(trend)));
+      const eff=Math.round(dur*(ses/100)*0.92);
+      const dis=Math.round(dur*((100-ses)/100)*0.45);
+      const sil=Math.round(dur*0.12);
+      const pau=dur-eff-dis-sil>0?dur-eff-dis-sil:Math.round(dur*0.08);
+      S.sessions.push({ date:ds, ts:d.getTime()+k*3600000, durationSec:dur, ses,
+        efficientSec:eff, disfluencySec:dis, silenceSec:sil, pauseSec:pau,
+        regPauses:2+Math.round(Math.random()*3), activation:35+Math.round(Math.random()*30),
+        segments:demoSegments(eff,dis,sil,pau), notes:"", mode:"demo" });
+    }
+  }
+  S.seeded=true; save();
+}
+function demoSegments(eff,dis,sil,pau){
+  const segs=[]; let pool=[["efficient",eff],["disfluency",dis],["silence",sil],["pause",pau]];
+  for(let n=0;n<14;n++){ const p=pool[Math.floor(Math.random()*pool.length)]; segs.push({type:p[0], sec:Math.max(2,Math.round(p[1]/6))}); }
+  return segs;
+}
+
+//------------------- Hápticos -------------------
+function buzz(p){ if(S.settings.vibration && navigator.vibrate) navigator.vibrate(p); }
+
+//------------------- Toast -------------------
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+
+//------------------- Helpers de cálculo -------------------
+const fmtTime=s=>{ s=Math.round(s); const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); };
+const sum=(a,f)=>a.reduce((x,y)=>x+(f?f(y):y),0);
+function sessionsOn(ds){ return S.sessions.filter(s=>s.date===ds); }
+function minutesTrained(ds){ return Math.round(sum(sessionsOn(ds),s=>s.durationSec)/60); }
+function avgSES(list){ const a=list.filter(s=>s.ses>0); return a.length?Math.round(sum(a,s=>s.ses)/a.length):0; }
+function last7(){ const out=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); out.push(d.toISOString().slice(0,10)); } return out; }
+// Serie SES con arrastre del último valor en días sin sesión (evita caídas a 0 engañosas).
+function sesSeries(days){
+  const raw=days.map(d=>avgSES(sessionsOn(d)));
+  const firstKnown=raw.find(v=>v>0)||0; let last=0;
+  return raw.map(v=>{ if(v>0){ last=v; return v; } return last||firstKnown; });
+}
+function last14(){ const out=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); out.push(d.toISOString().slice(0,10)); } return out; }
+
+// SES global reciente y media
+function recentSES(){ const s=S.sessions.slice(-5); return avgSES(s); }
+function overallAvgSES(){ return avgSES(S.sessions); }
+function sesTrend(){ // pendiente simple últimos vs previos
+  const s=S.sessions.filter(x=>x.ses>0); if(s.length<4) return 0;
+  const half=Math.floor(s.length/2);
+  const older=avgSES(s.slice(0,half)), newer=avgSES(s.slice(half));
+  return newer-older;
+}
+
+//------------------- Índice de capacidad (estimado, orientativo) -------------------
+function capacityIndex(){
+  const ci=S.checkins[todayStr()];
+  // Si no hay check-in, capacidad neutra con aviso
+  const sleep = ci? ci.sleep : 6;       // 0-10 (más=mejor)
+  const fatigue = ci? ci.fatigue : 5;   // 0-10 (más=peor)
+  const stress = ci? ci.stress : 5;     // 0-10 (más=peor)
+  const recent = sessionsOn(todayStr()).length + Math.min(3, S.sessions.slice(-3).length);
+  const trend = sesTrend(); // -x..+x
+  // Ponderación orientativa
+  let score = 0;
+  score += (sleep/10)*32;
+  score += ((10-fatigue)/10)*26;
+  score += ((10-stress)/10)*22;
+  score += Math.min(recent,4)/4*10;
+  score += Math.max(-10,Math.min(10,trend))/10*10 + 0; // tendencia
+  score = Math.max(8, Math.min(98, Math.round(score)));
+  let band, rec, obj, warn=false;
+  if(score>=70){ band="Capacidad alta"; rec="Buen día para una sesión completa y para practicar frases más largas o situaciones que sueles evitar.";
+    obj=Math.max(8,S.settings.dailyGoalMin)+" min · ritmo conversación"; }
+  else if(score>=45){ band="Capacidad media"; rec="Sesión estándar centrada en ritmo y respiración. Mantén objetivos realistas y celebra el habla eficiente.";
+    obj=Math.max(7,Math.round(S.settings.dailyGoalMin*0.8))+" min · ritmo medio"; }
+  else { band="Capacidad baja"; rec="Hoy prioriza regulación: respiración y ritmo lento. Sesión breve y amable contigo. Evita exigirte situaciones difíciles.";
+    obj="4–5 min · respiración + ritmo lento"; warn=true; }
+  return { score, band, rec, obj, warn, hasCheckin:!!ci };
+}
+
+//==================================================================
+// MOTOR DE AUDIO (estimación local de actividad vocal, sin grabar)
+//==================================================================
+const Audio = {
+  ctx:null, analyser:null, data:null, stream:null, available:false, active:false,
+  async start(){
+    try{
+      if(!navigator.mediaDevices || !window.AudioContext && !window.webkitAudioContext) throw 0;
+      this.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+      const AC=window.AudioContext||window.webkitAudioContext; this.ctx=new AC();
+      const src=this.ctx.createMediaStreamSource(this.stream);
+      this.analyser=this.ctx.createAnalyser(); this.analyser.fftSize=1024;
+      this.data=new Float32Array(this.analyser.fftSize);
+      src.connect(this.analyser);
+      this.available=true; this.active=true; return true;
+    }catch(e){ this.available=false; this.active=false; return false; }
+  },
+  level(){ // RMS 0..1 (estimado), o null si no hay micro
+    if(!this.active||!this.analyser) return null;
+    this.analyser.getFloatTimeDomainData(this.data);
+    let s=0; for(let i=0;i<this.data.length;i++) s+=this.data[i]*this.data[i];
+    const rms=Math.sqrt(s/this.data.length);
+    return Math.max(0,Math.min(1, rms*8));
+  },
+  stop(){ try{ this.stream&&this.stream.getTracks().forEach(t=>t.stop()); this.ctx&&this.ctx.close(); }catch(e){}
+    this.active=false; this.analyser=null; this.stream=null; this.ctx=null; }
 };
 
-//=================== Estado / persistencia (espejo de SessionStore) ===================
-const KEY="foniawatch.web.v1";
-let S = load();
-function load(){
-  try{const d=JSON.parse(localStorage.getItem(KEY)); if(d) return d;}catch(e){}
-  return {records:[], settings:{childMode:false, target:8, bpm:60, sessions:0}};
+//==================================================================
+// ROUTER + NAV
+//==================================================================
+const root=document.getElementById('root');
+const TABS=[["inicio","Inicio","🏠"],["sesion","Sesión","🎯"],["progreso","Progreso","📈"],["ajustes","Ajustes","⚙️"]];
+let current="inicio";
+function nav(view){ current=view; renderTabs(); SCREENS[view](); window.scrollTo(0,0);
+  document.getElementById('topsub').innerHTML = topSub(); }
+function renderTabs(){
+  const tb=document.getElementById('tabbar'); tb.innerHTML="";
+  TABS.forEach(([id,label,ic])=>{ const b=document.createElement('button'); b.className=current===id?"on":"";
+    b.innerHTML=`<span class="ic">${ic}</span>${label}`; b.onclick=()=>{buzz(6); nav(id);}; tb.appendChild(b); });
 }
-function save(){localStorage.setItem(KEY, JSON.stringify(S));}
-function addRecord(r){ r.date=Date.now(); S.records.push(r); save(); }
-// contar sesión una vez por carga
-S.settings.sessions=(S.settings.sessions||0)+1; save();
+function topSub(){ const p={paciente:"Paciente",logopeda:"Logopeda",comunidad:"Demo comunidad"}[S.settings.profile];
+  const d=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  return `${d}<b>${p}</b>`; }
+function h(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
+function elist(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content; }
 
-//=================== Hápticos ===================
-function buzz(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
-const H={tap:()=>buzz(8), ok:()=>buzz([0,40]), warn:()=>buzz([0,30,40,30]), beat:()=>buzz(15), done:()=>buzz([0,60,40,60])};
-
-//=================== Router ===================
-const app=document.getElementById('app');
-let timers=[];
-function clearTimers(){ timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); timers=[]; }
-function go(view, arg){ clearTimers(); app.scrollTop=0; SCREENS[view](arg); }
-function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d; }
-function emoji(m){return {Voz:'🎤',Ritmo:'🥁',Afasia:'💬',Lectura:'📖',Escritura:'✏️',Movimiento:'🤸',Resultados:'⭐️'}[m];}
-function icon(m){return {Voz:'〰️',Ritmo:'🎵',Afasia:'🗨️',Lectura:'📘',Escritura:'🖊️',Movimiento:'🏃',Resultados:'📊'}[m];}
-
-//=================== Pantallas ===================
 const SCREENS={};
 
-SCREENS.home=()=>{
-  const mods=["Voz","Ritmo","Afasia","Lectura","Escritura","Movimiento","Resultados"];
-  app.innerHTML="";
-  app.appendChild(el(`<h2 class="title">FoniaWatch</h2>`));
-  mods.forEach(m=>{
-    const b=el(`<button class="menu-btn"><span class="ico">${S.settings.childMode?emoji(m):icon(m)}</span>${m}</button>`).firstChild;
-    b.onclick=()=>{H.tap(); go(m.toLowerCase());};
-    app.appendChild(b);
-  });
-  const s=el(`<button class="menu-btn"><span class="ico">⚙️</span>Ajustes</button>`).firstChild;
-  s.onclick=()=>{H.tap(); go('ajustes');};
-  app.appendChild(s);
-};
+//==================================================================
+// PANTALLA: INICIO (dashboard funcional)
+//==================================================================
+SCREENS.inicio=()=>{
+  const cap=capacityIndex();
+  const tSES=avgSES(sessionsOn(todayStr())) || recentSES();
+  const meanSES=overallAvgSES();
+  const delta=tSES&&meanSES? tSES-meanSES : 0;
+  const minToday=minutesTrained(todayStr());
+  const goal=S.settings.dailyGoalMin;
+  root.innerHTML="";
+  const wrap=document.createElement('div'); wrap.className="screen"; root.appendChild(wrap);
 
-function header(title, back='home'){
-  const h=el(`<div><button class="back">‹ Atrás</button><h2 class="title">${title}</h2></div>`);
-  h.querySelector('.back').onclick=()=>{H.tap(); go(back);};
-  app.innerHTML=""; app.appendChild(h);
-}
+  // Capacidad
+  const capCard=h(`<div class="card cap-card">
+    <div class="eyebrow">Índice de capacidad · hoy · estimado</div>
+    <div class="cap-row" style="margin-top:8px">
+      <div><div class="cap-val">${cap.score}</div><div class="cap-band">${cap.band}</div></div>
+      <div style="flex:1">${ringSVG(cap.score, '#ffffff', 'rgba(255,255,255,.25)', 64)}</div>
+    </div>
+    <div class="cap-rec">${cap.rec}</div>
+    <div class="obj">🎯 Objetivo sugerido: <b>${cap.obj}</b></div>
+    ${cap.warn?'<div class="obj" style="background:rgba(255,180,120,.22)">⚠️ Conviene una sesión corta y suave hoy.</div>':''}
+    ${!cap.hasCheckin?'<div class="cap-rec" style="opacity:.85">Aún no has hecho el check-in de hoy: el índice es orientativo.</div>':''}
+  </div>`);
+  wrap.appendChild(capCard);
 
-//---------- VOZ ----------
-SCREENS.voz=()=>{
-  header('Voz');
-  ["Tiempo máx. fonación","Repetir vocal /a/","Soplo sostenido"].forEach(ex=>{
-    const b=el(`<button class="menu-btn">${ex}</button>`).firstChild;
-    b.onclick=()=>{H.tap(); phonation(ex);};
-    app.appendChild(b);
-  });
-};
-function phonation(ex){
-  header('Voz','voz');
-  app.appendChild(el(`<p class="hint">Mantén pulsado «Sostener voz» mientras el paciente fona. Suelta al terminar.</p>`));
-  const stage=el(`<div class="circle-stage"><div class="ring"></div><div class="blob" id="blob"></div><div class="time" id="ptime">0.0 s</div></div>`);
-  app.appendChild(stage);
-  const info=el(`<div><div class="row"><span>Objetivo</span><b>${S.settings.target} s</b></div>
-    <div class="row"><span>Estabilidad</span><b id="pstab">—</b></div></div>`);
-  app.appendChild(info);
-  const hold=el(`<button class="btn green">Sostener voz ⌛️</button>`).firstChild;
-  app.appendChild(hold);
+  // CTA sesión
+  const cta=h(`<button class="btn primary" style="margin-bottom:14px">▶  Empezar sesión guiada</button>`);
+  cta.onclick=()=>{ buzz(10); startSession(); };
+  wrap.appendChild(cta);
 
-  let t=0, running=false, reached=false, samples=[], iv;
-  const blob=document.getElementById('blob'), ptime=document.getElementById('ptime');
-  function start(){
-    if(running) return; running=true; t=0; reached=false; samples=[]; H.beat();
-    iv=setInterval(()=>{
-      t+=0.1;
-      const lvl=0.45+Math.random()*0.4;           // nivel simulado de voz
-      samples.push(lvl);
-      const size=46+lvl*90;
-      blob.style.width=size+'px'; blob.style.height=size+'px';
-      blob.style.background=reached?'var(--green)':'var(--accent)';
-      ptime.textContent=t.toFixed(1)+' s';
-      if(!reached && t>=S.settings.target){reached=true; H.ok(); blob.style.background='var(--green)';}
-    },100); timers.push(iv);
+  // Métricas de hoy
+  wrap.appendChild(h(`<div class="sec-h"><h2>Hoy</h2><span class="link" id="goCheck">Check-in diario ›</span></div>`));
+  const mg=h(`<div class="metric-grid">
+    <div class="metric"><div class="v">${minToday}<small> / ${goal} min</small></div><div class="l">Tiempo entrenado</div></div>
+    <div class="metric"><div class="v">${tSES||'—'}${tSES?'<small> SES</small>':''}</div>
+      <div class="l">Eficiencia del habla ${delta?`<span class="delta ${delta>0?'up':delta<0?'down':'flat'}">${delta>0?'▲':'▼'}${Math.abs(delta)} vs media</span>`:''}</div></div>
+    <div class="metric"><div class="v">${sessionsOn(todayStr()).length}</div><div class="l">Sesiones hoy</div></div>
+    <div class="metric"><div class="v">${S.sessions.length}</div><div class="l">Sesiones totales</div></div>
+  </div>`);
+  wrap.appendChild(mg);
+
+  // Accesos rápidos
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:16px"><h2>Acceso rápido</h2></div>`));
+  const quick=h(`<div class="rowflex">
+    <button class="btn" id="qRitmo">🥁<br>Ritmo</button>
+    <button class="btn" id="qResp">🌬️<br>Respiración</button>
+    <button class="btn" id="qInf">📄<br>Informe</button>
+  </div>`);
+  wrap.appendChild(quick);
+  quick.querySelectorAll('button').forEach(b=>b.style.flexDirection="column");
+
+  // progreso mini
+  if(S.sessions.length){
+    wrap.appendChild(h(`<div class="sec-h" style="margin-top:18px"><h2>Tu semana</h2><span class="link" id="goProg">Ver progreso ›</span></div>`));
+    const c=h(`<div class="card tight"></div>`);
+    c.appendChild(elist(lineChartSVG(sesSeries(last7()), {h:90,color:'#0d9488',fill:true,unit:''})));
+    c.appendChild(h(`<div class="xs muted center" style="margin-top:4px">Evolución de la eficiencia del habla (SES) · 7 días</div>`));
+    wrap.appendChild(c);
+  } else {
+    wrap.appendChild(h(`<div class="card empty"><div class="ic">🌱</div><p>Aún no hay sesiones registradas.<br>Empieza tu primera sesión de 10 minutos para ver tu evolución aquí.</p></div>`));
   }
-  function stop(){
-    if(!running) return; running=false; clearInterval(iv);
-    const mean=samples.reduce((a,b)=>a+b,0)/(samples.length||1);
-    const sd=Math.sqrt(samples.reduce((a,b)=>a+(b-mean)**2,0)/(samples.length||1));
-    const stab=Math.max(0,Math.min(100,Math.round((1-sd*2)*100)));
-    document.getElementById('pstab').textContent=stab+'%';
-    blob.style.width='46px'; blob.style.height='46px';
-    addRecord({module:"Voz",exercise:ex,durationSeconds:+t.toFixed(1),correct:reached?1:0,errors:0,note:"Estab "+stab+"%"});
-    H.done();
-  }
-  hold.addEventListener('mousedown',start); hold.addEventListener('touchstart',e=>{e.preventDefault();start();});
-  hold.addEventListener('mouseup',stop); hold.addEventListener('mouseleave',stop);
-  hold.addEventListener('touchend',e=>{e.preventDefault();stop();});
-}
 
-//---------- RITMO ----------
-SCREENS.ritmo=()=>{
-  header('Ritmo');
-  let phrases=false, running=false, beats=0, resp=0, start=0, iv;
-  let stim=DATA.syllables[0];
-  const card=el(`<div class="stim" id="rstim">${stim}</div>`);
-  const toggle=el(`<button class="btn purple">Modo: Sílabas</button>`).firstChild;
-  const metro=el(`<div class="metro" id="metro"></div>`);
-  const rows=el(`<div><div class="row"><span>Tempo</span><b>${S.settings.bpm} ppm</b></div>
-    <div class="row"><span>Pulsos</span><b id="rb">0</b></div>
-    <div class="row"><span>Respuestas</span><b id="rr">0</b></div></div>`);
-  const plus=el(`<button class="btn blue" disabled>＋ Respuesta válida</button>`).firstChild;
-  const run=el(`<button class="btn green">Iniciar metrónomo</button>`).firstChild;
-  app.append(toggle,card,metro,rows,plus,run);
-  function newStim(){stim=(phrases?DATA.phrases:DATA.syllables)[Math.floor(Math.random()*(phrases?DATA.phrases:DATA.syllables).length)]; document.getElementById('rstim').textContent=stim;}
-  toggle.onclick=()=>{if(running)return; phrases=!phrases; toggle.textContent="Modo: "+(phrases?"Frases":"Sílabas"); newStim(); H.tap();};
-  plus.onclick=()=>{if(!running)return; resp++; document.getElementById('rr').textContent=resp; H.tap();};
-  run.onclick=()=>{
-    if(running){ running=false; clearInterval(iv); run.textContent="Iniciar metrónomo"; run.className="btn green"; plus.disabled=true;
-      addRecord({module:"Ritmo",exercise:phrases?"Frases a ritmo":"Sílabas con metrónomo",durationSeconds:(Date.now()-start)/1000,responses:resp,correct:resp,note:S.settings.bpm+" ppm"}); H.done();
-    } else {
-      running=true; beats=0; resp=0; start=Date.now(); run.textContent="Detener y guardar"; run.className="btn red"; plus.disabled=false;
-      document.getElementById('rr').textContent="0";
-      const m=document.getElementById('metro');
-      iv=setInterval(()=>{beats++; document.getElementById('rb').textContent=beats; H.beat(); m.classList.add('on'); setTimeout(()=>m.classList.remove('on'),110);},60000/S.settings.bpm);
-      timers.push(iv);
-    }
-  };
+  // disclaimer
+  wrap.appendChild(h(`<div class="disclaimer">Herramienta de apoyo, no diagnóstico. Los datos permanecen en este dispositivo.<br>El análisis de voz es estimado y no sustituye la valoración profesional.</div>`));
+
+  wrap.querySelector('#goCheck').onclick=openCheckin;
+  wrap.querySelector('#qRitmo').onclick=()=>openRhythm();
+  wrap.querySelector('#qResp').onclick=()=>openBreathing(null);
+  wrap.querySelector('#qInf').onclick=()=>{ if(S.sessions.length) openReport(S.sessions[S.sessions.length-1]); else toast("Aún no hay sesiones para el informe"); };
+  const gp=wrap.querySelector('#goProg'); if(gp) gp.onclick=()=>nav('progreso');
 };
 
-//---------- AFASIA ----------
-SCREENS.afasia=()=>{
-  header('Afasia');
-  const items=[["1 · Denominación",denomination],["2 · Comprensión",comprehension],["3 · Asociación",semantic],["4 · Fluidez verbal",fluency],["5 · Repetición",repetition]];
-  items.forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
-};
-function scoringBar(onScore){
-  const wrap=el('<div></div>');
-  [["Correcto","green","✅"],["Aproximación","yellow","◐"],["Error","red","❌"],["No responde","gray","—"]].forEach(([t,c,i])=>{
-    const b=el(`<button class="btn ${c} score">${i}&nbsp;${t}</button>`).firstChild; b.onclick=()=>{H.tap();onScore(t);}; wrap.appendChild(b);
-  });
-  return wrap;
+//==================================================================
+// CHECK-IN DIARIO (modal)
+//==================================================================
+function openCheckin(){
+  const ci=S.checkins[todayStr()]||{sleep:6,fatigue:5,stress:5};
+  const m=h(`<div class="modal-bg"><div class="modal">
+    <div class="eyebrow">Check-in de hoy · estimado</div>
+    <h3>¿Cómo estás para hablar hoy?</h3>
+    <p class="small muted">Estos datos ajustan tu índice de capacidad orientativo. Quedan en tu dispositivo.</p>
+    ${slider("sleep","Sueño","Poco","Bueno",ci.sleep)}
+    ${slider("fatigue","Fatiga","Nada","Mucha",ci.fatigue)}
+    ${slider("stress","Estrés","Bajo","Alto",ci.stress)}
+    <button class="btn primary" id="ckSave" style="margin-top:8px">Guardar check-in</button>
+    <button class="btn ghost" id="ckCancel">Cancelar</button>
+  </div></div>`);
+  overlay(m);
+  const vals={...ci};
+  m.querySelectorAll('input[type=range]').forEach(r=>{ r.oninput=()=>{ vals[r.dataset.k]=+r.value; m.querySelector('#out_'+r.dataset.k).textContent=r.value; }; });
+  m.querySelector('#ckSave').onclick=()=>{ S.checkins[todayStr()]=vals; save(); closeOverlay(); toast("Check-in guardado ✓"); nav('inicio'); };
+  m.querySelector('#ckCancel').onclick=closeOverlay;
 }
-function denomination(){
-  header('Denominación','afasia'); let i=0;
-  app.appendChild(el(`<p class="hint">El paciente debe decir la palabra.</p>`));
-  const card=el(`<div class="stim" id="dn"></div>`); app.appendChild(card);
-  const bar=scoringBar(t=>{addRecord({module:"Afasia",exercise:"Denominación",correct:t=="Correcto"?1:0,approx:t=="Aproximación"?1:0,errors:(t=="Error"||t=="No responde")?1:0,note:DATA.naming[i][0]+" · "+t}); i=(i+1)%DATA.naming.length; render();});
-  app.appendChild(bar);
-  function render(){const[w,e]=DATA.naming[i]; card.innerHTML=(S.settings.childMode?`<span class="emoji">${e}</span>`:'')+w;}
-  render();
-}
-function comprehension(){
-  header('Comprensión','afasia'); let i=0; H.done();
-  const wrap=el('<div></div>'); app.appendChild(wrap);
-  function render(){
-    const[t,opts]=DATA.comprehension[i]; wrap.innerHTML='';
-    wrap.appendChild(el(`<p class="hint">Consigna (el reloj vibra)</p><div class="big" style="font-size:24px">Toca ${t}</div>`));
-    opts.forEach(o=>{const b=el(`<button class="btn blue">${o}</button>`).firstChild; b.onclick=()=>{
-      const ok=o===t; H.tap(); ok?H.ok():H.warn();
-      addRecord({module:"Afasia",exercise:"Comprensión auditiva",correct:ok?1:0,errors:ok?0:1,note:t+" → "+o});
-      i=(i+1)%DATA.comprehension.length; setTimeout(render,400);};
-      wrap.appendChild(b);});
-  }
-  render();
-}
-function semantic(){
-  header('Asociación','afasia'); let i=0;
-  const wrap=el('<div></div>'); app.appendChild(wrap);
-  function render(){
-    const[t,c,d]=DATA.semantic[i]; const opts=[c,d].sort(()=>Math.random()-.5); wrap.innerHTML='';
-    wrap.appendChild(el(`<p class="hint">¿Qué se relaciona con…?</p><div class="stim">${t}</div>`));
-    opts.forEach(o=>{const b=el(`<button class="btn blue">${o}</button>`).firstChild; b.onclick=()=>{
-      const ok=o===c; H.tap(); ok?H.ok():H.warn();
-      addRecord({module:"Afasia",exercise:"Asociación semántica",correct:ok?1:0,errors:ok?0:1,note:t+" → "+o});
-      i=(i+1)%DATA.semantic.length; setTimeout(render,400);}; wrap.appendChild(b);});
-  }
-  render();
-}
-function fluency(){
-  header('Fluidez','afasia'); let cat=DATA.fluency[0], running=false, rem=30, count=0, iv;
-  const c=el(`<div class="stim" id="fc">${cat}</div>`);
-  const tm=el(`<div class="big" id="ft">30 s</div>`);
-  const cc=el(`<div class="row"><span>Respuestas</span><b id="fn">0</b></div>`);
-  const plus=el(`<button class="btn green" disabled>＋ Respuesta válida</button>`).firstChild;
-  const run=el(`<button class="btn blue">Iniciar 30 s</button>`).firstChild;
-  const oth=el(`<button class="btn ghost">Otra categoría</button>`).firstChild;
-  app.append(c,tm,cc,plus,run,oth);
-  oth.onclick=()=>{if(running)return; cat=DATA.fluency[Math.floor(Math.random()*DATA.fluency.length)]; document.getElementById('fc').textContent=cat; H.tap();};
-  plus.onclick=()=>{if(!running)return; count++; document.getElementById('fn').textContent=count; H.tap();};
-  run.onclick=()=>{
-    if(running) return;
-    running=true; count=0; rem=30; plus.disabled=false; run.disabled=true; H.beat();
-    iv=setInterval(()=>{rem--; document.getElementById('ft').textContent=rem+' s';
-      if(rem<=0){clearInterval(iv); running=false; plus.disabled=true;
-        addRecord({module:"Afasia",exercise:"Fluidez verbal",durationSeconds:30,responses:count,correct:count,note:"Cat "+cat}); H.done(); run.disabled=false;}
-    },1000); timers.push(iv);
-  };
-}
-function repetition(){
-  header('Repetición','afasia'); let i=0;
-  app.appendChild(el(`<p class="hint">Pide que repita.</p>`));
-  const card=el(`<div class="stim" id="rp">${DATA.repetition[0]}</div>`); app.appendChild(card);
-  [["Correcto","green"],["Aproximación","yellow"],["Error","red"]].forEach(([t,c])=>{
-    const b=el(`<button class="btn ${c}">${t}</button>`).firstChild;
-    b.onclick=()=>{H.tap(); addRecord({module:"Afasia",exercise:"Repetición",correct:t=="Correcto"?1:0,approx:t=="Aproximación"?1:0,errors:t=="Error"?1:0,note:DATA.repetition[i]+" · "+t}); i=(i+1)%DATA.repetition.length; card.textContent=DATA.repetition[i];};
-    app.appendChild(b);
-  });
+function slider(k,label,lo,hi,val){
+  return `<div class="slider-row"><label>${label} <b id="out_${k}">${val}</b></label>
+    <input type="range" min="0" max="10" step="1" value="${val}" data-k="${k}">
+    <div class="xs muted" style="display:flex;justify-content:space-between"><span>${lo}</span><span>${hi}</span></div></div>`;
 }
 
-//---------- LECTURA ----------
-SCREENS.lectura=()=>{
-  header('Lectura');
-  [["Lectura de sílabas",()=>readAloud(DATA.readSyll,"Sílabas")],["Palabras frecuentes",()=>readAloud(DATA.readWords,"Palabras")],["Decisión léxica",lexical]]
-    .forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
-};
-function readAloud(items,title){
-  header(title,'lectura'); let i=0, shown=Date.now();
-  app.appendChild(el(`<p class="hint">Pide que lea en voz alta.</p>`));
-  const card=el(`<div class="stim" id="ra">${items[0]}</div>`); app.appendChild(card);
-  [["Correcto","green",null],["Error visual","yellow","Visual"],["Error fonológico","red","Fonológico"],["Autocorrección","blue","Autocorrección"],["No lee","gray","No lee"]]
-   .forEach(([t,c,err])=>{const b=el(`<button class="btn ${c}">${t}</button>`).firstChild;
-     b.onclick=()=>{H.tap(); const ok=(t=="Correcto"||t=="Autocorrección");
-       addRecord({module:"Lectura",exercise:"Lectura "+title.toLowerCase(),reactionMs:Date.now()-shown,correct:ok?1:0,errors:ok?0:1,note:items[i]+" · "+t});
-       i=(i+1)%items.length; card.textContent=items[i]; shown=Date.now();};
-     app.appendChild(b);});
-}
-function lexical(){
-  header('Decisión léxica','lectura'); let i=0, shown=Date.now();
-  const wrap=el('<div></div>'); app.appendChild(wrap);
-  function render(){
-    const[txt,isW]=DATA.lexical[i]; wrap.innerHTML='';
-    wrap.appendChild(el(`<p class="hint">¿Es una palabra real?</p><div class="stim">${txt}</div>`));
-    const r=el(`<div style="display:flex;gap:8px"></div>`);
-    const a=el(`<button class="btn green" style="flex:1">PALABRA</button>`).firstChild;
-    const b=el(`<button class="btn red" style="flex:1">NO</button>`).firstChild;
-    a.onclick=()=>ans(true); b.onclick=()=>ans(false); r.append(a,b); wrap.appendChild(r);
-    function ans(said){const ok=said===isW; H.tap(); ok?H.ok():H.warn();
-      addRecord({module:"Lectura",exercise:"Decisión léxica",reactionMs:Date.now()-shown,correct:ok?1:0,errors:ok?0:1,note:txt});
-      i=(i+1)%DATA.lexical.length; shown=Date.now(); setTimeout(render,400);}
-  }
-  render();
-}
-
-//---------- ESCRITURA ----------
-SCREENS.escritura=()=>{
-  header('Escritura');
-  [["Copia",()=>writeTask(DATA.copy,"Copia")],["Dictado",()=>writeTask(DATA.dictation,"Dictado")]]
-    .forEach(([t,fn])=>{const b=el(`<button class="menu-btn">${t}</button>`).firstChild; b.onclick=()=>{H.tap();fn();}; app.appendChild(b);});
-};
-function writeTask(items,title){
-  header(title,'escritura'); let i=0;
-  app.appendChild(el(`<p class="hint">${title=="Dictado"?"Dicta la palabra (no la muestres).":"El paciente copia la palabra."}</p>`));
-  const card=el(`<div class="stim" id="wr">${items[0]}</div>`); app.appendChild(card);
-  const ok=el(`<button class="btn green">Correcto</button>`).firstChild;
-  ok.onclick=()=>{H.tap(); rec("Correcto",true);}; app.appendChild(ok);
-  DATA.writeErrors.forEach(e=>{const b=el(`<button class="btn red">${e}</button>`).firstChild; b.onclick=()=>{H.tap(); rec(e,false);}; app.appendChild(b);});
-  function rec(t,good){addRecord({module:"Escritura",exercise:title,correct:good?1:0,errors:good?0:1,note:items[i]+" · "+t}); i=(i+1)%items.length; card.textContent=items[i];}
-}
-
-//---------- MOVIMIENTO ----------
-SCREENS.movimiento=()=>{
-  header('Movimiento'); let trials=0, hits=0, target=Math.random()<.5?"IZQUIERDA":"DERECHA";
-  app.appendChild(el(`<p class="hint">Inclina la muñeca hacia el lado indicado (aquí: pulsa la flecha).</p>`));
-  const cons=el(`<div class="big" id="mc" style="font-size:22px">Inclina a la ${target}</div>`); app.appendChild(cons);
-  const r=el(`<div style="display:flex;gap:8px"></div>`);
-  const L=el(`<button class="btn blue" style="flex:1;font-size:26px">←</button>`).firstChild;
-  const R=el(`<button class="btn blue" style="flex:1;font-size:26px">→</button>`).firstChild;
-  r.append(L,R); app.appendChild(r);
-  const sc=el(`<div class="row"><span>Aciertos</span><b id="ms">0/0</b></div>`); app.appendChild(sc);
-  const fin=el(`<button class="btn ghost">Terminar y guardar</button>`).firstChild; app.appendChild(fin);
-  function pick(side){trials++; const ok=side===target; if(ok){hits++;H.ok();}else H.warn();
-    document.getElementById('ms').textContent=hits+"/"+trials;
-    target=Math.random()<.5?"IZQUIERDA":"DERECHA"; document.getElementById('mc').textContent="Inclina a la "+target;}
-  L.onclick=()=>pick("IZQUIERDA"); R.onclick=()=>pick("DERECHA");
-  fin.onclick=()=>{if(trials>0)addRecord({module:"Movimiento",exercise:"Elegir con inclinación",responses:trials,correct:hits,errors:trials-hits,note:hits+"/"+trials}); H.done(); go('home');};
-};
-
-//---------- RESULTADOS ----------
-SCREENS.resultados=()=>{
-  header('Resultados');
-  const R=S.records;
-  const sum=(f)=>R.reduce((a,b)=>a+(b[f]||0),0);
-  const correct=sum('correct'), approx=sum('approx'), errors=sum('errors');
-  const attempts=correct+approx+errors;
-  const acc=attempts?Math.round(correct/attempts*100):0;
-  const bestPhon=Math.max(0,...R.filter(r=>r.module=="Voz").map(r=>r.durationSeconds||0));
-  const readErr=R.filter(r=>r.module=="Lectura").reduce((a,b)=>a+(b.errors||0),0);
-  const wrErr=R.filter(r=>r.module=="Escritura").reduce((a,b)=>a+(b.errors||0),0);
-  app.appendChild(el(`<div>
-    <div class="row"><span>Sesiones</span><b>${S.settings.sessions}</b></div>
-    <div class="row"><span>Ejercicios</span><b>${R.length}</b></div>
-    <div class="row"><span>Aciertos</span><b>${correct}</b></div>
-    <div class="row"><span>Errores</span><b>${errors}</b></div>
-    <div class="row"><span>% Aciertos</span><b>${acc}%</b></div>
-    <div class="row"><span>Mejor fonación</span><b>${bestPhon.toFixed(1)} s</b></div>
-    <div class="row"><span>Errores lectura</span><b>${readErr}</b></div>
-    <div class="row"><span>Errores escritura</span><b>${wrErr}</b></div>
+//==================================================================
+// SESIÓN: pantalla intermedia (sesion tab) -> explica y lanza
+//==================================================================
+SCREENS.sesion=()=>{
+  const cap=capacityIndex();
+  root.innerHTML="";
+  const wrap=document.createElement('div'); wrap.className="screen"; root.appendChild(wrap);
+  wrap.appendChild(h(`<div class="card">
+    <div class="eyebrow">Sesión guiada EthosFlow</div>
+    <h2 style="margin:6px 0 4px;font-size:19px">Tu rutina de hoy</h2>
+    <p class="small muted">Una sesión breve y estructurada para entrenar ritmo, fluidez y regulación. Puedes pausar o salir cuando quieras.</p>
+    <div style="margin-top:12px">${phaseList()}</div>
+    <div class="note-inline"><span class="i">ℹ︎</span><span>Si autorizas el micrófono, EthosFlow estima tu actividad vocal de forma local. No se graba ni se sube ningún audio.</span></div>
   </div>`));
-  // últimos 7 días
-  const days=[]; const now=new Date(); now.setHours(0,0,0,0);
-  for(let k=6;k>=0;k--){const d=new Date(now); d.setDate(d.getDate()-k);
-    const c=R.filter(r=>{const rd=new Date(r.date); rd.setHours(0,0,0,0); return rd.getTime()==d.getTime();}).length;
-    days.push([d,c]);}
-  const mx=Math.max(1,...days.map(d=>d[1]));
-  const chart=el(`<div class="chart"></div>`);
-  const dn=["D","L","M","X","J","V","S"];
-  days.forEach(([d,c])=>{
-    const col=el(`<div class="col"><div class="n">${c}</div><div class="bar" style="height:${c/mx*60+2}px"></div><div class="d">${dn[d.getDay()]}</div></div>`).firstChild;
-    chart.appendChild(col);
+  const start=h(`<button class="btn primary">▶  Empezar (${cap.warn?'modo corto':'≈ '+Math.max(5,S.settings.dailyGoalMin)+' min'})</button>`);
+  start.onclick=()=>{ buzz(10); startSession(); };
+  wrap.appendChild(start);
+  const tools=h(`<div class="rowflex" style="margin-top:6px">
+    <button class="btn" id="tRit">🥁 Solo ritmo</button>
+    <button class="btn" id="tResp">🌬️ Solo respiración</button></div>`);
+  wrap.appendChild(tools);
+  tools.querySelector('#tRit').onclick=()=>openRhythm();
+  tools.querySelector('#tResp').onclick=()=>openBreathing(null);
+  wrap.appendChild(h(`<div class="disclaimer">El análisis de voz es estimado y orientativo. No sustituye la valoración de tu logopeda.</div>`));
+};
+const PHASES=[
+  {id:"prep",   name:"Preparación",        icon:"🧭", dur:20, kind:"prep"},
+  {id:"base",   name:"Línea base",          icon:"🎙️", dur:30, kind:"listen"},
+  {id:"rhythm", name:"Entrenamiento de ritmo", icon:"🥁", dur:45, kind:"rhythm"},
+  {id:"guided", name:"Habla guiada",        icon:"💬", dur:50, kind:"listen"},
+  {id:"breath", name:"Respiración / pausa", icon:"🌬️", dur:40, kind:"breath"},
+  {id:"close",  name:"Cierre y resumen",    icon:"✅", dur:0,  kind:"close"}
+];
+function phaseList(){
+  return PHASES.map((p,i)=>`<div style="display:flex;align-items:center;gap:11px;padding:7px 0;${i<PHASES.length-1?'border-bottom:1px solid var(--line)':''}">
+    <div style="width:30px;height:30px;border-radius:9px;background:var(--bg2);display:flex;align-items:center;justify-content:center">${p.icon}</div>
+    <div style="flex:1"><b style="font-size:14px">${p.name}</b></div>
+    <div class="xs muted">${p.dur?p.dur+'s':''}</div></div>`).join("");
+}
+
+//==================================================================
+// MOTOR DE SESIÓN
+//==================================================================
+let SESSION=null;
+async function startSession(){
+  SESSION={ phaseIdx:0, startTs:Date.now(), tEff:0, tDis:0, tSil:0, tPause:0, regPauses:0,
+            segments:[], curSeg:null, activation:30, micOn:false, phaseElapsed:0, running:true, tick:null, raf:null };
+  // intento de micrófono
+  const ok=await Audio.start();
+  SESSION.micOn=ok;
+  renderSession();
+  runPhaseLoop();
+}
+function curPhase(){ return PHASES[SESSION.phaseIdx]; }
+function runPhaseLoop(){
+  clearInterval(SESSION.tick);
+  SESSION.phaseElapsed=0;
+  const p=curPhase();
+  if(p.kind==="close"){ renderSession(); return; }
+  if(p.kind==="breath"){ renderSession(); return; } // respiración se gestiona aparte
+  SESSION.tick=setInterval(()=>{
+    if(!SESSION.running) return;
+    SESSION.phaseElapsed+=0.1;
+    sampleSpeech(p);
+    if(p.dur && SESSION.phaseElapsed>=p.dur){ nextPhase(); }
+    updateSessionLive();
+  },100);
+}
+function sampleSpeech(p){
+  if(p.kind!=="listen" && p.kind!=="rhythm") return;
+  let lvl=Audio.level();
+  if(lvl===null){ // simulado realista
+    const t=Date.now()/600;
+    lvl=0.5+0.35*Math.sin(t)+0.1*Math.sin(t*3.3)+(Math.random()*0.2-0.1);
+    lvl=Math.max(0,Math.min(1,lvl));
+  }
+  const thr=(100-S.settings.micSensitivity)/100*0.5+0.05;
+  let type;
+  if(lvl<thr*0.5) type="silence";
+  else if(lvl<thr) type="disfluency";          // voz baja/entrecortada -> estimado disfluencia
+  else type="efficient";
+  // ritmo: pequeña probabilidad de marcar disfluencia si fuera de pulso (estimado)
+  if(p.kind==="rhythm" && type==="efficient" && Math.random()<0.06) type="disfluency";
+  if(type==="efficient") SESSION.tEff+=0.1;
+  else if(type==="disfluency") SESSION.tDis+=0.1;
+  else SESSION.tSil+=0.1;
+  // activación estimada (suaviza)
+  const target=Math.round(lvl*100*0.7 + (SESSION.tDis>SESSION.tEff?20:0));
+  SESSION.activation=Math.round(SESSION.activation*0.92+target*0.08);
+  // segmentos agrupados
+  const last=SESSION.segments[SESSION.segments.length-1];
+  if(last && last.type===type) last.sec+=0.1;
+  else SESSION.segments.push({type, sec:0.1});
+}
+function liveSES(){
+  const voiced=SESSION.tEff+SESSION.tDis;
+  if(voiced<1) return 0;
+  let ses=(SESSION.tEff/voiced)*100;
+  // penaliza silencio excesivo levemente
+  const tot=voiced+SESSION.tSil;
+  ses=ses*(0.85+0.15*(voiced/tot));
+  return Math.max(0,Math.min(100,Math.round(ses)));
+}
+function liveReco(){
+  const ses=liveSES(); const p=curPhase();
+  if(p.kind==="prep") return "Siéntate cómodo. Afloja mandíbula y hombros. Respira por la nariz antes de empezar.";
+  if(p.kind==="rhythm") return "Acompaña cada pulso con una sílaba. Suave y continuo, sin forzar.";
+  if(SESSION.activation>72) return "Activación alta. Baja el ritmo, alarga la vocal y usa una pausa reguladora.";
+  if(ses>=75) return "Buen flujo. Mantén este ritmo y alarga ligeramente las frases.";
+  if(ses>=50) return "Vas bien. Marca pausas entre frases y prioriza el inicio suave de palabra.";
+  if(ses>0) return "Reduce la velocidad. Inicia las palabras con suavidad y respira antes de cada frase.";
+  return "Empieza a hablar cuando estés listo. No hay prisa.";
+}
+function nextPhase(){
+  clearInterval(SESSION.tick);
+  if(SESSION.phaseIdx<PHASES.length-1){ SESSION.phaseIdx++; buzz(14);
+    if(curPhase().kind==="breath"){ renderSession(); return; }
+    if(curPhase().kind==="close"){ finishSession(); return; }
+    renderSession(); runPhaseLoop();
+  } else { finishSession(); }
+}
+function addRegPause(){ SESSION.regPauses++; SESSION.tPause+=4; SESSION.segments.push({type:"pause",sec:4}); buzz([0,30,60,30]); toast("Pausa reguladora ✓"); updateSessionLive(); }
+
+function finishSession(){
+  clearInterval(SESSION.tick); Audio.stop();
+  SESSION.phaseIdx=PHASES.length-1; // close
+  const dur=Math.round((SESSION.tEff+SESSION.tDis+SESSION.tSil+SESSION.tPause));
+  const rec={ date:todayStr(), ts:Date.now(),
+    durationSec:Math.max(dur, Math.round((Date.now()-SESSION.startTs)/1000)),
+    ses:liveSES(), efficientSec:Math.round(SESSION.tEff), disfluencySec:Math.round(SESSION.tDis),
+    silenceSec:Math.round(SESSION.tSil), pauseSec:Math.round(SESSION.tPause), regPauses:SESSION.regPauses,
+    activation:SESSION.activation, segments:SESSION.segments.map(s=>({type:s.type,sec:Math.round(s.sec*10)/10})),
+    notes:"", mode:SESSION.micOn?"micro":"demo" };
+  S.sessions.push(rec); save();
+  SESSION.saved=rec;
+  renderSession();
+}
+
+function exitSession(){
+  clearInterval(SESSION.tick); Audio.stop(); SESSION.running=false;
+  closeOverlay(); SESSION=null; nav('inicio');
+}
+
+//------------------- Render de sesión -------------------
+function renderSession(){
+  const p=curPhase();
+  if(p.kind==="breath"){ renderBreathPhase(); return; }
+  if(p.kind==="close"){ renderClose(); return; }
+  const ses=liveSES();
+  const tot=SESSION.tEff+SESSION.tDis+SESSION.tSil+SESSION.tPause||1;
+  const ov=h(`<div class="session-wrap">
+    <div class="phase-top"><div class="phase-name">${p.icon} ${p.name}</div><button class="phase-x" id="sx">✕ Salir</button></div>
+    <div class="phase-steps">${PHASES.slice(0,-1).map((x,i)=>`<div class="s ${i<SESSION.phaseIdx?'done':i===SESSION.phaseIdx?'cur':''}"></div>`).join("")}</div>
+    <div class="mic-pill" style="margin-bottom:14px">${SESSION.micOn?'🎙️ Micrófono activo · análisis local':'🔁 Modo simulado · sin micrófono'}</div>
+    <div class="ses-lbl">Speech Efficiency Score</div>
+    <div class="ses-big" id="sesBig">${ses||'··'}</div>
+    <div class="timer" id="sesTimer">${fmtTime(SESSION.phaseElapsed)} / ${p.dur}s · total ${fmtTime(tot)}</div>
+
+    <div class="live-grid">
+      <div class="live"><div class="v" id="lvEff">${fmtTime(SESSION.tEff)}</div><div class="l">Habla eficiente</div></div>
+      <div class="live"><div class="v" id="lvDis">${fmtTime(SESSION.tDis)}</div><div class="l">Disfluencia estimada</div></div>
+      <div class="live"><div class="v" id="lvSil">${fmtTime(SESSION.tSil)}</div><div class="l">Silencio</div></div>
+      <div class="live"><div class="v" id="lvReg">${SESSION.regPauses}</div><div class="l">Pausas reguladoras</div></div>
+    </div>
+
+    <div class="ses-lbl" style="text-align:left;margin-bottom:4px">Nivel de activación estimado</div>
+    <div class="activation-bar"><i id="actBar" style="width:${SESSION.activation}%"></i></div>
+
+    <div class="ses-lbl" style="text-align:left;margin:14px 0 2px">Línea temporal</div>
+    <div class="timeline" id="tline">${timelineHTML(SESSION.segments)}</div>
+    <div class="tl-key"><span><i style="background:var(--eff)"></i>Eficiente</span><span><i style="background:var(--dis)"></i>Disfluencia</span><span><i style="background:var(--sil)"></i>Silencio</span><span><i style="background:var(--pau)"></i>Pausa</span></div>
+
+    <div class="reco" id="reco"><b>Recomendación:</b> ${liveReco()}</div>
+
+    <div class="session-actions">
+      ${p.kind==="rhythm"?'<button class="btn light" id="openMetro" style="margin-bottom:8px">🥁 Abrir metrónomo</button>':''}
+      <div class="rowflex">
+        <button class="btn outline-l" id="regPause">⏸ Pausa reguladora</button>
+        <button class="btn light" id="nextP">${SESSION.phaseIdx===PHASES.length-2?'Finalizar':'Siguiente fase ›'}</button>
+      </div>
+    </div>
+  </div>`);
+  overlay(ov, true);
+  ov.querySelector('#sx').onclick=()=>confirmExit();
+  ov.querySelector('#regPause').onclick=addRegPause;
+  ov.querySelector('#nextP').onclick=()=>nextPhase();
+  const om=ov.querySelector('#openMetro'); if(om) om.onclick=()=>openRhythm(true);
+}
+function updateSessionLive(){
+  if(!SESSION) return; const p=curPhase(); if(p.kind==="close"||p.kind==="breath") return;
+  const $=id=>document.getElementById(id); if(!$('sesBig')) return;
+  const ses=liveSES(); const tot=SESSION.tEff+SESSION.tDis+SESSION.tSil+SESSION.tPause||0;
+  $('sesBig').textContent=ses||'··';
+  $('sesTimer').textContent=`${fmtTime(SESSION.phaseElapsed)} / ${p.dur}s · total ${fmtTime(tot)}`;
+  $('lvEff').textContent=fmtTime(SESSION.tEff); $('lvDis').textContent=fmtTime(SESSION.tDis);
+  $('lvSil').textContent=fmtTime(SESSION.tSil); $('lvReg').textContent=SESSION.regPauses;
+  $('actBar').style.width=SESSION.activation+'%';
+  $('tline').innerHTML=timelineHTML(SESSION.segments);
+  $('reco').innerHTML=`<b>Recomendación:</b> ${liveReco()}`;
+}
+function timelineHTML(segs){
+  const total=sum(segs,s=>s.sec)||1;
+  const col={efficient:'var(--eff)',disfluency:'var(--dis)',silence:'var(--sil)',pause:'var(--pau)'};
+  if(!segs.length) return '<span style="width:100%;background:rgba(255,255,255,.08)"></span>';
+  return segs.map(s=>`<span style="width:${(s.sec/total*100)}%;background:${col[s.type]}"></span>`).join("");
+}
+function confirmExit(){
+  const m=h(`<div class="modal-bg"><div class="modal">
+    <h3>¿Salir de la sesión?</h3><p class="small muted">Si sales ahora no se guardará esta sesión.</p>
+    <button class="btn danger" id="cyes">Salir sin guardar</button>
+    <button class="btn primary" id="cfin">Finalizar y guardar</button>
+    <button class="btn ghost" id="cno">Seguir en la sesión</button></div></div>`);
+  overlay(m);
+  m.querySelector('#cyes').onclick=()=>{ exitSession(); };
+  m.querySelector('#cfin').onclick=()=>{ finishSession(); };
+  m.querySelector('#cno').onclick=()=>{ renderSession(); };
+}
+
+//------------------- Fase de respiración dentro de sesión -------------------
+function renderBreathPhase(){ openBreathing("session"); }
+
+//------------------- Cierre -------------------
+function renderClose(){
+  const r=SESSION.saved||finishCalc();
+  const meanSES=overallAvgSES();
+  const ov=h(`<div class="session-wrap">
+    <div class="center" style="margin-top:6px">
+      <div style="font-size:46px">✅</div>
+      <h2 style="margin:6px 0 2px">Sesión completada</h2>
+      <div class="chip ok" style="margin:6px auto">Sesión guardada ✓</div>
+    </div>
+    <div class="ses-lbl" style="margin-top:14px">Resumen</div>
+    <div class="ses-big" style="font-size:46px">${r.ses}<span style="font-size:18px;color:rgba(255,255,255,.6)"> SES</span></div>
+    <div class="timer">${r.ses>=meanSES?'Por encima':'En línea con'} tu media (${meanSES})</div>
+    <div class="live-grid" style="margin-top:16px">
+      <div class="live"><div class="v">${fmtTime(r.durationSec)}</div><div class="l">Duración</div></div>
+      <div class="live"><div class="v">${fmtTime(r.efficientSec)}</div><div class="l">Habla eficiente</div></div>
+      <div class="live"><div class="v">${fmtTime(r.disfluencySec)}</div><div class="l">Disfluencia estimada</div></div>
+      <div class="live"><div class="v">${r.regPauses}</div><div class="l">Pausas reguladoras</div></div>
+    </div>
+    <div class="ses-lbl" style="text-align:left;margin:14px 0 2px">Línea temporal de la sesión</div>
+    <div class="timeline">${timelineHTML(r.segments)}</div>
+    <div class="reco"><b>Para tu próxima sesión:</b> ${closeAdvice(r)}</div>
+    <div class="session-actions">
+      <button class="btn light" id="rep" style="margin-bottom:8px">📄 Generar informe</button>
+      <button class="btn outline-l" id="done">Terminar</button>
+    </div>
+  </div>`);
+  overlay(ov,true);
+  ov.querySelector('#rep').onclick=()=>openReport(r);
+  ov.querySelector('#done').onclick=()=>{ closeOverlay(); SESSION=null; nav('progreso'); };
+}
+function finishCalc(){ return S.sessions[S.sessions.length-1]; }
+function closeAdvice(r){
+  if(r.ses>=75) return "Mantén la constancia. Prueba frases más largas o una situación que sueles evitar, con ritmo suave.";
+  if(r.ses>=50) return "Refuerza el inicio suave de palabra y usa más pausas reguladoras entre frases.";
+  return "Prioriza ritmo lento y respiración. Sesiones cortas y frecuentes ayudan más que una larga.";
+}
+
+//==================================================================
+// RESPIRACIÓN (modal a pantalla completa)
+//==================================================================
+let BREATH=null;
+function openBreathing(context){ // context: "session" o null
+  const pattern=S.breathPattern||[4,0,6]; // inhala, retén, exhala
+  BREATH={ context, phase:0, count:pattern[0], pattern, cycles:0, running:true, iv:null };
+  const ov=h(`<div class="session-wrap breathe">
+    <div class="phase-top"><div class="phase-name">🌬️ Respiración guiada</div><button class="phase-x" id="bx">✕</button></div>
+    <div class="center" style="margin-top:4px"><div class="segctl" style="max-width:240px;margin:0 auto">
+      <button data-p="4-0-6" class="${eqPat(pattern,[4,0,6])?'on':''}">4 · 6</button>
+      <button data-p="4-4-6" class="${eqPat(pattern,[4,4,6])?'on':''}">4 · 4 · 6</button>
+    </div></div>
+    <div class="breath-stage">
+      <div class="breath-orb" id="orb"><div class="ph" id="bph">Inhala</div></div>
+      <div class="breath-count" id="bcount">4</div>
+      <div class="small" style="color:rgba(255,255,255,.7)">Ciclos: <span id="bcyc">0</span></div>
+    </div>
+    <div class="reco">Respira por la nariz, suelta hombros y mandíbula. La exhalación, larga y sin esfuerzo.</div>
+    <div class="session-actions">
+      ${context==="session"?'<button class="btn light" id="bback" style="margin-bottom:8px">Volver al habla guiada ›</button>':''}
+      <button class="btn outline-l" id="bstop">${context==="session"?'Saltar respiración':'Terminar'}</button>
+    </div>
+  </div>`);
+  overlay(ov,true);
+  ov.querySelectorAll('.segctl button').forEach(b=>b.onclick=()=>{ const p=b.dataset.p.split('-').map(Number); S.breathPattern=p; save(); closeOverlay(); openBreathing(context); });
+  ov.querySelector('#bx').onclick=()=>endBreathing(false);
+  ov.querySelector('#bstop').onclick=()=>endBreathing(true);
+  const bb=ov.querySelector('#bback'); if(bb) bb.onclick=()=>endBreathing(true);
+  runBreath();
+}
+function eqPat(a,b){ return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]; }
+function runBreath(){
+  const phases=[["Inhala",BREATH.pattern[0]],["Retén",BREATH.pattern[1]],["Exhala",BREATH.pattern[2]]];
+  applyOrb(phases);
+  BREATH.iv=setInterval(()=>{
+    if(!BREATH.running) return;
+    BREATH.count--;
+    if(BREATH.count<=0){
+      BREATH.phase=(BREATH.phase+1)%3;
+      if(BREATH.pattern[BREATH.phase]===0) BREATH.phase=(BREATH.phase+1)%3;
+      BREATH.count=BREATH.pattern[BREATH.phase];
+      buzz(20);
+      if(BREATH.phase===0){ BREATH.cycles++; const c=document.getElementById('bcyc'); if(c)c.textContent=BREATH.cycles; }
+      applyOrb(phases);
+    }
+    const bc=document.getElementById('bcount'); if(bc) bc.textContent=BREATH.count;
+  },1000);
+}
+function applyOrb(phases){
+  const name=phases[BREATH.phase][0]; const orb=document.getElementById('orb'); const ph=document.getElementById('bph');
+  const bc=document.getElementById('bcount'); if(bc) bc.textContent=BREATH.count;
+  if(ph) ph.textContent=name;
+  if(orb){ orb.style.transitionDuration=BREATH.pattern[BREATH.phase]+'s';
+    orb.style.transform = name==="Inhala"?"scale(1.35)": name==="Exhala"?"scale(0.78)":"scale(1.35)"; }
+}
+function endBreathing(toGuided){
+  clearInterval(BREATH&&BREATH.iv); const ctx=BREATH?BREATH.context:null; BREATH=null;
+  if(ctx==="session" && SESSION){ closeOverlay(); SESSION.tPause+=BREATH? 0:0; nextPhase(); }
+  else { closeOverlay(); }
+}
+
+//==================================================================
+// ENTRENADOR DE RITMO (modal)
+//==================================================================
+let METRO=null;
+const RHYTHM_MODES={ lento:{bpm:54,label:"Lento"}, medio:{bpm:72,label:"Medio"}, conversacion:{bpm:96,label:"Conversación"} };
+const RHYTHM_SETS={
+  silabas:["pa","ta","ka","ma","pa-ta-ka","la-le-li"],
+  palabras:["casa","camino","mañana","tranquilo","despacio","respiro"],
+  frases:["voy con calma","hablo despacio","una sílaba cada vez","respiro y sigo"]
+};
+function openRhythm(fromSession){
+  let mode="medio", set="silabas", bpm=S.settings.baseBPM, running=false, beats=0, hits=0, lastBeat=0, idx=0;
+  const ov=h(`<div class="session-wrap" style="background:linear-gradient(170deg,#10203f,#1a1740)">
+    <div class="phase-top"><div class="phase-name">🥁 Entrenador de ritmo</div><button class="phase-x" id="mx">✕</button></div>
+    <div class="center"><div class="stim-card" id="stim" style="font-size:34px;font-weight:800;margin:14px 0;padding:14px;background:rgba(255,255,255,.08);border-radius:14px">pa</div></div>
+    <div class="metro-orb" id="orb">♪</div>
+    <div class="center timer" id="bpmLbl">${bpm} BPM · Medio</div>
+    <div class="segctl" style="margin:14px 0">
+      <button data-m="lento">Lento</button><button data-m="medio" class="on">Medio</button><button data-m="conversacion">Conversación</button>
+    </div>
+    <div class="segctl">
+      <button data-s="silabas" class="on">Sílabas</button><button data-s="palabras">Palabras</button><button data-s="frases">Frases</button>
+    </div>
+    <div class="slider-row" style="margin-top:14px"><label style="color:#fff">Ajuste fino BPM <b id="bpmOut" style="color:#7fe6d4">${bpm}</b></label>
+      <input type="range" min="40" max="120" step="2" value="${bpm}" id="bpmR"></div>
+    <div class="live-grid"><div class="live"><div class="v" id="mBeats">0</div><div class="l">Pulsos</div></div>
+      <div class="live"><div class="v" id="mSync">—</div><div class="l">Sincronía estimada</div></div></div>
+    <div class="reco">Toca <b>“A tiempo”</b> en cada pulso para estimar tu sincronía. Acompaña con la sílaba o palabra mostrada.</div>
+    <div class="session-actions">
+      <button class="btn light" id="tap" style="margin-bottom:8px" disabled>👆 A tiempo</button>
+      <div class="rowflex">
+        <button class="btn outline-l" id="pause">⏸ Pausa reguladora</button>
+        <button class="btn light" id="toggle">▶ Iniciar</button>
+      </div>
+      ${fromSession?'<button class="btn outline-l" id="backSess" style="margin-top:8px">Volver a la sesión ›</button>':''}
+    </div>
+  </div>`);
+  overlay(ov,true);
+  const $=s=>ov.querySelector(s);
+  function setStim(){ const arr=RHYTHM_SETS[set]; $('#stim').textContent=arr[idx%arr.length]; }
+  setStim();
+  function applyMode(){ bpm=RHYTHM_MODES[mode].bpm; $('#bpmR').value=bpm; $('#bpmOut').textContent=bpm; $('#bpmLbl').textContent=`${bpm} BPM · ${RHYTHM_MODES[mode].label}`; if(running){ stop(); start(); } }
+  ov.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ ov.querySelectorAll('[data-m]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); mode=b.dataset.m; applyMode(); buzz(6); });
+  ov.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ ov.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); set=b.dataset.s; idx=0; setStim(); buzz(6); });
+  $('#bpmR').oninput=()=>{ bpm=+$('#bpmR').value; $('#bpmOut').textContent=bpm; $('#bpmLbl').textContent=`${bpm} BPM · ${RHYTHM_MODES[mode].label}`; if(running){ stop(); start(); } };
+  function start(){ running=true; beats=0; hits=0; $('#toggle').textContent="⏸ Detener"; $('#tap').disabled=false;
+    METRO=setInterval(()=>{ beats++; $('#mBeats').textContent=beats; idx++; setStim(); buzz(16); lastBeat=Date.now();
+      const o=$('#orb'); o.classList.add('on'); setTimeout(()=>o.classList.remove('on'),110); }, 60000/bpm); }
+  function stop(){ running=false; clearInterval(METRO); METRO=null; $('#toggle').textContent="▶ Iniciar"; $('#tap').disabled=true; }
+  $('#toggle').onclick=()=>{ running?stop():start(); };
+  $('#tap').onclick=()=>{ if(!running) return; const diff=Math.abs(Date.now()-lastBeat); const window=60000/bpm;
+    const acc=Math.max(0,1-diff/(window/2)); hits+=acc; const sync=Math.round(hits/Math.max(1,beats)*100);
+    $('#mSync').textContent=sync+'%'; buzz(8); };
+  $('#pause').onclick=()=>{ buzz([0,30,60,30]); toast("Pausa reguladora · respira y retoma"); };
+  $('#mx').onclick=()=>{ stop(); if(fromSession){ closeOverlay(); renderSession(); } else { closeOverlay(); } };
+  const bs=$('#backSess'); if(bs) bs.onclick=()=>{ stop(); closeOverlay(); renderSession(); };
+}
+
+//==================================================================
+// PROGRESO (dashboard con SVG)
+//==================================================================
+SCREENS.progreso=()=>{
+  root.innerHTML="";
+  const wrap=document.createElement('div'); wrap.className="screen"; root.appendChild(wrap);
+  if(!S.sessions.length){
+    wrap.appendChild(h(`<div class="card empty"><div class="ic">📈</div><p>Tu progreso aparecerá aquí tras tu primera sesión.<br>Las gráficas muestran tu evolución estimada, no una medida clínica.</p></div>`));
+    wrap.appendChild(h(`<button class="btn primary" id="go">Empezar primera sesión</button>`));
+    wrap.querySelector('#go').onclick=startSession; return;
+  }
+  const days7=last7(), days14=last14();
+  const ses7=sesSeries(days7);
+  const min7=days7.map(d=>minutesTrained(d));
+  const dis7=days7.map(d=>Math.round(sum(sessionsOn(d),s=>s.disfluencySec)/60*10)/10);
+  const reg7=days7.map(d=>sum(sessionsOn(d),s=>s.regPauses));
+  const cap=capacityIndex();
+  const todaySES=avgSES(sessionsOn(todayStr()))||recentSES(); const meanSES=overallAvgSES();
+
+  // SES evolución
+  wrap.appendChild(h(`<div class="sec-h"><h2>Eficiencia del habla (SES)</h2><span class="chip">7 días</span></div>`));
+  let c=h(`<div class="card"></div>`);
+  c.appendChild(elist(lineChartSVG(ses7,{h:120,color:'#0d9488',fill:true,labels:days7.map(shortDay),unit:''})));
+  c.appendChild(h(`<div class="legend-row"><span><i style="background:#0d9488"></i>SES diario (0–100, estimado)</span></div>`));
+  wrap.appendChild(c);
+
+  // hoy vs media
+  wrap.appendChild(h(`<div class="metric-grid">
+    <div class="metric"><div class="v">${todaySES||'—'}</div><div class="l">SES hoy</div></div>
+    <div class="metric"><div class="v">${meanSES}</div><div class="l">Media histórica</div></div>
+  </div>`));
+  const dd=todaySES-meanSES;
+  wrap.appendChild(h(`<div class="card tight center"><span class="delta ${dd>0?'up':dd<0?'down':'flat'}" style="font-size:14px">${dd>0?'▲ +':dd<0?'▼ ':''}${dd} puntos ${dd>=0?'sobre':'bajo'} tu media</span></div>`));
+
+  // tiempo entrenado
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Tiempo entrenado</h2><span class="chip">min/día</span></div>`));
+  c=h(`<div class="card"></div>`);
+  c.appendChild(elist(barChartSVG(min7,{h:110,color:'#4f46e5',labels:days7.map(shortDay),goal:S.settings.dailyGoalMin})));
+  c.appendChild(h(`<div class="legend-row"><span><i style="background:#4f46e5"></i>Minutos</span><span><i style="background:#d97706"></i>Objetivo (${S.settings.dailyGoalMin})</span></div>`));
+  wrap.appendChild(c);
+
+  // disfluencias + pausas
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Disfluencias y regulación</h2></div>`));
+  c=h(`<div class="card"></div>`);
+  c.appendChild(elist(barChartSVG(dis7,{h:90,color:'#e0a82e',labels:days7.map(shortDay)})));
+  c.appendChild(h(`<div class="legend-row"><span><i style="background:#e0a82e"></i>Min. disfluencia estimada/día</span></div>`));
+  c.appendChild(h(`<div style="height:10px"></div>`));
+  c.appendChild(h(`<div class="metric-grid">
+    <div class="metric"><div class="v">${sum(reg7)}</div><div class="l">Pausas reguladoras (7 d)</div></div>
+    <div class="metric"><div class="v">${Math.round(sum(min7))}<small> min</small></div><div class="l">Entrenado (7 d)</div></div>
+  </div>`));
+  wrap.appendChild(c);
+
+  // índice capacidad
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Índice de capacidad</h2><span class="chip">hoy · estimado</span></div>`));
+  const capc=h(`<div class="card" style="display:flex;align-items:center;gap:16px">
+    <div>${ringSVG(cap.score,'#0d9488','#e3e8ef',62)}</div>
+    <div style="flex:1"><b style="font-size:16px">${cap.band}</b><div class="small muted" style="margin-top:4px">${cap.rec}</div></div>
+  </div>`);
+  wrap.appendChild(capc);
+
+  // historial
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Sesiones recientes</h2></div>`));
+  const hist=h(`<div class="card tight"></div>`);
+  S.sessions.slice(-6).reverse().forEach(s=>{
+    const row=h(`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)">
+      <div style="width:42px;height:42px;border-radius:11px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--teal)">${s.ses}</div>
+      <div style="flex:1"><b style="font-size:13.5px">${new Date(s.ts).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'})}</b>
+        <div class="xs muted">${fmtTime(s.durationSec)} · ${s.regPauses} pausas · ${s.mode==='micro'?'micrófono':'simulado'}</div></div>
+      <span class="link">Informe ›</span></div>`);
+    row.onclick=()=>openReport(s); hist.appendChild(row);
   });
-  app.appendChild(el(`<p class="hint" style="margin-top:10px">Últimos 7 días</p>`));
-  app.appendChild(chart);
-  const reset=el(`<button class="btn red">🗑️ Reiniciar datos</button>`).firstChild;
-  reset.onclick=()=>{if(confirm("¿Borrar todos los datos?")){S.records=[]; S.settings.sessions=0; save(); H.warn(); go('resultados');}};
-  app.appendChild(reset);
+  hist.lastChild.style.borderBottom="none";
+  wrap.appendChild(hist);
+  wrap.appendChild(h(`<div class="disclaimer">Estas métricas son estimadas y orientativas; no constituyen una evaluación clínica.</div>`));
 };
+const shortDay=ds=>{ const d=new Date(ds+"T12:00"); return ["D","L","M","X","J","V","S"][d.getDay()]; };
 
-//---------- AJUSTES ----------
+//==================================================================
+// GRÁFICAS SVG (sin librerías)
+//==================================================================
+function lineChartSVG(values,opt){
+  opt=opt||{}; const W=320,H=opt.h||110, pad=22, padT=12, padB=opt.labels?20:8;
+  const max=Math.max(10,...values), min=0;
+  const n=values.length; const iw=W-pad*2;
+  const x=i=> pad + (n<=1?iw/2:i*(iw/(n-1)));
+  const y=v=> padT + (1-(v-min)/(max-min))*(H-padT-padB);
+  let d="",area="";
+  const pts=values.map((v,i)=>[x(i),y(v)]);
+  pts.forEach((p,i)=>{ d+=(i?" L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1); });
+  area=`M${pts[0][0]} ${H-padB} `+pts.map(p=>`L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ")+` L${pts[n-1][0]} ${H-padB} Z`;
+  const gid="g"+Math.random().toString(36).slice(2,7);
+  let labels="";
+  if(opt.labels) labels=opt.labels.map((l,i)=>`<text x="${x(i)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#9aa7b8">${l}</text>`).join("");
+  let dots=pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===n-1?3.5:2.3}" fill="${opt.color}"/>`).join("");
+  return `<div class="chart-box"><svg viewBox="0 0 ${W} ${H}">
+    <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="${opt.color}" stop-opacity="0.28"/><stop offset="1" stop-color="${opt.color}" stop-opacity="0"/></linearGradient></defs>
+    ${[0.25,0.5,0.75].map(g=>`<line x1="${pad}" x2="${W-pad}" y1="${padT+g*(H-padT-padB)}" y2="${padT+g*(H-padT-padB)}" stroke="#eef1f6"/>`).join("")}
+    ${opt.fill?`<path d="${area}" fill="url(#${gid})"/>`:""}
+    <path d="${d}" fill="none" stroke="${opt.color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${labels}</svg></div>`;
+}
+function barChartSVG(values,opt){
+  opt=opt||{}; const W=320,H=opt.h||100, pad=14, padT=10, padB=opt.labels?18:6;
+  const max=Math.max(opt.goal||0,1,...values); const n=values.length;
+  const iw=W-pad*2; const bw=iw/n*0.6; const gap=iw/n;
+  const y=v=> padT+(1-v/max)*(H-padT-padB);
+  let bars=values.map((v,i)=>{ const bx=pad+i*gap+(gap-bw)/2; const by=y(v); const bh=(H-padB)-by;
+    return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1,bh).toFixed(1)}" rx="3" fill="${opt.color}"/>`; }).join("");
+  let goalLine=opt.goal?`<line x1="${pad}" x2="${W-pad}" y1="${y(opt.goal)}" y2="${y(opt.goal)}" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4 3"/>`:"";
+  let labels=opt.labels?opt.labels.map((l,i)=>`<text x="${pad+i*gap+gap/2}" y="${H-4}" text-anchor="middle" font-size="9" fill="#9aa7b8">${l}</text>`).join(""):"";
+  return `<div class="chart-box"><svg viewBox="0 0 ${W} ${H}">${goalLine}${bars}${labels}</svg></div>`;
+}
+function ringSVG(val,color,track,size){
+  size=size||60; const r=size/2-6, c=2*Math.PI*r, off=c*(1-val/100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${track}" stroke-width="6"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    <text x="50%" y="52%" text-anchor="middle" dominant-baseline="middle" font-size="${size*0.3}" font-weight="800" fill="${color==='#ffffff'?'#ffffff':'#16202c'}">${val}</text></svg>`;
+}
+
+//==================================================================
+// INFORMES (Markdown)
+//==================================================================
+function buildReport(s,kind){
+  const date=new Date(s.ts).toLocaleString('es-ES');
+  const segMin=t=>fmtTime(t);
+  const head=`# EthosFlow — Informe de sesión\n\n- **Fecha:** ${date}\n- **Perfil:** ${S.settings.profile}\n- **Modo de captación:** ${s.mode==='micro'?'micrófono (análisis local, sin grabación)':'simulado/demo'}\n`;
+  const datos=`\n## Datos clave (estimados)\n\n| Métrica | Valor |\n|---|---|\n| Duración | ${segMin(s.durationSec)} |\n| SES (Speech Efficiency Score) | ${s.ses} / 100 |\n| Habla eficiente | ${segMin(s.efficientSec)} |\n| Disfluencia estimada | ${segMin(s.disfluencySec)} |\n| Silencio | ${segMin(s.silenceSec)} |\n| Pausas reguladoras | ${s.regPauses} |\n| Activación media estimada | ${s.activation}/100 |\n`;
+  const reco=`\n## Recomendaciones\n\n- ${closeAdvice(s)}\n- Objetivo del día sugerido: ${capacityIndex().obj}\n`;
+  const seg=`\n## Reparto del tiempo\n\n- Eficiente: ${pct(s,'efficientSec')}%\n- Disfluencia: ${pct(s,'disfluencySec')}%\n- Silencio: ${pct(s,'silenceSec')}%\n- Pausa reguladora: ${pct(s,'pauseSec')}%\n`;
+  const foot=`\n---\n_Herramienta de apoyo, no diagnóstico. El análisis de voz es estimado y no sustituye la valoración profesional. Datos generados localmente en el dispositivo._\n`;
+  if(kind==='paciente'){
+    return `# EthosFlow — Resumen para ti\n\n**${date}**\n\nHoy entrenaste **${segMin(s.durationSec)}** con una eficiencia estimada de **${s.ses}/100**.\n\n**Lo que ha ido bien:** ${s.ses>=55?'buen flujo de habla durante buena parte de la sesión.':'mantuviste la constancia y usaste pausas para regularte.'}\n\n**Para la próxima:** ${closeAdvice(s)}\n\nUsaste **${s.regPauses}** pausas reguladoras. ¡Bien por cuidarte el ritmo!\n${foot}`;
+  }
+  if(kind==='logopeda'){
+    return `# EthosFlow — Resumen para logopeda\n\n${head}${datos}${seg}\n## Observaciones\n\n- Tendencia SES (últimas sesiones): ${sesTrend()>0?'+':''}${sesTrend()} puntos.\n- Media histórica SES: ${overallAvgSES()} (n=${S.sessions.length}).\n- Notas del paciente: ${s.notes||'—'}\n${foot}`;
+  }
+  return `${head}${datos}${seg}${reco}${foot}`;
+}
+function pct(s,f){ const tot=s.efficientSec+s.disfluencySec+s.silenceSec+s.pauseSec||1; return Math.round(s[f]/tot*100); }
+
+function openReport(s){
+  let kind="sesion";
+  const ov=h(`<div class="modal-bg"><div class="modal">
+    <div class="eyebrow">Informe</div><h3>Informe de sesión</h3>
+    <div class="segctl" style="margin:10px 0">
+      <button data-k="sesion" class="on">Sesión</button><button data-k="logopeda">Logopeda</button><button data-k="paciente">Paciente</button>
+    </div>
+    <pre class="report-pre" id="rpre"></pre>
+    <div class="rowflex" style="margin-top:12px">
+      <button class="btn sm" id="rcopy" style="flex:1">📋 Copiar</button>
+      <button class="btn sm primary" id="rdl" style="flex:1">⬇ Descargar .md</button>
+    </div>
+    <button class="btn ghost" id="rclose">Cerrar</button>
+  </div></div>`);
+  overlay(ov);
+  const render=()=>ov.querySelector('#rpre').textContent=buildReport(s,kind);
+  render();
+  ov.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ ov.querySelectorAll('[data-k]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); kind=b.dataset.k; render(); });
+  ov.querySelector('#rcopy').onclick=()=>{ const txt=buildReport(s,kind);
+    navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>toast("Informe copiado ✓"),()=>fallbackCopy(txt)); };
+  ov.querySelector('#rdl').onclick=()=>downloadMD(buildReport(s,kind),`ethosflow-${kind}-${s.date}.md`);
+  ov.querySelector('#rclose').onclick=closeOverlay;
+}
+function fallbackCopy(txt){ const t=document.createElement('textarea'); t.value=txt; document.body.appendChild(t); t.select();
+  try{document.execCommand('copy'); toast("Informe copiado ✓");}catch(e){toast("No se pudo copiar");} t.remove(); }
+function downloadMD(txt,name){ const b=new Blob([txt],{type:"text/markdown"}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1000); toast("Descargando informe…"); }
+
+//==================================================================
+// AJUSTES
+//==================================================================
 SCREENS.ajustes=()=>{
-  header('Ajustes');
-  const child=el(`<div class="toggle">Modo infantil (emojis)<div class="sw ${S.settings.childMode?'on':''}"><i></i></div></div>`);
-  child.querySelector('.sw').onclick=function(){S.settings.childMode=!S.settings.childMode; this.classList.toggle('on'); save(); H.tap();};
-  app.appendChild(child);
-  app.appendChild(el(`<div style="margin:10px 2px"><div class="row"><span>Objetivo fonación</span><b id="tv">${S.settings.target} s</b></div></div>`));
-  const t=el(`<input type="range" min="3" max="30" step="1" value="${S.settings.target}">`).firstChild;
-  t.oninput=()=>{S.settings.target=+t.value; document.getElementById('tv').textContent=t.value+' s'; save();};
-  app.appendChild(t);
-  app.appendChild(el(`<div style="margin:14px 2px 4px"><div class="row"><span>Metrónomo</span><b id="bv">${S.settings.bpm} ppm</b></div></div>`));
-  const b=el(`<input type="range" min="30" max="120" step="5" value="${S.settings.bpm}">`).firstChild;
-  b.oninput=()=>{S.settings.bpm=+b.value; document.getElementById('bv').textContent=b.value+' ppm'; save();};
-  app.appendChild(b);
+  root.innerHTML="";
+  const wrap=document.createElement('div'); wrap.className="screen"; root.appendChild(wrap);
+  // perfil
+  wrap.appendChild(h(`<div class="sec-h"><h2>Perfil</h2></div>`));
+  const prof=h(`<div class="pill-row"></div>`);
+  [["paciente","Paciente","Uso personal diario"],["logopeda","Logopeda","Preparar y revisar sesiones"],["comunidad","Demo comunidad","Modo presentación"]].forEach(([id,t,d])=>{
+    const o=h(`<button class="opt ${S.settings.profile===id?'on':''}"><b>${t}</b><span>${d}</span></button>`);
+    o.onclick=()=>{ S.settings.profile=id; if(id==="comunidad"){S.settings.presentation=true;} save(); buzz(6); nav('ajustes'); document.getElementById('topsub').innerHTML=topSub(); };
+    prof.appendChild(o);
+  });
+  wrap.appendChild(prof);
+
+  // entrenamiento
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Entrenamiento</h2></div>`));
+  const c1=h(`<div class="card">
+    <div class="slider-row"><label>Objetivo diario <b id="goalOut">${S.settings.dailyGoalMin} min</b></label>
+      <input type="range" id="goal" min="3" max="30" step="1" value="${S.settings.dailyGoalMin}"></div>
+    <div class="slider-row"><label>BPM base (ritmo) <b id="bpmOut2">${S.settings.baseBPM}</b></label>
+      <input type="range" id="bpm" min="40" max="120" step="2" value="${S.settings.baseBPM}"></div>
+    <div class="slider-row"><label>Sensibilidad del micrófono <b id="micOut">${S.settings.micSensitivity}%</b></label>
+      <input type="range" id="mic" min="10" max="90" step="5" value="${S.settings.micSensitivity}">
+      <div class="xs muted">Más alta = detecta voz más suave como habla eficiente.</div></div>
+  </div>`);
+  wrap.appendChild(c1);
+  c1.querySelector('#goal').oninput=e=>{ S.settings.dailyGoalMin=+e.target.value; c1.querySelector('#goalOut').textContent=e.target.value+" min"; save(); };
+  c1.querySelector('#bpm').oninput=e=>{ S.settings.baseBPM=+e.target.value; c1.querySelector('#bpmOut2').textContent=e.target.value; save(); };
+  c1.querySelector('#mic').oninput=e=>{ S.settings.micSensitivity=+e.target.value; c1.querySelector('#micOut').textContent=e.target.value+"%"; save(); };
+
+  // preferencias
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Preferencias</h2></div>`));
+  const c2=h(`<div class="card"></div>`);
+  c2.appendChild(toggleRow("Vibración háptica","Pulsos en ritmo, respiración y avisos","vibration"));
+  c2.appendChild(toggleRow("Modo presentación","Para mostrar la app en comunidad (datos demo)","presentation"));
+  wrap.appendChild(c2);
+
+  // datos
+  wrap.appendChild(h(`<div class="sec-h" style="margin-top:6px"><h2>Datos y privacidad</h2></div>`));
+  const c3=h(`<div class="card">
+    <p class="small muted" style="margin-top:0">Todos tus datos se guardan únicamente en este dispositivo (localStorage). No se envían a ningún servidor.</p>
+    <button class="btn sm" id="demoBtn" style="margin-bottom:8px">🎬 Cargar datos demo realistas</button>
+    <button class="btn sm danger block" id="wipe">🗑️ Borrar todos mis datos</button>
+  </div>`);
+  wrap.appendChild(c3);
+  c3.querySelector('#demoBtn').onclick=()=>{ seedDemo(true); toast("Datos demo cargados ✓"); nav('progreso'); };
+  c3.querySelector('#wipe').onclick=()=>{ if(confirm("¿Borrar todos los datos de EthosFlow en este dispositivo?")){ localStorage.removeItem(KEY); S=JSON.parse(JSON.stringify(DEFAULT)); save(); toast("Datos borrados"); nav('inicio'); } };
+
+  wrap.appendChild(h(`<div class="disclaimer">EthosFlow es una herramienta de apoyo y entrenamiento. No diagnostica, no sustituye terapia y no promete curación.<br>v2 · prototipo</div>`));
 };
+function toggleRow(title,desc,key){
+  const row=h(`<div class="toggle"><div><div class="t">${title}</div><div class="d">${desc}</div></div>
+    <div class="sw ${S.settings[key]?'on':''}"><i></i></div></div>`);
+  row.querySelector('.sw').onclick=function(){ S.settings[key]=!S.settings[key]; this.classList.toggle('on'); save(); buzz(6); };
+  return row;
+}
 
-//=================== Reloj de la status bar ===================
-function tick(){const d=new Date(); document.getElementById('clock').textContent=d.getHours()+":"+String(d.getMinutes()).padStart(2,'0');}
-setInterval(tick,10000); tick();
+//==================================================================
+// OVERLAY
+//==================================================================
+function overlay(node, full){ const o=document.getElementById('overlay'); o.innerHTML=""; o.appendChild(node); }
+function closeOverlay(){ document.getElementById('overlay').innerHTML=""; }
 
-go('home');
+//==================================================================
+// INIT
+//==================================================================
+function init(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('demo')==='ethosflow'){ seedDemo(true); S.settings.presentation=true; S.settings.profile="comunidad"; save(); }
+  document.getElementById('topsub').innerHTML=topSub();
+  renderTabs();
+  nav('inicio');
+}
+init();
 </script>
 </body>
 </html>
