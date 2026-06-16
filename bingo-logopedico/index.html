@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BINGO Logopédico | Juego de fonemas, sílabas y vocabulario</title>
+<meta name="description" content="Bingo logopédico para trabajar fonemas, conciencia silábica y vocabulario. Canta las bolas con voz y genera cartones imprimibles.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cera-coral:#FF6B6B;
+  --cera-mostaza:#F6A823;
+  --cera-azul:#4D96FF;
+  --cera-verde:#51CF66;
+  --cera-lila:#B197FC;
+  --bg:#FFF8F0;--white:#fff;--dark:#3A3450;--gray:#6B7280;--line:#EFE7DC;
+  --shadow:0 6px 24px rgba(58,52,80,.10);
+  --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+/* ── Header ── */
+.header{
+  background:linear-gradient(135deg,#FF6B6B 0%,#F6A823 35%,#51CF66 65%,#4D96FF 100%);
+  padding:1.8rem 1.2rem 2.4rem;text-align:center;position:relative;overflow:hidden;
+}
+.header::after{
+  content:'';position:absolute;inset:0;opacity:.5;
+  background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.10'%3E%3Ccircle cx='10' cy='10' r='3'/%3E%3Ccircle cx='30' cy='30' r='3'/%3E%3C/g%3E%3C/svg%3E");
+}
+.logo{font-family:'Baloo 2',sans-serif;font-size:2.4rem;font-weight:800;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.12);position:relative;line-height:1;}
+.logo .dice{filter:drop-shadow(0 3px 4px rgba(0,0,0,.2));}
+.tagline{color:rgba(255,255,255,.95);font-weight:700;font-size:.95rem;margin-top:.5rem;position:relative;}
+
+.container{max-width:980px;margin:0 auto;padding:1.6rem 1.1rem 4rem;}
+
+/* ── Menú de modelos ── */
+.intro{text-align:center;margin-bottom:1.6rem;}
+.intro h2{font-family:'Baloo 2',sans-serif;font-size:1.4rem;margin-bottom:.3rem;}
+.intro p{color:var(--gray);font-weight:600;font-size:.95rem;max-width:560px;margin:0 auto;}
+.group-title{font-family:'Baloo 2',sans-serif;font-size:1.15rem;margin:1.8rem 0 .9rem;display:flex;align-items:center;gap:.5rem;}
+.group-title .pill{font-size:.72rem;font-weight:800;background:#fff;color:var(--gray);border:1px solid var(--line);padding:.15rem .6rem;border-radius:999px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;}
+.model-card{
+  background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;
+  text-align:left;transition:transform .15s,box-shadow .15s;border:1px solid var(--line);
+  display:flex;flex-direction:column;
+}
+.model-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(58,52,80,.16);}
+.model-top{padding:1.1rem 1.1rem .9rem;display:flex;align-items:center;gap:.8rem;}
+.model-emoji{font-size:2.4rem;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.12));}
+.model-meta h3{font-family:'Baloo 2',sans-serif;font-size:1.15rem;}
+.badge{display:inline-block;font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:.18rem .55rem;border-radius:999px;color:#fff;margin-top:.25rem;}
+.model-desc{padding:0 1.1rem;color:var(--gray);font-weight:600;font-size:.86rem;flex:1;}
+.model-bar{height:8px;margin-top:1rem;}
+
+/* ── Vista de juego ── */
+.topbar{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.back-btn{display:inline-flex;align-items:center;gap:.4rem;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.55rem 1rem;font-weight:800;font-size:.9rem;color:var(--dark);box-shadow:var(--shadow);}
+.back-btn:hover{background:#fafafa;}
+.game-title{font-family:'Baloo 2',sans-serif;font-size:1.4rem;display:flex;align-items:center;gap:.5rem;}
+
+.tabs{display:flex;gap:.5rem;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.35rem;width:max-content;margin-bottom:1.5rem;box-shadow:var(--shadow);}
+.tab-btn{padding:.6rem 1.3rem;border-radius:999px;font-weight:800;font-size:.92rem;color:var(--gray);transition:all .18s;}
+.tab-btn.active{color:#fff;}
+.tab-panel{display:none;animation:fade .25s ease;}
+.tab-panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}}
+
+/* ── Cantar ── */
+.caller-wrap{display:grid;grid-template-columns:1fr;gap:1.5rem;align-items:start;}
+@media(min-width:760px){.caller-wrap{grid-template-columns:340px 1fr;}}
+.stage{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:1.6rem;text-align:center;border:1px solid var(--line);}
+.ball{
+  width:200px;height:200px;border-radius:50%;margin:.4rem auto 1rem;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:#fff;position:relative;
+  box-shadow:inset 0 -10px 22px rgba(0,0,0,.18),0 10px 26px rgba(0,0,0,.18);
+}
+.ball::before{content:'';position:absolute;top:16%;left:20%;width:34%;height:24%;border-radius:50%;background:rgba(255,255,255,.35);filter:blur(2px);}
+.ball .emoji{font-size:4.4rem;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));}
+.ball .word{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.5rem;margin-top:.2rem;text-shadow:0 2px 4px rgba(0,0,0,.25);word-break:break-word;padding:0 .4rem;}
+.ball.silaba .word{font-size:3.4rem;}
+.ball.empty{background:#F1ECE4!important;color:var(--gray);box-shadow:inset 0 -8px 18px rgba(0,0,0,.06);}
+.ball.empty .hint{font-weight:800;font-size:1rem;padding:0 1.5rem;}
+.ball.empty::before{display:none;}
+.ball.pop{animation:pop .45s cubic-bezier(.18,.89,.32,1.28);}
+@keyframes pop{0%{transform:scale(.3) rotate(-12deg);opacity:0;}60%{transform:scale(1.08) rotate(4deg);}100%{transform:scale(1) rotate(0);}}
+
+.draw-btn{width:100%;padding:1rem;border-radius:16px;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.25rem;box-shadow:0 6px 0 rgba(0,0,0,.12);transition:transform .1s,box-shadow .1s;}
+.draw-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.12);}
+.draw-btn:disabled{opacity:.5;box-shadow:none;cursor:default;}
+.stage-actions{display:flex;gap:.6rem;margin-top:.8rem;}
+.mini-btn{flex:1;padding:.65rem;border-radius:12px;background:#F5EFE6;color:var(--dark);font-weight:800;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;}
+.mini-btn:hover{background:#EFE7DC;}
+.mini-btn.on{background:var(--cera-verde);color:#fff;}
+.counter{font-weight:800;color:var(--gray);margin-top:1rem;font-size:.9rem;}
+
+.board{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:1.4rem;border:1px solid var(--line);}
+.board h3{font-family:'Baloo 2',sans-serif;font-size:1.05rem;margin-bottom:1rem;color:var(--gray);}
+.board-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:.55rem;}
+.chip{
+  border-radius:14px;padding:.7rem .4rem;text-align:center;background:#FBF7F1;border:2px solid var(--line);
+  transition:all .25s;opacity:.55;
+}
+.chip .ce{font-size:1.7rem;line-height:1;display:block;}
+.chip .cw{font-weight:800;font-size:.8rem;margin-top:.25rem;word-break:break-word;}
+.chip.silaba .cw{font-size:1.4rem;font-family:'Baloo 2',sans-serif;}
+.chip.called{opacity:1;color:#fff;border-color:transparent;transform:scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,.12);}
+
+/* ── Cartones ── */
+.controls{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:1.3rem;border:1px solid var(--line);margin-bottom:1.4rem;display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-end;}
+.ctrl label{display:block;font-weight:800;font-size:.8rem;color:var(--gray);margin-bottom:.45rem;text-transform:uppercase;letter-spacing:.03em;}
+.seg{display:flex;background:#F5EFE6;border-radius:12px;padding:.25rem;gap:.2rem;}
+.seg button{padding:.5rem .95rem;border-radius:9px;font-weight:800;font-size:.9rem;color:var(--gray);}
+.seg button.active{background:#fff;color:var(--dark);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.seg button:disabled{opacity:.35;cursor:default;}
+.gen-actions{display:flex;gap:.6rem;margin-left:auto;flex-wrap:wrap;}
+.act-btn{padding:.75rem 1.4rem;border-radius:14px;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:.95rem;color:#fff;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 4px 0 rgba(0,0,0,.1);}
+.act-btn.ghost{background:#F5EFE6;color:var(--dark);box-shadow:0 4px 0 rgba(0,0,0,.06);}
+.act-btn:active{transform:translateY(2px);}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;}
+.carton{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:1rem;border:3px dashed var(--line);}
+.carton-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;padding:0 .2rem;}
+.carton-head .name{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:.95rem;}
+.carton-head .tag{font-size:.7rem;font-weight:800;color:#fff;padding:.15rem .55rem;border-radius:999px;}
+.carton-grid{display:grid;gap:.4rem;}
+.cell{
+  aspect-ratio:1;border-radius:12px;background:#FBF7F1;border:2px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:.2rem;transition:all .15s;position:relative;
+}
+.cell .e{font-size:1.9rem;line-height:1;}
+.cell .w{font-weight:800;font-size:.74rem;margin-top:.15rem;word-break:break-word;line-height:1.05;}
+.cell.silaba .w{font-size:1.5rem;font-family:'Baloo 2',sans-serif;margin-top:0;}
+.cell.marked{background:var(--cera-coral);border-color:transparent;}
+.cell.marked .e,.cell.marked .w{opacity:.25;}
+.cell.marked::after{content:'✓';position:absolute;font-size:2.4rem;color:#fff;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.2);}
+.win-banner{display:none;background:linear-gradient(135deg,var(--cera-verde),#3DB85A);color:#fff;text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;border-radius:var(--r);padding:1rem;margin-bottom:1.2rem;animation:pop .5s;}
+.win-banner.show{display:block;}
+
+.empty-state{text-align:center;color:var(--gray);font-weight:700;padding:3rem 1rem;}
+.empty-state .big{font-size:3rem;margin-bottom:.6rem;}
+.note{font-size:.78rem;color:var(--gray);font-weight:700;margin-top:.4rem;width:100%;}
+
+/* ── Impresión ── */
+@media print{
+  .header,.topbar,.tabs,.controls,.win-banner,.note,#panel-cantar{display:none!important;}
+  body,.container{background:#fff;padding:0;margin:0;max-width:none;}
+  .cards{grid-template-columns:repeat(2,1fr);gap:.8rem;}
+  .carton{break-inside:avoid;box-shadow:none;border:2px solid #999;}
+  .cell.marked{background:#fff;}
+  .cell.marked .e,.cell.marked .w{opacity:1;}
+  .cell.marked::after{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo"><span class="dice">🎲</span> BINGO Logopédico</div>
+  <div class="tagline">Fonemas · Sílabas · Vocabulario</div>
+</header>
+
+<div class="container">
+
+  <!-- VISTA: MENÚ -->
+  <section id="view-menu">
+    <div class="intro">
+      <h2>Elige un bingo para jugar 🎯</h2>
+      <p>Canta las bolas con voz en alto y reparte cartones imprimibles. Ideal para articulación, conciencia silábica y vocabulario.</p>
+    </div>
+    <div id="menu-groups"></div>
+  </section>
+
+  <!-- VISTA: JUEGO -->
+  <section id="view-game" style="display:none;">
+    <div class="topbar">
+      <button class="back-btn" onclick="goMenu()">‹ Modelos</button>
+      <div class="game-title"><span id="g-emoji"></span><span id="g-title"></span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="cantar">🎤 Cantar</button>
+      <button class="tab-btn" data-tab="cartones">🃏 Cartones</button>
+    </div>
+
+    <!-- Panel cantar -->
+    <div id="panel-cantar" class="tab-panel active">
+      <div class="caller-wrap">
+        <div class="stage">
+          <div id="ball" class="ball empty"><span class="hint">¡Pulsa para sacar la primera bola!</span></div>
+          <button id="draw-btn" class="draw-btn">🎰 Sacar bola</button>
+          <div class="stage-actions">
+            <button id="voice-btn" class="mini-btn on">🔊 Voz</button>
+            <button id="repeat-btn" class="mini-btn">🔁 Repetir</button>
+            <button id="reset-btn" class="mini-btn">♻️ Reiniciar</button>
+          </div>
+          <div id="counter" class="counter">0 de 0 bolas</div>
+        </div>
+        <div class="board">
+          <h3>Bolas cantadas</h3>
+          <div id="board-grid" class="board-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel cartones -->
+    <div id="panel-cartones" class="tab-panel">
+      <div class="controls">
+        <div class="ctrl">
+          <label>Tamaño del cartón</label>
+          <div class="seg" id="size-seg">
+            <button data-size="3" class="active">3 × 3</button>
+            <button data-size="4">4 × 4</button>
+          </div>
+        </div>
+        <div class="ctrl">
+          <label>Nº de cartones</label>
+          <div class="seg" id="count-seg">
+            <button data-count="1">1</button>
+            <button data-count="2" class="active">2</button>
+            <button data-count="4">4</button>
+            <button data-count="6">6</button>
+          </div>
+        </div>
+        <div class="gen-actions">
+          <button class="act-btn ghost" id="print-btn">🖨️ Imprimir</button>
+          <button class="act-btn" id="gen-btn">✨ Generar cartones</button>
+        </div>
+        <div class="note">Toca las casillas para marcarlas mientras juegas, o imprime los cartones en papel. Cada cartón es diferente.</div>
+      </div>
+      <div id="win-banner" class="win-banner">🎉 ¡BINGO! 🎉</div>
+      <div id="cards" class="cards"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ════════ Modelos prehechos de BINGO logopédico ════════
+   Las palabras existen en EMOJI (GUIA) → todas muestran dibujo.
+   Las sílabas se muestran como texto grande (sin emoji). */
+
+const MODELOS_BINGO = [
+  // ── FONEMAS · refuerzo articulatorio ──
+  { id:'fon-r', tipo:'fonema', titulo:'Fonema /R/', desc:'Palabras con el sonido R.', emoji:'🌹', color:'var(--cera-coral)',
+    items:['ROSA','RANA','RATÓN','RELOJ','TORO','ORO','ZORRO','GORRA','FRESA','CEREBRO','ÁRBOL','PÁJARO','RAQUETA','NARIZ','GORILA','SIRENA'] },
+  { id:'fon-s', tipo:'fonema', titulo:'Fonema /S/', desc:'Palabras con el sonido S.', emoji:'☀️', color:'var(--cera-mostaza)',
+    items:['SOL','SAL','SAPO','SOPA','SELLO','OSO','MESA','VASO','SANDÍA','BESO','QUESO','SILLA','SIRENA','SALERO','ESTRELLA','UVAS'] },
+  { id:'fon-l', tipo:'fonema', titulo:'Fonema /L/', desc:'Palabras con el sonido L.', emoji:'🌙', color:'var(--cera-azul)',
+    items:['LUNA','LAZO','VELA','PALA','POLO','LOBO','SOL','SILLA','LIMÓN','LATA','BALA','PELOTA','GALLO','MALETA','LECHE','LUPA'] },
+  { id:'fon-p', tipo:'fonema', titulo:'Fonema /P/', desc:'Palabras con el sonido P.', emoji:'🦆', color:'var(--cera-verde)',
+    items:['PATO','PALA','PINO','PIÑA','PEZ','PALOMA','POLO','SOPA','MAPA','SAPO','PAN','PELO','PELOTA','PLÁTANO','PIANO','ZAPATO'] },
+  { id:'fon-m', tipo:'fonema', titulo:'Fonema /M/', desc:'Palabras con el sonido M.', emoji:'🍯', color:'var(--cera-lila)',
+    items:['MESA','MIEL','MAPA','MALETA','MANO','CAMA','MOTO','TOMATE','MAR','MANZANA','MARTILLO','DINERO','GNOMO','PALOMA','CHAMPÚ','GORILA'] },
+  { id:'fon-t', tipo:'fonema', titulo:'Fonema /T/', desc:'Palabras con el sonido T.', emoji:'🍅', color:'var(--cera-coral)',
+    items:['PATO','TORO','TARTA','MOTO','TACO','TAZA','NOTA','BOTA','TOMATE','TENEDOR','GUANTES','TREN','TETERA','RAQUETA','CHAQUETA','ZAPATO'] },
+
+  // ── SÍLABAS · conciencia silábica ──
+  { id:'sil-pml', tipo:'silaba', titulo:'Sílabas P · M · L', desc:'Familias pa-pe-pi / ma-me-mi / la-le-li…', emoji:'🔤', color:'var(--cera-mostaza)',
+    items:['PA','PE','PI','PO','PU','MA','ME','MI','MO','MU','LA','LE','LI','LO','LU'] },
+  { id:'sil-str', tipo:'silaba', titulo:'Sílabas S · T · R', desc:'Familias sa-se-si / ta-te-ti / ra-re-ri…', emoji:'🔡', color:'var(--cera-azul)',
+    items:['SA','SE','SI','SO','SU','TA','TE','TI','TO','TU','RA','RE','RI','RO','RU'] },
+
+  // ── PALABRAS · vocabulario por categorías ──
+  { id:'voc-animales', tipo:'palabra', titulo:'Animales', desc:'Bingo de vocabulario: animales.', emoji:'🐸', color:'var(--cera-verde)',
+    items:['PATO','RANA','OSO','OVEJA','FOCA','TORO','ZORRO','RATÓN','LOBO','GALLO','GORILA','ELEFANTE','PÁJARO','SAPO','SERPIENTE','LAGARTIJA'] },
+  { id:'voc-comida', tipo:'palabra', titulo:'Comida', desc:'Bingo de vocabulario: comida.', emoji:'🍓', color:'var(--cera-coral)',
+    items:['TARTA','MIEL','SOPA','QUESO','FRESA','POLO','TOMATE','LECHE','SANDÍA','CAFÉ','COCO','MANZANA','PAN','UVAS','PLÁTANO','LIMÓN'] },
+  { id:'voc-casa', tipo:'palabra', titulo:'La casa', desc:'Bingo de vocabulario: objetos de casa.', emoji:'🪑', color:'var(--cera-lila)',
+    items:['MESA','SILLA','CAMA','VELA','RELOJ','ESPEJO','LLAVE','VASO','TENEDOR','TAZA','TETERA','BOMBILLA','CEPILLO','JABÓN','PARAGUAS','ZAPATO'] },
+];
+
+/* Guía de emojis: cada palabra muestra dibujo. */
+const GUIA = {
+  ROSA:'🌹',RANA:'🐸','RATÓN':'🐭',RELOJ:'⏰',TORO:'🐂',ORO:'🪙',ZORRO:'🦊',GORRA:'🧢',FRESA:'🍓',CEREBRO:'🧠','ÁRBOL':'🌳','PÁJARO':'🐦',RAQUETA:'🎾',NARIZ:'👃',GORILA:'🦍',SIRENA:'🧜‍♀️',
+  SOL:'☀️',SAL:'🧂',SAPO:'🐸',SOPA:'🍲',SELLO:'📮',OSO:'🐻',MESA:'🍽️',VASO:'🥛','SANDÍA':'🍉',BESO:'😘',QUESO:'🧀',SILLA:'🪑',SALERO:'🧂',ESTRELLA:'⭐',UVAS:'🍇',
+  LUNA:'🌙',LAZO:'🎀',VELA:'🕯️',PALA:'🪏',POLO:'🍦',LOBO:'🐺','LIMÓN':'🍋',LATA:'🥫',BALA:'⚪',PELOTA:'⚽',GALLO:'🐓',MALETA:'🧳',LECHE:'🥛',LUPA:'🔍',
+  PATO:'🦆',PINO:'🌲','PIÑA':'🍍',PEZ:'🐟',PALOMA:'🕊️',MAPA:'🗺️',PAN:'🍞',PELO:'💇','PLÁTANO':'🍌',PIANO:'🎹',ZAPATO:'👟',
+  MIEL:'🍯',MANO:'✋',CAMA:'🛏️',MOTO:'🏍️',TOMATE:'🍅',MAR:'🌊',MANZANA:'🍎',MARTILLO:'🔨',DINERO:'💰',GNOMO:'🧙','CHAMPÚ':'🧴',
+  TARTA:'🎂',TACO:'🌮',TAZA:'☕',NOTA:'🎵',BOTA:'🥾',TENEDOR:'🍴',GUANTES:'🧤',TREN:'🚂',TETERA:'🫖',CHAQUETA:'🧥',
+  OVEJA:'🐑',FOCA:'🦭',ELEFANTE:'🐘',SERPIENTE:'🐍',LAGARTIJA:'🦎',
+  'CAFÉ':'☕',COCO:'🥥',
+  ESPEJO:'🪞',LLAVE:'🔑',BOMBILLA:'💡',CEPILLO:'🪥','JABÓN':'🧼',PARAGUAS:'☂️',
+};
+const emojiDe = (palabra) => GUIA[palabra] || '🔠';
+
+function getModeloBingo(id){ return MODELOS_BINGO.find(m => m.id === id); }
+const colorVar = (c) => getComputedStyle(document.documentElement).getPropertyValue(c.replace('var(','').replace(')','').trim()).trim();
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ════════ Estado ════════ */
+let modelo=null, restantes=[], cantadas=[], voz=true, tamCarton=3, numCartones=2;
+
+/* ════════ Menú ════════ */
+function renderMenu(){
+  const grupos=[
+    {tipo:'fonema',  label:'Fonemas',   sub:'refuerzo articulatorio'},
+    {tipo:'silaba',  label:'Sílabas',   sub:'conciencia silábica'},
+    {tipo:'palabra', label:'Vocabulario', sub:'por categorías'},
+  ];
+  const cont=document.getElementById('menu-groups'); cont.innerHTML='';
+  grupos.forEach(g=>{
+    const ms=MODELOS_BINGO.filter(m=>m.tipo===g.tipo);
+    const h=document.createElement('h3'); h.className='group-title';
+    h.innerHTML=`${g.label} <span class="pill">${g.sub}</span>`;
+    cont.appendChild(h);
+    const grid=document.createElement('div'); grid.className='grid';
+    ms.forEach(m=>{
+      const col=colorVar(m.color);
+      const card=document.createElement('button'); card.className='model-card';
+      card.onclick=()=>abrirJuego(m.id);
+      card.innerHTML=`
+        <div class="model-top">
+          <span class="model-emoji">${m.emoji}</span>
+          <div class="model-meta">
+            <h3>${m.titulo}</h3>
+            <span class="badge" style="background:${col}">${m.tipo}</span>
+          </div>
+        </div>
+        <div class="model-desc">${m.desc}</div>
+        <div class="model-bar" style="background:${col}"></div>`;
+      grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+  });
+}
+
+/* ════════ Navegación ════════ */
+function abrirJuego(id){
+  modelo=getModeloBingo(id);
+  document.getElementById('view-menu').style.display='none';
+  document.getElementById('view-game').style.display='block';
+  document.getElementById('g-emoji').textContent=modelo.emoji;
+  document.getElementById('g-title').textContent=modelo.titulo;
+  document.querySelector('.header').style.background=`linear-gradient(135deg,${colorVar(modelo.color)},#fff8)`;
+  // limita 4×4 si el banco es pequeño
+  const big=document.querySelector('#size-seg [data-size="4"]');
+  if(modelo.items.length<16){ big.disabled=true; if(tamCarton===4) setTam(3); } else { big.disabled=false; }
+  reiniciar();
+  generarCartones();
+  activarTab('cantar');
+  window.scrollTo(0,0);
+}
+function goMenu(){
+  speechSynthesis.cancel();
+  document.getElementById('view-game').style.display='none';
+  document.getElementById('view-menu').style.display='block';
+  document.querySelector('.header').style.background='';
+  window.scrollTo(0,0);
+}
+function activarTab(t){
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const on=b.dataset.tab===t; b.classList.toggle('active',on);
+    b.style.background=on?colorVar(modelo.color):'';
+  });
+  document.getElementById('panel-cantar').classList.toggle('active',t==='cantar');
+  document.getElementById('panel-cartones').classList.toggle('active',t==='cartones');
+}
+
+/* ════════ Voz (síntesis de habla en español) ════════ */
+function decir(texto){
+  if(!voz || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(texto);
+  u.lang='es-ES'; u.rate=.85; u.pitch=1.1;
+  const es=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('es'));
+  if(es) u.voice=es;
+  speechSynthesis.speak(u);
+}
+if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=()=>{};
+
+/* ════════ Cantar bolas ════════ */
+function reiniciar(){
+  restantes=shuffle(modelo.items);
+  cantadas=[];
+  renderBoard();
+  pintarBolaVacia();
+  actualizarContador();
+  document.getElementById('draw-btn').disabled=false;
+  document.getElementById('repeat-btn').disabled=true;
+}
+function pintarBolaVacia(){
+  const b=document.getElementById('ball');
+  b.className='ball empty';
+  b.style.background='';
+  b.innerHTML='<span class="hint">¡Pulsa para sacar la primera bola!</span>';
+}
+function sacarBola(){
+  if(!restantes.length){
+    const b=document.getElementById('ball');
+    b.className='ball empty'; b.innerHTML='<span class="hint">🏁 ¡No quedan bolas! Pulsa Reiniciar.</span>';
+    document.getElementById('draw-btn').disabled=true;
+    return;
+  }
+  const item=restantes.pop();
+  cantadas.push(item);
+  const b=document.getElementById('ball');
+  const esSilaba=modelo.tipo==='silaba';
+  b.className='ball pop'+(esSilaba?' silaba':'');
+  b.style.background=colorVar(modelo.color);
+  b.innerHTML = esSilaba
+    ? `<span class="word">${item}</span>`
+    : `<span class="emoji">${emojiDe(item)}</span><span class="word">${item}</span>`;
+  void b.offsetWidth;
+  decir(item);
+  marcarBoard(item);
+  actualizarContador();
+  document.getElementById('repeat-btn').disabled=false;
+  if(!restantes.length) document.getElementById('draw-btn').disabled=true;
+}
+function actualizarContador(){
+  document.getElementById('counter').textContent=`${cantadas.length} de ${modelo.items.length} bolas`;
+}
+function renderBoard(){
+  const g=document.getElementById('board-grid'); g.innerHTML='';
+  const esSilaba=modelo.tipo==='silaba';
+  modelo.items.forEach(item=>{
+    const c=document.createElement('div');
+    c.className='chip'+(esSilaba?' silaba':''); c.dataset.item=item;
+    c.innerHTML = esSilaba ? `<span class="cw">${item}</span>`
+      : `<span class="ce">${emojiDe(item)}</span><span class="cw">${item}</span>`;
+    g.appendChild(c);
+  });
+}
+function marcarBoard(item){
+  const c=document.querySelector(`#board-grid .chip[data-item="${CSS.escape(item)}"]`);
+  if(c){ c.classList.add('called'); c.style.background=colorVar(modelo.color); }
+}
+
+/* ════════ Cartones ════════ */
+function setTam(n){
+  tamCarton=n;
+  document.querySelectorAll('#size-seg button').forEach(b=>b.classList.toggle('active',+b.dataset.size===n));
+}
+function generarCartones(){
+  const esSilaba=modelo.tipo==='silaba';
+  const n=tamCarton*tamCarton;
+  const cont=document.getElementById('cards'); cont.innerHTML='';
+  document.getElementById('win-banner').classList.remove('show');
+  for(let k=0;k<numCartones;k++){
+    const seleccion=shuffle(modelo.items).slice(0,n);
+    const card=document.createElement('div'); card.className='carton';
+    const col=colorVar(modelo.color);
+    card.style.borderColor=col;
+    const grid=`<div class="carton-grid" style="grid-template-columns:repeat(${tamCarton},1fr)">`+
+      seleccion.map(item=>{
+        const inner = esSilaba ? `<span class="w">${item}</span>`
+          : `<span class="e">${emojiDe(item)}</span><span class="w">${item}</span>`;
+        return `<div class="cell${esSilaba?' silaba':''}" data-item="${item}">${inner}</div>`;
+      }).join('')+`</div>`;
+    card.innerHTML=`<div class="carton-head">
+        <span class="name">${modelo.emoji} Cartón ${k+1}</span>
+        <span class="tag" style="background:${col}">${modelo.titulo}</span>
+      </div>${grid}`;
+    // marcado interactivo
+    card.querySelectorAll('.cell').forEach(cell=>{
+      cell.onclick=()=>{
+        cell.classList.toggle('marked');
+        if(cell.classList.contains('marked')) cell.style.background=col;
+        else cell.style.background='';
+        comprobarBingo(card);
+      };
+    });
+    cont.appendChild(card);
+  }
+}
+function comprobarBingo(card){
+  const cells=[...card.querySelectorAll('.cell')];
+  const n=tamCarton, marked=cells.map(c=>c.classList.contains('marked'));
+  let linea=false;
+  for(let i=0;i<n;i++){
+    if(marked.slice(i*n,i*n+n).every(Boolean)) linea=true;               // fila
+    if(Array.from({length:n},(_,j)=>marked[j*n+i]).every(Boolean)) linea=true; // columna
+  }
+  if(Array.from({length:n},(_,i)=>marked[i*n+i]).every(Boolean)) linea=true;     // diagonal ↘
+  if(Array.from({length:n},(_,i)=>marked[i*n+(n-1-i)]).every(Boolean)) linea=true;// diagonal ↙
+  const lleno=marked.every(Boolean);
+  if(linea||lleno){
+    const banner=document.getElementById('win-banner');
+    banner.textContent = lleno ? '🎉 ¡BINGO completo! 🎉' : '⭐ ¡Línea! ⭐';
+    banner.classList.add('show');
+    decir(lleno?'¡Bingo!':'¡Línea!');
+    banner.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
+/* ════════ Eventos ════════ */
+document.getElementById('draw-btn').onclick=sacarBola;
+document.getElementById('repeat-btn').onclick=()=>{ if(cantadas.length) decir(cantadas[cantadas.length-1]); };
+document.getElementById('reset-btn').onclick=reiniciar;
+document.getElementById('voice-btn').onclick=(e)=>{
+  voz=!voz; e.currentTarget.classList.toggle('on',voz);
+  e.currentTarget.innerHTML = voz?'🔊 Voz':'🔇 Voz';
+  if(!voz) speechSynthesis.cancel();
+};
+document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>activarTab(b.dataset.tab));
+document.querySelectorAll('#size-seg button').forEach(b=>b.onclick=()=>{ if(!b.disabled){ setTam(+b.dataset.size); generarCartones(); }});
+document.querySelectorAll('#count-seg button').forEach(b=>b.onclick=()=>{
+  numCartones=+b.dataset.count;
+  document.querySelectorAll('#count-seg button').forEach(x=>x.classList.toggle('active',x===b));
+  generarCartones();
+});
+document.getElementById('gen-btn').onclick=generarCartones;
+document.getElementById('print-btn').onclick=()=>window.print();
+
+/* ════════ Init ════════ */
+renderMenu();
+</script>
+</body>
+</html>
